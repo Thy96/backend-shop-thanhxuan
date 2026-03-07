@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Input from '@/components/Input/Input';
 import Button from '@/components/Button/Button';
 import Link from 'next/link';
+import { API_URL } from '@/utils/helps';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function LoginPage() {
 
     try {
       // Phần này fetch vào folder auth login
-      const res = await fetch('/auth/login', {
+      const res = await fetch(`${API_URL}/api/admin/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

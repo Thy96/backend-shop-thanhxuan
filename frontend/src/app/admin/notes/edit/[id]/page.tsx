@@ -150,8 +150,6 @@ export default function EditNotePage() {
 
   if (loadingPage) return <LoadingClient />;
 
-  console.log(formData);
-
   return (
     <>
       {(loadingSubmit || isPending) && (
