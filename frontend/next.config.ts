@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
         port: '4000', // cổng API backend của bạn
         pathname: '/**', // cho phép tất cả đường dẫn
       },
+      {
+        protocol: "https",
+        hostname: "backend-shop-thanhxuan.onrender.com",
+        pathname: "/**",
+      },
     ],
   },
 
