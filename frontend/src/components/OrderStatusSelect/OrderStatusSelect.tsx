@@ -1,7 +1,7 @@
 'use client';
 
 import { ORDER_STATUS_OPTIONS } from '@/utils/orderStatus';
-import { updateOrderStatusAction } from '@/app/admin/orders/page';
+import { updateOrderStatusAction } from '@/actions/orderActions';
 import Select from '../Select/Select';
 import { ChangeEvent, useState, useTransition } from 'react';
 

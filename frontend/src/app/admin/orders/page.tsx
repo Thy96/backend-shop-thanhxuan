@@ -1,9 +1,7 @@
-'use server';
 import Image from 'next/image';
-import { revalidatePath } from 'next/cache';
 
 import { ORDER_STATUS_LABEL, ORDER_STATUS_STYLE } from '@/utils/orderStatus';
-import { getAllOrders, updateOrderStatus } from '@/lib/api/apiOrders';
+import { getAllOrders } from '@/lib/api/apiOrders';
 import { OrderProps, PaginationProps } from '@/lib/types';
 
 import { getPaginationRange } from '@/utils/pagination';
@@ -11,22 +9,6 @@ import { PAY_METHOD_LABEL, PAY_METHOD_STYLE } from '@/utils/payMethod';
 
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
 import OrderStatusSelect from '@/components/OrderStatusSelect/OrderStatusSelect';
-
-export async function updateOrderStatusAction(orderId: string, status: string) {
-  try {
-    await updateOrderStatus(orderId, status);
-    revalidatePath('/admin/orders');
-    return { success: true };
-  } catch (error: any) {
-    return {
-      success: false,
-      message:
-        error?.response?.data?.message ||
-        error?.message ||
-        'Không thể cập nhật trạng thái',
-    };
-  }
-}
 
 export default async function MyOrdersPage({
   searchParams,

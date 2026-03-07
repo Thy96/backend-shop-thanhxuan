@@ -9,12 +9,7 @@ import Select from '@/components/Select/Select';
 import Button from '@/components/Button/Button';
 import { ChevronLeft } from 'lucide-react';
 import LoadingClient from '@/components/Loading/LoadingClient';
-
-export const ROLE_OPTIONS = [
-  { label: 'user', value: 'user' },
-  { label: 'editor', value: 'editor' },
-  { label: 'admin', value: 'admin' },
-];
+import { ROLE_OPTIONS } from '@/utils/roleOptions';
 
 function EditUserPage() {
   const router = useRouter();

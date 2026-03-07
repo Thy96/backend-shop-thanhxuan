@@ -8,7 +8,7 @@ import { ChevronLeft } from 'lucide-react';
 import { CreateUserDTO } from '@/lib/types';
 import { createUser } from '@/lib/api/apiUserClient';
 
-import { ROLE_OPTIONS } from '../edit/[id]/page';
+import { ROLE_OPTIONS } from '@/utils/roleOptions';
 
 import Button from '@/components/Button/Button';
 import Input from '@/components/Input/Input';
