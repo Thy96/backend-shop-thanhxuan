@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    const base = process.env.NEXT_PUBLIC_API_URL || 'https://backend-shop-thanhxuan.onrender.com';
     const url = new URL('/api/admin/auth/logout', base);
 
     const res = await fetch(url, {
