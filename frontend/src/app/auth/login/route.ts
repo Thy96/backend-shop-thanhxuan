@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', cookie: req.headers.get('cookie') || '' },
     body: JSON.stringify({ email, password }),
-    credentials: "include",
   });
 
   if (ct.includes('application/json')) {
