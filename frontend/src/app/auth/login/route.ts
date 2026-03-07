@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'; // fallback tạm
+  const base = process.env.NEXT_PUBLIC_API_URL || 'https://backend-shop-thanhxuan.onrender.com'; // fallback tạm
 
   let email = '', password = '';
   const ct = req.headers.get('content-type') || '';
