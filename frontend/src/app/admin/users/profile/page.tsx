@@ -1,0 +1,131 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+
+import Button from '@/components/Button/Button';
+import Input from '@/components/Input/Input';
+import LoadingClient from '@/components/Loading/LoadingClient';
+
+import useMe from '@/lib/hook/useMe';
+import { API_URL } from '@/utils/helps';
+
+export default function ProfilePage() {
+  const { user, setUser, loading } = useMe();
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || '');
+      setPhone(user.phone || '');
+    }
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoadingSubmit(true);
+    setMessage('');
+    setError('');
+
+    try {
+      const res = await fetch(`${API_URL}/api/admin/auth/me`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, phone }),
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      setMessage('✅ Cập nhật thông tin thành công');
+      setUser((prev) => prev && { ...prev, fullName, phone });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingClient />;
+  }
+
+  if (error && !user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  return (
+    <>
+      {loadingSubmit && <LoadingClient />}
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 m-auto">
+        {/* Title */}
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Thông tin cá nhân
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email */}
+          <Input
+            label="Email"
+            value={user.email}
+            disabled
+            name="email"
+            classNames={{
+              input:
+                'border-gray-300 !bg-gray-200 text-gray-600 cursor-not-allowed',
+            }}
+          />
+
+          {/* Full Name */}
+          <Input
+            id="fullName"
+            label="Họ tên"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            name="fullName"
+          />
+
+          {/* Sdt */}
+          <Input
+            id="phone"
+            label="Số điện thoại"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            name="phone"
+          />
+
+          {/* Role */}
+          <div className="mb-6">
+            <label className="block mb-1 text-lg font-medium text-gray-700">
+              Chức vụ
+            </label>
+            <span className="inline-block rounded-full bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1">
+              {user.role.toUpperCase()}
+            </span>
+          </div>
+
+          {/* Messages */}
+          {message && (
+            <p className="text-green-600 text-sm mb-3 text-center">{message}</p>
+          )}
+          {error && (
+            <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
+          )}
+
+          {/* Button */}
+          <Button type="submit">Cập nhật thông tin</Button>
+        </form>
+      </div>
+    </>
+  );
+}
