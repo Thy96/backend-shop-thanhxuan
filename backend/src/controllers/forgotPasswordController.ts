@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { Request, Response } from 'express';
 import UserModel from '../models/userModel';
 import { sendResetPasswordMail } from '../utils/sendMail';
+import { CLIENT_ORIGIN } from '../lib/config';
 
 export async function forgotPassword(req: Request, res: Response) {
   const start = Date.now();
@@ -41,7 +42,7 @@ export async function forgotPassword(req: Request, res: Response) {
 
       await user.save();
 
-      const resetUrl = `${process.env.CLIENT_ORIGIN}/reset-password?token=${token}`;
+      const resetUrl = `${CLIENT_ORIGIN}/reset-password?token=${token}`;
 
       try {
         await sendResetPasswordMail(normalizedEmail, resetUrl);

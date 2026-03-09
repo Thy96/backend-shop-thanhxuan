@@ -24,6 +24,6 @@ function parseTtl(raw?: string): SignOptions['expiresIn'] {
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 export const isProd = NODE_ENV === 'production';
 export const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
-export const TOKEN_TTL: SignOptions['expiresIn'] = parseTtl(process.env.TOKEN_TTwTtl);
-export const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5000';
+export const TOKEN_TTL: SignOptions['expiresIn'] = parseTtl(process.env.TOKEN_TTL);
+export const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || process.env.CLIENT_ORIGIN_LOCAL;
 export const COOKIE_NAME = process.env.COOKIE_NAME || 'access_token';
