@@ -53,7 +53,7 @@ export default function ResetPasswordClient() {
     <div className="max-w-md mx-auto mt-20 p-6 bg-white shadow rounded">
       <h2 className="text-xl font-bold mb-4">Thay Đổi Mật Khẩu</h2>
 
-      {error && <p className="text-red-500 mb-3">{error}</p>}
+      {!success && error && <p className="text-red-500 mb-3">{error}</p>}
       {success && <p className="text-green-600 mb-3">{success}</p>}
 
       <form onSubmit={handleSubmit}>

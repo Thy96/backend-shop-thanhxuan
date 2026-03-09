@@ -1,9 +1,10 @@
+import { API_URL } from '@/utils/helps';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  const base = process.env.NEXT_PUBLIC_API_URL || 'https://backend-shop-thanhxuan.onrender.com'; // fallback tạm
+  const base = API_URL;
 
   let email = '', password = '';
   const ct = req.headers.get('content-type') || '';

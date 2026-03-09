@@ -1,9 +1,10 @@
 export const runtime = 'nodejs';
+import { API_URL } from '@/utils/helps';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const base = process.env.NEXT_PUBLIC_API_URL || 'https://backend-shop-thanhxuan.onrender.com';
+    const base = API_URL;
     const url = new URL('/api/admin/auth/logout', base);
 
     const res = await fetch(url, {
