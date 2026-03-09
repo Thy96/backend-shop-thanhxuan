@@ -5,6 +5,5 @@ declare namespace NodeJS {
         JWT_SECRET: string;
         TOKEN_TTL: string;
         CLIENT_ORIGIN: string;
-        CLIENT_ORIGIN_LOCAL: string;
     }
 }

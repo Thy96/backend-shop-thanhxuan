@@ -63,8 +63,10 @@ export async function login(req: Request, res: Response) {
 
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    // secure: isProd,
+    // sameSite: isProd ? 'none' : 'lax',
+    secure: true,
+    sameSite: "none",
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
@@ -75,8 +77,10 @@ export async function logout(req: Request, res: Response) {
   // console.log('LOGOUT BODY', req.body);
   res.clearCookie(COOKIE_NAME, {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    secure: true,
+    sameSite: "none",
+    // secure: isProd,
+    // sameSite: isProd ? 'none' : 'lax',
     path: '/',
   });
   res.json({ message: 'Đã đăng xuất' });
@@ -153,7 +157,7 @@ export async function register(req: Request, res: Response) {
 
     await user.save();
 
-    const verifyLink = `http://localhost:4000/api/admin/auth/verify-email?token=${verifyToken}`;
+    const verifyLink = `https://backend-shop-thanhxuan.onrender.com/api/admin/auth/verify-email?token=${verifyToken}`;
 
     await sendVerifyEmailMail(user.email, verifyLink);
 
