@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   const url = new URL('/api/admin/auth/login', base);
-  const res = await fetch(url, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', cookie: req.headers.get('cookie') || '' },
     body: JSON.stringify({ email, password }),
