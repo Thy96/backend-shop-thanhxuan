@@ -68,6 +68,7 @@ export async function login(req: Request, res: Response) {
     secure: true,
     sameSite: "none",
     path: '/',
+    domain: ".onrender.com",
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
   res.json({ message: 'Đăng nhập thành công', role: user.role, });
