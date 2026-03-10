@@ -25,15 +25,12 @@ export default function LoginPage() {
 
     try {
       // Phần này fetch vào folder auth login
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/auth/login`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include', // để browser nhận cookie
-          body: JSON.stringify({ email, password }),
-        },
-      );
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include', // để browser nhận cookie
+      });
 
       const data = await res.json().catch(() => ({}));
 
