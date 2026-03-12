@@ -28,8 +28,8 @@ app.set("trust proxy", 1);
 
 app.use(cors({
   origin: [
-    'https://shop-thanhxuan-deploy.vercel.app',
-    'https://backend-shop-thanhxuan.onrender.com',
+    // 'https://shop-thanhxuan-deploy.vercel.app',
+    // 'https://backend-shop-thanhxuan.onrender.com',
     'https://backend-shop-thanhxuan.vercel.app',
     // 'http://localhost:5000'
   ], // Cho phép frontend của bạn
@@ -62,11 +62,11 @@ app.use('/api/admin', adminRouter);
 // Static
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-app.use((req, res) => res.status(404).json({ message: 'Not found' }));
+app.use((req, res) => res.status(404).json({ message: 'Server đang được phát triển' }));
 // error handler
 app.use((err: any, _req: any, res: any, _next: any) => {
   console.error(err);
-  res.status(err.status || 500).json({ message: err.message || 'Server error' });
+  res.status(err.status || 500).json({ message: err.message || 'Server đang bị lỗi' });
 });
 
 // Start server
@@ -76,7 +76,7 @@ app.use((err: any, _req: any, res: any, _next: any) => {
     await connectDB();
     app.listen(PORT, () => console.log(`🚀 http://localhost:${PORT}`));
   } catch (e) {
-    console.error('DB connect failed:', e);
+    console.error('Không thể kết nối Database:', e);
     process.exit(1);
   }
 })();

@@ -15,20 +15,29 @@ export async function POST(req: NextRequest) {
   }
 
   const url = new URL('/api/admin/auth/login', base);
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/auth/login`, {
+  const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', cookie: req.headers.get('cookie') || '' },
+    headers: {
+      'Content-Type': 'application/json',
+      cookie: req.headers.get('cookie') || ''
+    },
     body: JSON.stringify({ email, password }),
   });
 
   if (ct.includes('application/json')) {
     const data = await res.json().catch(() => ({}));
     const next = NextResponse.json(data, { status: res.status });
-    const setCookie = res.headers.get('set-cookie'); if (setCookie) next.headers.set('set-cookie', setCookie);
+    const setCookies = res.headers.getSetCookie();
+    if (setCookies && setCookies.length > 0) {
+      setCookies.forEach(cookie => next.headers.append('set-cookie', cookie));
+    }
     return next;
   }
 
   const next = NextResponse.redirect(new URL(res.ok ? '/admin' : '/login?error=1', req.url), { status: 302 });
-  const setCookie = res.headers.get('set-cookie'); if (setCookie) next.headers.set('set-cookie', setCookie);
+  const setCookies = res.headers.getSetCookie();
+  if (setCookies && setCookies.length > 0) {
+    setCookies.forEach(cookie => next.headers.append('set-cookie', cookie));
+  }
   return next;
 }
