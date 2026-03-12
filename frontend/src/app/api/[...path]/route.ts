@@ -39,17 +39,31 @@ export async function POST(
 ) {
     const { path } = await params;
     const pathStr = path.join('/');
-    const body = await req.json().catch(() => ({}));
+
+    const contentType = req.headers.get('content-type');
+    const cookie = req.headers.get('cookie') || '';
+
+    let body;
+    if (contentType?.includes('application/json')) {
+        body = await req.json().catch(() => ({}));
+    } else if (contentType?.includes('multipart/form-data')) {
+        body = await req.formData();
+    } else {
+        body = await req.text();
+    }
+
+    const headers: HeadersInit = {
+        cookie,
+        ...(contentType?.includes('application/json') && { 'Content-Type': 'application/json' }),
+    };
+
     const url = `${API_URL}/api/${pathStr}`;
 
     try {
         const res = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                cookie: req.headers.get('cookie') || '',
-            },
-            body: JSON.stringify(body),
+            headers: contentType?.includes('multipart/form-data') ? { cookie } : headers,
+            body,
         });
 
         const data = await res.json().catch(() => ({}));
@@ -72,17 +86,31 @@ export async function PUT(
 ) {
     const { path } = await params;
     const pathStr = path.join('/');
-    const body = await req.json().catch(() => ({}));
+
+    const contentType = req.headers.get('content-type');
+    const cookie = req.headers.get('cookie') || '';
+
+    let body;
+    if (contentType?.includes('application/json')) {
+        body = await req.json().catch(() => ({}));
+    } else if (contentType?.includes('multipart/form-data')) {
+        body = await req.formData();
+    } else {
+        body = await req.text();
+    }
+
+    const headers: HeadersInit = {
+        cookie,
+        ...(contentType?.includes('application/json') && { 'Content-Type': 'application/json' }),
+    };
+
     const url = `${API_URL}/api/${pathStr}`;
 
     try {
         const res = await fetch(url, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                cookie: req.headers.get('cookie') || '',
-            },
-            body: JSON.stringify(body),
+            headers: contentType?.includes('multipart/form-data') ? { cookie } : headers,
+            body,
         });
 
         const data = await res.json().catch(() => ({}));
