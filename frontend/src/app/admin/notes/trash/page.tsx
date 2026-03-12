@@ -1,14 +1,13 @@
 import Link from 'next/link';
-import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
+import { getTrashNotes } from '@/lib/api/noteQueries';
 import {
-  getTrashNotes,
-  restoreNote,
-  forceDeleteNote,
-} from '@/lib/api/apiNotes';
+  serverRestoreNote,
+  serverForceDeleteNote,
+} from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
-import { getNoteCategories } from '@/lib/api/apiNoteCategories';
+import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
 
 import { getPaginationRange } from '@/utils/pagination';
 import { getCategoryLabel } from '@/utils/category';
@@ -44,12 +43,8 @@ export default async function TrashNotesPage({
   async function restoreAction(formData: FormData) {
     'use server';
     const id = formData.get('id') as string;
-    const cookieHeader = (await cookies())
-      .getAll()
-      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-      .join('; ');
 
-    await restoreNote(id, cookieHeader);
+    await serverRestoreNote(id);
     revalidatePath('/admin/notes');
     revalidatePath('/admin/notes/trash');
   }
@@ -57,12 +52,8 @@ export default async function TrashNotesPage({
   async function forceDeleteAction(formData: FormData) {
     'use server';
     const id = formData.get('id') as string;
-    const cookieHeader = (await cookies())
-      .getAll()
-      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-      .join('; ');
 
-    await forceDeleteNote(id, cookieHeader);
+    await serverForceDeleteNote(id);
     revalidatePath('/admin/notes/trash');
   }
 

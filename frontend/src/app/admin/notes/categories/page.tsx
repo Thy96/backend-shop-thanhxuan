@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
-import {
-  getNoteCategories,
-  deleteNoteCategory,
-} from '@/lib/api/apiNoteCategories';
+import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
+import { serverDeleteNoteCategory } from '@/app/actions/noteCategoryActions';
 import { CategoryOption } from '@/utils/category';
 
 import PageHeader from '@/components/Layout/Category/PageHeader';
@@ -18,7 +16,7 @@ export default async function CategoriesPage() {
     const id = formData.get('id')?.toString();
     if (!id) return;
 
-    await deleteNoteCategory(id);
+    await serverDeleteNoteCategory(id);
     revalidatePath('/admin/notes/categories');
   }
 
