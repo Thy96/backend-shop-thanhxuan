@@ -1,10 +1,7 @@
-import { API_URL } from '@/utils/helps';
-
 export async function getDashboard() {
-  const res = await fetch(`${API_URL}/api/admin/dashboard`, {
+  const res = await fetch(`/api/admin/dashboard`, {
     credentials: 'include',
     cache: 'no-store',
-
   });
 
   if (!res.ok) throw new Error('Không thể lấy dữ liệu trang chủ');
@@ -13,7 +10,7 @@ export async function getDashboard() {
 }
 
 export async function getRevenueByMonth() {
-  const res = await fetch(`${API_URL}/api/admin/dashboard/stats/revenue`, {
+  const res = await fetch(`/api/admin/dashboard/stats/revenue`, {
     credentials: 'include',
     cache: 'no-store',
   });
@@ -24,11 +21,10 @@ export async function getRevenueByMonth() {
 }
 
 export async function getVisitsByMonth() {
-  const res = await fetch(`${API_URL}/api/admin/dashboard/stats/visits`, {
+  const res = await fetch(`/api/admin/dashboard/stats/visits`, {
     credentials: 'include',
     cache: 'no-store',
-  }
-  );
+  });
 
   if (!res.ok) {
     throw new Error('Không thể lấy dữ liệu người truy cập');
