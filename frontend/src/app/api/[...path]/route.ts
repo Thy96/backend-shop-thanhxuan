@@ -8,7 +8,7 @@ export async function GET(
     const { path } = await params;
     const pathStr = path.join('/');
     const queryString = req.nextUrl.search;
-    const url = `${API_URL}/${pathStr}${queryString}`;
+    const url = `${API_URL}/api/${pathStr}${queryString}`;
 
     try {
         const res = await fetch(url, {
@@ -40,7 +40,7 @@ export async function POST(
     const { path } = await params;
     const pathStr = path.join('/');
     const body = await req.json().catch(() => ({}));
-    const url = `${API_URL}/${pathStr}`;
+    const url = `${API_URL}/api/${pathStr}`;
 
     try {
         const res = await fetch(url, {
@@ -73,7 +73,7 @@ export async function PUT(
     const { path } = await params;
     const pathStr = path.join('/');
     const body = await req.json().catch(() => ({}));
-    const url = `${API_URL}/${pathStr}`;
+    const url = `${API_URL}/api/${pathStr}`;
 
     try {
         const res = await fetch(url, {
@@ -105,7 +105,7 @@ export async function DELETE(
 ) {
     const { path } = await params;
     const pathStr = path.join('/');
-    const url = `${API_URL}/${pathStr}`;
+    const url = `${API_URL}/api/${pathStr}`;
 
     try {
         const res = await fetch(url, {
@@ -137,7 +137,7 @@ export async function PATCH(
     const { path } = await params;
     const pathStr = path.join('/');
     const body = await req.json().catch(() => ({}));
-    const url = `${API_URL}/${pathStr}`;
+    const url = `${API_URL}/api/${pathStr}`;
 
     try {
         const res = await fetch(url, {
