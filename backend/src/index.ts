@@ -29,7 +29,8 @@ app.set("trust proxy", 1);
 app.use(cors({
   origin: [
     'https://shop-thanhxuan-deploy.vercel.app',
-    'https://backend-shop-thanhxuan.vercel.app'
+    // 'https://backend-shop-thanhxuan.vercel.app',
+    // 'http://localhost:5000'
   ], // Cho phép frontend của bạn
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // thêm Authorization nếu cần
