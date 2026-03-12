@@ -1,9 +1,17 @@
 import { API_URL } from '@/utils/helps';
+import { cookies } from "next/headers";
 
 export async function getDashboard() {
+  const cookieStore = cookies();
+
   const res = await fetch(`${API_URL}/api/admin/dashboard`, {
-    credentials: 'include',
+    // credentials: 'include',
+    headers: {
+      cookie: cookieStore.toString(),
+    },
+
     cache: 'no-store',
+
   });
 
   if (!res.ok) throw new Error('Không thể lấy dữ liệu trang chủ');
