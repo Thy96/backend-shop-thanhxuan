@@ -4,8 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 
-import { getNoteById, updateNote } from '@/lib/api/apiNotes';
-import { getNoteCategories } from '@/lib/api/apiNoteCategories';
+import { serverUpdateNote } from '@/app/actions/noteActions';
 
 import { ChevronLeft } from 'lucide-react';
 
@@ -42,7 +41,11 @@ export default function EditNotePage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await getNoteCategories();
+        const res = await fetch('/api/admin/notes/categories', {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const data = await res.json();
         setCategories(data);
       } catch (error) {
         console.error(error);
@@ -58,7 +61,11 @@ export default function EditNotePage() {
     async function fetchNote() {
       try {
         setLoadingPage(true);
-        const note = await getNoteById(params.id as string);
+        const res = await fetch(`/api/admin/notes/${params.id}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const note = await res.json();
 
         if (!note) {
           throw new Error('Không tìm thấy ghi chú');
@@ -137,7 +144,7 @@ export default function EditNotePage() {
         categoryId: formData.categoryId,
         imageDeleted,
       };
-      await updateNote(params.id as string, data);
+      await serverUpdateNote(params.id as string, data);
       startTransition(() => {
         router.push('/admin/notes');
       });

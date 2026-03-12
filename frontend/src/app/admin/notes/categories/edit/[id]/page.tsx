@@ -3,10 +3,7 @@
 import { useEffect, useState, FormEvent, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import {
-  getNoteCategoryById,
-  updateNoteCategory,
-} from '@/lib/api/apiNoteCategories';
+import { serverUpdateNoteCategory } from '@/app/actions/noteCategoryActions';
 import { CategoryOption } from '@/utils/category';
 import Button from '@/components/Button/Button';
 import Input from '@/components/Input/Input';
@@ -31,7 +28,11 @@ export default function EditNoteCategoryPage() {
     const fetchCategory = async () => {
       try {
         setLoadingPage(true);
-        const data = await getNoteCategoryById(id);
+        const res = await fetch(`/api/admin/notes/categories/${id}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const data = await res.json();
         if (!data) {
           setError('Không tìm thấy category.');
           return;
@@ -62,7 +63,7 @@ export default function EditNoteCategoryPage() {
 
     try {
       setLoadingSubmit(true);
-      await updateNoteCategory(id, {
+      await serverUpdateNoteCategory(id, {
         name: trimmedName,
       });
       startTransition(() => {

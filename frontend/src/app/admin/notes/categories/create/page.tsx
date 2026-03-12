@@ -2,7 +2,7 @@
 
 import { useState, FormEvent, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createNoteCategory } from '@/lib/api/apiNoteCategories';
+import { serverCreateNoteCategory } from '@/app/actions/noteCategoryActions';
 import { ChevronLeft } from 'lucide-react';
 
 import Button from '@/components/Button/Button';
@@ -29,7 +29,7 @@ export default function CreateCategoryPage() {
     try {
       setLoadingSubmit(true);
 
-      const res = await createNoteCategory({ name: trimmedName });
+      const res = await serverCreateNoteCategory({ name: trimmedName });
 
       if (!res) {
         setError('Tạo category thất bại. Vui lòng thử lại.');

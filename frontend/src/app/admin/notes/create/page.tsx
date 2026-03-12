@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import { serverCreateNote } from '@/app/actions/noteActions';
-import { getNoteCategories } from '@/lib/api/apiNoteCategories';
 
 import { ChevronLeft } from 'lucide-react';
 import { CategoryOption } from '@/utils/category';
@@ -36,7 +35,11 @@ export default function CreateNotePage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await getNoteCategories();
+        const res = await fetch('/api/admin/notes/categories', {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const data = await res.json();
         setCategories(data);
       } catch (error) {
         console.error(error);
