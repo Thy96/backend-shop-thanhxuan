@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 
-import { getNotes, moveNoteToTrash } from '@/lib/api/apiNotes';
+import { getNotes } from '@/lib/api/noteQueries';
 import { getNoteCategories } from '@/lib/api/apiNoteCategories';
+import { serverMoveNoteToTrash } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
 
 import { getCategoryLabel } from '@/utils/category';
@@ -42,15 +42,8 @@ export default async function NotesPage({
     'use server';
     const id = formData.get('id') as string;
 
-    // Lấy toàn bộ cookie của user hiện tại
-    const cookieStore = cookies();
-    const cookieHeader = (await cookieStore)
-      .getAll()
-      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-      .join('; ');
-
-    // Gửi kèm cookie này sang backend
-    await moveNoteToTrash(id, cookieHeader);
+    // Gửi request với cookies tự động forward
+    await serverMoveNoteToTrash(id);
     revalidatePath('/admin/notes'); // reload lại data
     revalidatePath('/admin/notes/trash'); // reload lại data trash
   }
