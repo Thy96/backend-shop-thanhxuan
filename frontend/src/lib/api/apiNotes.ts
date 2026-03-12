@@ -1,8 +1,24 @@
+import { cookies } from 'next/headers';
+
 export async function getNotes(page = 1, limit = 10) {
-  const res = await fetch(`/api/admin/notes?page=${page}&limit=${limit}`, { cache: "no-store", credentials: 'include', });
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+    .join('; ');
+
+  const res = await fetch(`/api/admin/notes?page=${page}&limit=${limit}`, {
+    cache: "no-store",
+    credentials: 'include',
+    headers: {
+      cookie: cookieHeader,
+    },
+  });
+
   if (!res.ok) {
     throw new Error('Không thể lấy dữ liệu bài viết');
   }
+
   return res.json();
 }
 

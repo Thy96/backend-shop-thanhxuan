@@ -1,12 +1,24 @@
-import { API_URL } from "@/utils/helps";
+import { cookies } from 'next/headers';
 
 export async function getNoteCategories() {
-  const res = await fetch(`${API_URL}/api/admin/notes/categories`, { cache: "no-store", credentials: 'include', });
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+    .join('; ');
+
+  const res = await fetch(`/api/admin/notes/categories`, {
+    cache: "no-store",
+    credentials: 'include',
+    headers: {
+      cookie: cookieHeader,
+    },
+  });
   return res.json();
 }
 
 export async function getNoteCategoryById(id: string) {
-  const res = await fetch(`${API_URL}/api/admin/notes/categories/${id}`, { cache: "no-store" });
+  const res = await fetch(`/api/admin/notes/categories/${id}`, { cache: "no-store" });
   return res.json();
 }
 
@@ -14,7 +26,7 @@ export async function createNoteCategory(categories: { name: string }) {
   const formData = new FormData();
   formData.append("name", categories.name);
 
-  const res = await fetch(`${API_URL}/api/admin/notes/categories`, {
+  const res = await fetch(`/api/admin/notes/categories`, {
     method: "POST",
     body: formData,
     credentials: 'include',
@@ -29,7 +41,7 @@ export async function updateNoteCategory(id: string, categories: { name: string 
 
   formData.append('name', categories.name);
 
-  const res = await fetch(`${API_URL}/api/admin/notes/categories/${id}`, {
+  const res = await fetch(`/api/admin/notes/categories/${id}`, {
     method: "PUT",
     body: formData,
     credentials: 'include',
@@ -38,7 +50,7 @@ export async function updateNoteCategory(id: string, categories: { name: string 
 }
 
 export async function deleteNoteCategory(id: string, cookieHeader?: string) {
-  const res = await fetch(`${API_URL}/api/admin/notes/categories/${id}`, {
+  const res = await fetch(`/api/admin/notes/categories/${id}`, {
     method: 'DELETE',
     // Nếu chạy trên server (server action), ta truyền cookieHeader vào
     headers: cookieHeader ? { cookie: cookieHeader } : undefined,
