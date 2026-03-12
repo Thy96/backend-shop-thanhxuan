@@ -3,9 +3,10 @@ import { API_URL } from '@/utils/helps';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { path: string[] } }
+    { params }: { params: Promise<{ path: string[] }> }
 ) {
-    const pathStr = params.path.join('/');
+    const { path } = await params;
+    const pathStr = path.join('/');
     const queryString = req.nextUrl.search;
     const url = `${API_URL}/${pathStr}${queryString}`;
 
@@ -34,9 +35,10 @@ export async function GET(
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { path: string[] } }
+    { params }: { params: Promise<{ path: string[] }> }
 ) {
-    const pathStr = params.path.join('/');
+    const { path } = await params;
+    const pathStr = path.join('/');
     const body = await req.json().catch(() => ({}));
     const url = `${API_URL}/${pathStr}`;
 
@@ -66,9 +68,10 @@ export async function POST(
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { path: string[] } }
+    { params }: { params: Promise<{ path: string[] }> }
 ) {
-    const pathStr = params.path.join('/');
+    const { path } = await params;
+    const pathStr = path.join('/');
     const body = await req.json().catch(() => ({}));
     const url = `${API_URL}/${pathStr}`;
 
@@ -98,9 +101,10 @@ export async function PUT(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { path: string[] } }
+    { params }: { params: Promise<{ path: string[] }> }
 ) {
-    const pathStr = params.path.join('/');
+    const { path } = await params;
+    const pathStr = path.join('/');
     const url = `${API_URL}/${pathStr}`;
 
     try {
@@ -128,9 +132,10 @@ export async function DELETE(
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { path: string[] } }
+    { params }: { params: Promise<{ path: string[] }> }
 ) {
-    const pathStr = params.path.join('/');
+    const { path } = await params;
+    const pathStr = path.join('/');
     const body = await req.json().catch(() => ({}));
     const url = `${API_URL}/${pathStr}`;
 
