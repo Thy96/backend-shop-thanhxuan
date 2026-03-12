@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { createNote } from '@/lib/api/apiNotes';
+import { serverCreateNote } from '@/app/actions/noteActions';
 import { getNoteCategories } from '@/lib/api/apiNoteCategories';
 
 import { ChevronLeft } from 'lucide-react';
@@ -96,7 +96,7 @@ export default function CreateNotePage() {
         categoryId: formData.categoryId,
       };
 
-      await createNote(data);
+      await serverCreateNote(data);
       startTransition(() => {
         router.push('/admin/notes');
       });

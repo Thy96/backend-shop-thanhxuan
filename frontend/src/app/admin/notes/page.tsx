@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
 
 import { getNotes } from '@/lib/api/noteQueries';
-import { getNoteCategories } from '@/lib/api/apiNoteCategories';
+import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
 import { serverMoveNoteToTrash } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
 
