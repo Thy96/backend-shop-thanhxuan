@@ -1,34 +1,80 @@
 export async function getDashboard() {
-  const res = await fetch(`/api/admin/dashboard`, {
-    credentials: 'include',
-    cache: 'no-store',
-  });
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    console.log('[getDashboard] Fetching from:', `${apiUrl}/api/admin/dashboard`);
 
-  if (!res.ok) throw new Error('Không thể lấy dữ liệu trang chủ');
+    const res = await fetch(`${apiUrl}/api/admin/dashboard`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
 
-  return res.json();
+    console.log('[getDashboard] Response status:', res.status);
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('[getDashboard] API Error:', res.status, errorText);
+      throw new Error(`API Error ${res.status}: Không thể lấy dữ liệu trang chủ`);
+    }
+
+    const data = await res.json();
+    console.log('[getDashboard] Success');
+    return data;
+  } catch (error) {
+    console.error('[getDashboard] Exception:', error);
+    throw error;
+  }
 }
 
 export async function getRevenueByMonth() {
-  const res = await fetch(`/api/admin/dashboard/stats/revenue`, {
-    credentials: 'include',
-    cache: 'no-store',
-  });
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    console.log('[getRevenueByMonth] Fetching from:', `${apiUrl}/api/admin/dashboard/stats/revenue`);
 
-  if (!res.ok) throw new Error('Không thể lấy dữ liệu doanh thu');
+    const res = await fetch(`${apiUrl}/api/admin/dashboard/stats/revenue`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
 
-  return res.json();
+    console.log('[getRevenueByMonth] Response status:', res.status);
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('[getRevenueByMonth] API Error:', res.status, errorText);
+      throw new Error(`API Error ${res.status}: Không thể lấy dữ liệu doanh thu`);
+    }
+
+    const data = await res.json();
+    console.log('[getRevenueByMonth] Success');
+    return data;
+  } catch (error) {
+    console.error('[getRevenueByMonth] Exception:', error);
+    throw error;
+  }
 }
 
 export async function getVisitsByMonth() {
-  const res = await fetch(`/api/admin/dashboard/stats/visits`, {
-    credentials: 'include',
-    cache: 'no-store',
-  });
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    console.log('[getVisitsByMonth] Fetching from:', `${apiUrl}/api/admin/dashboard/stats/visits`);
 
-  if (!res.ok) {
-    throw new Error('Không thể lấy dữ liệu người truy cập');
+    const res = await fetch(`${apiUrl}/api/admin/dashboard/stats/visits`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+
+    console.log('[getVisitsByMonth] Response status:', res.status);
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('[getVisitsByMonth] API Error:', res.status, errorText);
+      throw new Error(`API Error ${res.status}: Không thể lấy dữ liệu người truy cập`);
+    }
+
+    const data = await res.json();
+    console.log('[getVisitsByMonth] Success');
+    return data;
+  } catch (error) {
+    console.error('[getVisitsByMonth] Exception:', error);
+    throw error;
   }
-
-  return res.json();
 }

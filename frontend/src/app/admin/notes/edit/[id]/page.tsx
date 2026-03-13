@@ -41,14 +41,31 @@ export default function EditNotePage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch('/api/admin/notes/categories', {
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        console.log(
+          '[EditNotePage] Fetching categories from:',
+          `${apiUrl}/api/admin/notes/categories`,
+        );
+
+        const res = await fetch(`${apiUrl}/api/admin/notes/categories`, {
           cache: 'no-store',
           credentials: 'include',
         });
+
+        console.log('[EditNotePage] Categories response status:', res.status);
+
+        if (!res.ok) {
+          throw new Error(
+            `API Error ${res.status}: Không lấy được danh sách category`,
+          );
+        }
+
         const data = await res.json();
+        console.log('[EditNotePage] Categories loaded:', data.length, 'items');
         setCategories(data);
       } catch (error) {
-        console.error(error);
+        console.error('[EditNotePage] Categories error:', error);
         setError('Không lấy được danh sách category');
       } finally {
         setLoadingCate(false);
@@ -61,10 +78,24 @@ export default function EditNotePage() {
     async function fetchNote() {
       try {
         setLoadingPage(true);
-        const res = await fetch(`/api/admin/notes/${params.id}`, {
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        console.log(
+          '[EditNotePage] Fetching note from:',
+          `${apiUrl}/api/admin/notes/${params.id}`,
+        );
+
+        const res = await fetch(`${apiUrl}/api/admin/notes/${params.id}`, {
           cache: 'no-store',
           credentials: 'include',
         });
+
+        console.log('[EditNotePage] Note response status:', res.status);
+
+        if (!res.ok) {
+          throw new Error(`API Error ${res.status}: Không tìm thấy ghi chú`);
+        }
+
         const note = await res.json();
 
         if (!note) {
@@ -82,10 +113,11 @@ export default function EditNotePage() {
           categoryId: note.categoryId || '',
         };
 
+        console.log('[EditNotePage] Note loaded successfully');
         setFormData(data);
         setPreview(note.thumbnail || '');
       } catch (error: any) {
-        console.error('Fetch note error:', error);
+        console.error('[EditNotePage] Fetch note error:', error);
         setError(error?.message || 'Có lỗi khi tải ghi chú');
       } finally {
         setLoadingPage(false);

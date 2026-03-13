@@ -38,6 +38,28 @@ export async function getNoteCategories() {
 }
 
 export async function getNoteCategoryById(id: string) {
-    const res = await fetch(`/api/admin/notes/categories/${id}`, { cache: "no-store" });
-    return res.json();
+    try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        console.log('[getNoteCategoryById] Fetching from:', `${apiUrl}/api/admin/notes/categories/${id}`);
+
+        const res = await fetch(`${apiUrl}/api/admin/notes/categories/${id}`, { 
+            cache: "no-store",
+            credentials: 'include',
+        });
+
+        console.log('[getNoteCategoryById] Response status:', res.status);
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('[getNoteCategoryById] API Error:', res.status, errorText);
+            throw new Error(`API Error ${res.status}: Không thể lấy dữ liệu chuyên mục`);
+        }
+
+        const data = await res.json();
+        console.log('[getNoteCategoryById] Success:', data);
+        return data;
+    } catch (error) {
+        console.error('[getNoteCategoryById] Exception:', error);
+        throw error;
+    }
 }
