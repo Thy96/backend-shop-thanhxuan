@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { getNotes } from '@/lib/api/noteQueries';
 import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
+import { serverMoveNoteToTrash } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
 
 import { getCategoryLabel } from '@/utils/category';
@@ -13,7 +14,7 @@ import AdminCard from '@/components/Layout/Pages/AdminCard';
 import AdminTable from '@/components/Layout/Pages/AdminTable';
 import AdminRowActions from '@/components/Layout/Pages/AdminRowActions';
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import DeleteNoteButton from '@/components/DeleteNoteButton';
+import DeleteButton from '@/components/DeleteButton';
 
 export default async function NotesPage({
   searchParams,
@@ -99,7 +100,17 @@ export default async function NotesPage({
               <td className="px-4 py-4 text-right">
                 <AdminRowActions
                   editHref={`/admin/notes/edit/${note._id}`}
-                  onDelete={<DeleteNoteButton noteId={note._id} />}
+                  onDelete={
+                    <DeleteButton
+                      id={note._id}
+                      serverAction={serverMoveNoteToTrash}
+                      confirmText="Bạn có chắc chắn muốn xóa bài viết này?"
+                      loadingText="Đang xóa bài viết..."
+                      errorText="Lỗi khi xóa bài viết. Vui lòng thử lại."
+                      buttonText="Xóa"
+                      onName="DeleteNote"
+                    />
+                  }
                 />
               </td>
             </tr>
