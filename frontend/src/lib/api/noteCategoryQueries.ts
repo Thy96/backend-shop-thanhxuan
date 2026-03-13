@@ -15,6 +15,11 @@ export async function getNoteCategories() {
             cookie: cookieHeader,
         },
     });
+
+    if (!res.ok) {
+        throw new Error('Không thể lấy dữ liệu chuyên mục bài viết');
+    }
+
     return res.json();
 }
 
