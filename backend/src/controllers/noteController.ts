@@ -482,13 +482,28 @@ export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
 // Di chuyển bài viết vào thùng rác
 export const moveNoteToTrash = async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
 
-    if (!slug) {
-      return res.status(400).json({ message: "Slug không hợp lệ" });
+    if (!id) {
+      return res.status(400).json({ message: "ID không hợp lệ" });
     }
 
-    const existingNote = await NoteModel.findOne({ slug });
+    // Accept cả MongoDB _id (24 chars hex) và slug
+    let existingNote;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      existingNote = await NoteModel.findByIdAndUpdate(
+        id,
+        { isDeleted: true, deletedAt: new Date() },
+        { new: true }
+      );
+    } else {
+      // Fallback to slug if not a valid ObjectId
+      existingNote = await NoteModel.findOneAndUpdate(
+        { slug: id },
+        { isDeleted: true, deletedAt: new Date() },
+        { new: true }
+      );
+    }
 
     if (!existingNote) {
       return res.status(404).json({ message: "Không tìm thấy bài viết" });
@@ -499,6 +514,7 @@ export const moveNoteToTrash = async (req: Request, res: Response) => {
       data: existingNote
     });
   } catch (error) {
+    console.error('[moveNoteToTrash] Error:', error);
     res.status(500).json({ message: 'Không thể chuyển vào thùng rác' });
   }
 }
