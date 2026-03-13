@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { revalidatePath } from 'next/cache';
 
 import { getTrashNotes } from '@/lib/api/noteQueries';
 import {
@@ -17,6 +16,8 @@ import AdminPageHeader from '@/components/Layout/Pages/AdminPageHeader';
 import AdminCard from '@/components/Layout/Pages/AdminCard';
 import AdminTable from '@/components/Layout/Pages/AdminTable';
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
+import RestoreButton from '@/components/RestoreNoteButton';
+import ForceDeleteButton from '@/components/ForceDeleteNoteButton';
 
 export default async function TrashNotesPage({
   searchParams,
@@ -38,24 +39,6 @@ export default async function TrashNotesPage({
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
 
   const categories = await getNoteCategories();
-
-  /* ===== SERVER ACTIONS ===== */
-  async function restoreAction(formData: FormData) {
-    'use server';
-    const id = formData.get('id') as string;
-
-    await serverRestoreNote(id);
-    revalidatePath('/admin/notes');
-    revalidatePath('/admin/notes/trash');
-  }
-
-  async function forceDeleteAction(formData: FormData) {
-    'use server';
-    const id = formData.get('id') as string;
-
-    await serverForceDeleteNote(id);
-    revalidatePath('/admin/notes/trash');
-  }
 
   return (
     <>
@@ -117,26 +100,26 @@ export default async function TrashNotesPage({
 
               <td className="px-4 py-4 text-right flex flex-col gap-2">
                 {/* Restore */}
-                <form action={restoreAction}>
-                  <input type="hidden" name="id" value={note._id} />
-                  <button
-                    type="submit"
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition text-center text-sm cursor-pointer w-full"
-                  >
-                    Khôi phục
-                  </button>
-                </form>
+                <RestoreButton
+                  id={note._id}
+                  serverAction={serverRestoreNote}
+                  confirmText="Bạn có chắc chắn muốn khôi phục bài viết này?"
+                  loadingText="Đang khôi phục bài viết..."
+                  errorText="Lỗi khi khôi phục bài viết. Vui lòng thử lại."
+                  buttonText="Khôi phục"
+                  onName="RestoreNote"
+                />
 
                 {/* Force delete */}
-                <form action={forceDeleteAction}>
-                  <input type="hidden" name="id" value={note._id} />
-                  <button
-                    type="submit"
-                    className="bg-red-500 hover:bg-red-600 text-white px-1 py-1 rounded transition text-sm w-full cursor-pointer"
-                  >
-                    Xóa vĩnh viễn
-                  </button>
-                </form>
+                <ForceDeleteButton
+                  id={note._id}
+                  serverAction={serverForceDeleteNote}
+                  confirmText="Bạn có chắc chắn muốn xóa vĩnh viễn bài viết này? Không thể khôi phục!"
+                  loadingText="Đang xóa bài viết vĩnh viễn..."
+                  errorText="Lỗi khi xóa bài viết. Vui lòng thử lại."
+                  buttonText="Xóa vĩnh viễn"
+                  onName="ForceDeleteNote"
+                />
               </td>
             </tr>
           ))}
