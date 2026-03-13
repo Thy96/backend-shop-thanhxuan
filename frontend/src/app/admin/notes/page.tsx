@@ -1,9 +1,7 @@
 import Link from 'next/link';
-import { revalidatePath } from 'next/cache';
 
 import { getNotes } from '@/lib/api/noteQueries';
 import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
-import { serverMoveNoteToTrash } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
 
 import { getCategoryLabel } from '@/utils/category';
@@ -15,6 +13,7 @@ import AdminCard from '@/components/Layout/Pages/AdminCard';
 import AdminTable from '@/components/Layout/Pages/AdminTable';
 import AdminRowActions from '@/components/Layout/Pages/AdminRowActions';
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
+import DeleteNoteButton from '@/components/DeleteNoteButton';
 
 export default async function NotesPage({
   searchParams,
@@ -36,26 +35,6 @@ export default async function NotesPage({
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
 
   const categories = await getNoteCategories();
-
-  // ✅ Đây là Server Action
-  async function moveToTrashAction(formData: FormData) {
-    'use server';
-    try {
-      const id = formData.get('id') as string;
-      console.log('[moveToTrashAction] Moving to trash:', id);
-
-      // Gửi request với cookies tự động forward
-      await serverMoveNoteToTrash(id);
-
-      console.log('[moveToTrashAction] Success, revalidating paths');
-      revalidatePath('/admin/notes'); // reload lại data
-      revalidatePath('/admin/notes/trash'); // reload lại data trash
-    } catch (error) {
-      console.error('[moveToTrashAction] Error:', error);
-      // Không throw - chỉ log error để không crash Server Component
-      // Frontend sẽ refresh tất cả page dù fail hay success
-    }
-  }
 
   return (
     <>
@@ -120,17 +99,7 @@ export default async function NotesPage({
               <td className="px-4 py-4 text-right">
                 <AdminRowActions
                   editHref={`/admin/notes/edit/${note._id}`}
-                  onDelete={
-                    <form>
-                      <input type="hidden" name="id" value={note._id} />
-                      <button
-                        formAction={moveToTrashAction}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer"
-                      >
-                        Xóa
-                      </button>
-                    </form>
-                  }
+                  onDelete={<DeleteNoteButton noteId={note._id} />}
                 />
               </td>
             </tr>
