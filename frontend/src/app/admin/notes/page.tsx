@@ -40,12 +40,17 @@ export default async function NotesPage({
   // ✅ Đây là Server Action
   async function moveToTrashAction(formData: FormData) {
     'use server';
-    const id = formData.get('id') as string;
+    try {
+      const id = formData.get('id') as string;
 
-    // Gửi request với cookies tự động forward
-    await serverMoveNoteToTrash(id);
-    revalidatePath('/admin/notes'); // reload lại data
-    revalidatePath('/admin/notes/trash'); // reload lại data trash
+      // Gửi request với cookies tự động forward
+      await serverMoveNoteToTrash(id);
+      revalidatePath('/admin/notes'); // reload lại data
+      revalidatePath('/admin/notes/trash'); // reload lại data trash
+    } catch (error) {
+      console.error('[moveToTrashAction] Error:', error);
+      throw error;
+    }
   }
 
   return (
