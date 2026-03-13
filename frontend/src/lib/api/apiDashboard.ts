@@ -1,11 +1,23 @@
+'use server';
+
+import { cookies } from 'next/headers';
+
 export async function getDashboard() {
   try {
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+      .join('; ');
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     console.log('[getDashboard] Fetching from:', `${apiUrl}/api/admin/dashboard`);
 
     const res = await fetch(`${apiUrl}/api/admin/dashboard`, {
-      credentials: 'include',
       cache: 'no-store',
+      headers: {
+        cookie: cookieHeader,
+      },
     });
 
     console.log('[getDashboard] Response status:', res.status);
@@ -27,12 +39,20 @@ export async function getDashboard() {
 
 export async function getRevenueByMonth() {
   try {
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+      .join('; ');
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     console.log('[getRevenueByMonth] Fetching from:', `${apiUrl}/api/admin/dashboard/stats/revenue`);
 
     const res = await fetch(`${apiUrl}/api/admin/dashboard/stats/revenue`, {
-      credentials: 'include',
       cache: 'no-store',
+      headers: {
+        cookie: cookieHeader,
+      },
     });
 
     console.log('[getRevenueByMonth] Response status:', res.status);
@@ -54,12 +74,20 @@ export async function getRevenueByMonth() {
 
 export async function getVisitsByMonth() {
   try {
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+      .join('; ');
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     console.log('[getVisitsByMonth] Fetching from:', `${apiUrl}/api/admin/dashboard/stats/visits`);
 
     const res = await fetch(`${apiUrl}/api/admin/dashboard/stats/visits`, {
-      credentials: 'include',
       cache: 'no-store',
+      headers: {
+        cookie: cookieHeader,
+      },
     });
 
     console.log('[getVisitsByMonth] Response status:', res.status);

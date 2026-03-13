@@ -26,15 +26,31 @@ export const PORT = process.env.PORT || 4000;
 
 app.set("trust proxy", 1);
 
+// CORS: List các FRONTEND domains được phép gọi API này
+const allowedOrigins = [
+  // Development
+  'http://localhost:3000',
+  'http://localhost:5000',
+  // Production
+  'https://backend-shop-thanhxuan.vercel.app', // Admin dashboard frontend
+  'https://shop-thanhxuan-deploy.vercel.app', // Customer website frontend
+];
+
 app.use(cors({
-  origin: [
-    'https://shop-thanhxuan-deploy.vercel.app',
-    'https://backend-shop-thanhxuan.vercel.app',
-    // 'http://localhost:5000'
-  ], // Cho phép frontend của bạn
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // thêm Authorization nếu cần
-  credentials: true // <-- Quan trọng nếu có cookie / auth, nếu dùng cookie jwt
+  origin: (origin, callback) => {
+    // Cho phép requests không có origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Origin not allowed: ${origin}`);
+      callback(null, false);
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: true,
 }));
 
 // Middleware để xử lý JSON
