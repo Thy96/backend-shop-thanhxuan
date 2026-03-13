@@ -2,6 +2,13 @@
 
 import { cookies } from 'next/headers';
 
+// Helper function to get auth token
+async function getAuthToken(): Promise<string | null> {
+    const cookieStore = await cookies();
+    const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'access_token';
+    return cookieStore.get(cookieName)?.value || null;
+}
+
 // Server Actions (mutations - dùng được từ client components)
 export async function serverCreateNote(note: { title: string; content: any; thumbnail?: File | null; categoryId: string }) {
     try {
@@ -13,12 +20,7 @@ export async function serverCreateNote(note: { title: string; content: any; thum
             formData.append('thumbnail', note.thumbnail);
         }
 
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverCreateNote] Posting to:', `${apiUrl}/api/admin/notes`);
 
@@ -26,7 +28,7 @@ export async function serverCreateNote(note: { title: string; content: any; thum
             method: 'POST',
             body: formData,
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 
@@ -67,12 +69,7 @@ export async function serverUpdateNote(
             formData.append('thumbnail', note.thumbnail);
         }
 
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverUpdateNote] Putting to:', `${apiUrl}/api/admin/notes/${id}`);
 
@@ -80,7 +77,7 @@ export async function serverUpdateNote(
             method: 'PUT',
             body: formData,
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 
@@ -103,19 +100,14 @@ export async function serverUpdateNote(
 
 export async function serverMoveNoteToTrash(id: string) {
     try {
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverMoveNoteToTrash] Patching to:', `${apiUrl}/api/admin/notes/${id}/trash`);
 
         const res = await fetch(`${apiUrl}/api/admin/notes/${id}/trash`, {
             method: 'PATCH',
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 
@@ -138,19 +130,14 @@ export async function serverMoveNoteToTrash(id: string) {
 
 export async function serverRestoreNote(id: string) {
     try {
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverRestoreNote] Patching to:', `${apiUrl}/api/admin/notes/${id}/restore`);
 
         const res = await fetch(`${apiUrl}/api/admin/notes/${id}/restore`, {
             method: 'PATCH',
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 
@@ -173,19 +160,14 @@ export async function serverRestoreNote(id: string) {
 
 export async function serverForceDeleteNote(id: string) {
     try {
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverForceDeleteNote] Deleting to:', `${apiUrl}/api/admin/notes/${id}/force`);
 
         const res = await fetch(`${apiUrl}/api/admin/notes/${id}/force`, {
             method: 'DELETE',
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 

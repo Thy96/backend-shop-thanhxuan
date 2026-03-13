@@ -2,18 +2,20 @@
 
 import { cookies } from 'next/headers';
 
+// Helper function to get auth token
+async function getAuthToken(): Promise<string | null> {
+    const cookieStore = await cookies();
+    const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'access_token';
+    return cookieStore.get(cookieName)?.value || null;
+}
+
 // Server Actions for note categories
 export async function serverCreateNoteCategory(categories: { name: string }) {
     try {
         const formData = new FormData();
         formData.append('name', categories.name);
 
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverCreateNoteCategory] Posting to:', `${apiUrl}/api/admin/notes/categories`);
 
@@ -21,7 +23,7 @@ export async function serverCreateNoteCategory(categories: { name: string }) {
             method: 'POST',
             body: formData,
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 
@@ -47,12 +49,7 @@ export async function serverUpdateNoteCategory(id: string, categories: { name: s
         const formData = new FormData();
         formData.append('name', categories.name);
 
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverUpdateNoteCategory] Putting to:', `${apiUrl}/api/admin/notes/categories/${id}`);
 
@@ -60,7 +57,7 @@ export async function serverUpdateNoteCategory(id: string, categories: { name: s
             method: 'PUT',
             body: formData,
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 
@@ -83,19 +80,14 @@ export async function serverUpdateNoteCategory(id: string, categories: { name: s
 
 export async function serverDeleteNoteCategory(id: string) {
     try {
-        const cookieStore = await cookies();
-        const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-            .join('; ');
-
+        const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         console.log('[serverDeleteNoteCategory] Deleting to:', `${apiUrl}/api/admin/notes/categories/${id}`);
 
         const res = await fetch(`${apiUrl}/api/admin/notes/categories/${id}`, {
             method: 'DELETE',
             headers: {
-                cookie: cookieHeader,
+                ...(token && { 'Authorization': `Bearer ${token}` }),
             },
         });
 
