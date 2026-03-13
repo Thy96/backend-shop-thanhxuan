@@ -121,10 +121,10 @@ export default async function NotesPage({
                 <AdminRowActions
                   editHref={`/admin/notes/edit/${note._id}`}
                   onDelete={
-                    <form action={moveToTrashAction}>
+                    <form>
                       <input type="hidden" name="id" value={note._id} />
                       <button
-                        type="submit"
+                        formAction={moveToTrashAction}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer"
                       >
                         Xóa
