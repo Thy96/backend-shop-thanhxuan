@@ -3,7 +3,7 @@
 import { useEffect, useState, FormEvent, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import { getProductCategoryById } from '@/lib/api/apiProductCategories';
+import { getProductCategoryById } from '@/lib/api/productCategoryQueries';
 import { serverUpdateProductCategory } from '@/app/actions/productCategoryActions';
 import { CategoryOption } from '@/utils/category';
 import Button from '@/components/Button/Button';

@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
+import { getNoteCategoryById } from '@/lib/api/noteCategoryQueries';
 import { serverUpdateNoteCategory } from '@/app/actions/noteCategoryActions';
 import { CategoryOption } from '@/utils/category';
 import Button from '@/components/Button/Button';
@@ -28,25 +29,7 @@ export default function EditNoteCategoryPage() {
     const fetchCategory = async () => {
       try {
         setLoadingPage(true);
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        console.log(
-          '[EditNoteCategoryPage] Fetching from:',
-          `${apiUrl}/api/admin/notes/categories/${id}`,
-        );
-
-        const res = await fetch(`${apiUrl}/api/admin/notes/categories/${id}`, {
-          cache: 'no-store',
-          credentials: 'include',
-        });
-
-        console.log('[EditNoteCategoryPage] Response status:', res.status);
-
-        if (!res.ok) {
-          throw new Error(`API Error ${res.status}: Không tìm thấy category.`);
-        }
-
-        const data = await res.json();
+        const data = await getNoteCategoryById(id);
         if (!data) {
           setError('Không tìm thấy category.');
           return;
