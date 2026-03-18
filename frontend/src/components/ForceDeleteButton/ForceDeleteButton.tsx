@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import LoadingClient from '@/components/Loading/LoadingClient';
@@ -27,7 +26,7 @@ export default function ForceDeleteButton({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const handleForceDelete = useCallback(() => {
+  const handleForceDelete = () => {
     console.log(`[${onName}] Button clicked, id:`, id);
     console.log(`[${onName}] isPending:`, isPending);
 
@@ -52,7 +51,7 @@ export default function ForceDeleteButton({
         alert(errorText);
       }
     });
-  }, [onName, id, isPending, confirmText, serverAction, router, errorText]);
+  };
 
   return (
     <>

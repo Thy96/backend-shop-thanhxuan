@@ -1,13 +1,11 @@
 import Link from 'next/link';
-import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 
-import {
-  forceDeleteProduct,
-  getTrashProducts,
-  restoreProduct,
-} from '@/lib/api/apiProducts';
+import { getTrashProducts } from '@/lib/api/apiProducts';
 import { getProductCategories } from '@/lib/api/apiProductCategories';
+import {
+  serverRestoreProduct,
+  serverForceDeleteProduct,
+} from '@/app/actions/productActions';
 import { PaginationProps, ProductProps } from '@/lib/types';
 
 import { getPaginationRange } from '@/utils/pagination';
@@ -18,6 +16,8 @@ import AdminPageHeader from '@/components/Layout/Pages/AdminPageHeader';
 import AdminCard from '@/components/Layout/Pages/AdminCard';
 import AdminTable from '@/components/Layout/Pages/AdminTable';
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
+import RestoreButton from '@/components/RestoreButton/RestoreButton';
+import ForceDeleteButton from '@/components/ForceDeleteButton/ForceDeleteButton';
 
 export default async function TrashProductsPage({
   searchParams,
@@ -39,35 +39,6 @@ export default async function TrashProductsPage({
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
 
   const categories = await getProductCategories();
-
-  // ✅ Đây là Server Action
-  async function restoreAction(formData: FormData) {
-    'use server';
-    const id = formData.get('id') as string;
-
-    // Lấy toàn bộ cookie của user hiện tại
-    const cookieHeader = (await cookies())
-      .getAll()
-      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-      .join('; ');
-
-    // Gửi kèm cookie này sang backend
-    await restoreProduct(id, cookieHeader);
-    revalidatePath('/admin/products'); // reload lại data
-    revalidatePath('/admin/products/trash'); // reload lại data trash
-  }
-
-  async function forceDeleteAction(formData: FormData) {
-    'use server';
-    const id = formData.get('id') as string;
-    const cookieHeader = (await cookies())
-      .getAll()
-      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-      .join('; ');
-
-    await forceDeleteProduct(id, cookieHeader);
-    revalidatePath('/admin/products/trash');
-  }
 
   return (
     <>
@@ -141,26 +112,26 @@ export default async function TrashProductsPage({
               <td className="px-1 py-4 text-center">{product.stock}</td>
               <td className="px-4 py-4 text-right flex flex-col gap-2">
                 {/* Restore */}
-                <form action={restoreAction}>
-                  <input type="hidden" name="id" value={product._id} />
-                  <button
-                    type="submit"
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition text-center text-sm cursor-pointer w-full"
-                  >
-                    Khôi phục
-                  </button>
-                </form>
+                <RestoreButton
+                  id={product._id}
+                  serverAction={serverRestoreProduct}
+                  confirmText="Bạn có chắc chắn muốn khôi phục sản phẩm này?"
+                  loadingText="Đang khôi phục sản phẩm..."
+                  errorText="Lỗi khi khôi phục sản phẩm. Vui lòng thử lại."
+                  buttonText="Khôi phục"
+                  onName="RestoreProduct"
+                />
 
                 {/* Force delete */}
-                <form action={forceDeleteAction}>
-                  <input type="hidden" name="id" value={product._id} />
-                  <button
-                    type="submit"
-                    className="bg-red-500 hover:bg-red-600 text-white px-1 py-1 rounded transition text-sm w-full cursor-pointer"
-                  >
-                    Xóa vĩnh viễn
-                  </button>
-                </form>
+                <ForceDeleteButton
+                  id={product._id}
+                  serverAction={serverForceDeleteProduct}
+                  confirmText="Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm này? Không thể khôi phục!"
+                  loadingText="Đang xóa sản phẩm vĩnh viễn..."
+                  errorText="Lỗi khi xóa sản phẩm. Vui lòng thử lại."
+                  buttonText="Xóa vĩnh viễn"
+                  onName="ForceDeleteProduct"
+                />
               </td>
             </tr>
           ))}

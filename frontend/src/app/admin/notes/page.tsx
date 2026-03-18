@@ -14,7 +14,7 @@ import AdminCard from '@/components/Layout/Pages/AdminCard';
 import AdminTable from '@/components/Layout/Pages/AdminTable';
 import AdminRowActions from '@/components/Layout/Pages/AdminRowActions';
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import DeleteButton from '@/components/DeleteButton';
+import DeleteButton from '@/components/DeleteButton/DeleteButton';
 
 export default async function NotesPage({
   searchParams,

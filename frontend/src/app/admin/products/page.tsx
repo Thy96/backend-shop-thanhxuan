@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 
-import { getProducts, moveProductToTrash } from '@/lib/api/apiProducts';
+import { getProducts } from '@/lib/api/apiProducts';
 import { getProductCategories } from '@/lib/api/apiProductCategories';
+import { serverMoveProductToTrash } from '@/app/actions/productActions';
 import { PaginationProps, ProductProps } from '@/lib/types';
 
 import { getPaginationRange } from '@/utils/pagination';
@@ -15,6 +14,7 @@ import AdminCard from '@/components/Layout/Pages/AdminCard';
 import AdminTable from '@/components/Layout/Pages/AdminTable';
 import AdminRowActions from '@/components/Layout/Pages/AdminRowActions';
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
+import DeleteButton from '@/components/DeleteButton/DeleteButton';
 import ProductStatusFilter from '@/components/ProductStatusFilter/ProductStatusFilter';
 
 export default async function ProductsPage({
@@ -38,24 +38,6 @@ export default async function ProductsPage({
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
 
   const categories = await getProductCategories();
-
-  // ✅ Đây là Server Action
-  async function deleteProductAction(formData: FormData) {
-    'use server';
-    const id = formData.get('id') as string;
-
-    // Lấy toàn bộ cookie của user hiện tại
-    const cookieStore = cookies();
-    const cookieHeader = (await cookieStore)
-      .getAll()
-      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
-      .join('; ');
-
-    // Gửi kèm cookie này sang backend
-    await moveProductToTrash(id, cookieHeader);
-    revalidatePath('/admin/products'); // reload lại data
-    revalidatePath('/admin/products/trash'); // reload lại data trash
-  }
 
   return (
     <>
@@ -146,15 +128,15 @@ export default async function ProductsPage({
                 <AdminRowActions
                   editHref={`/admin/products/edit/${product._id}`}
                   onDelete={
-                    <form action={deleteProductAction}>
-                      <input type="hidden" name="id" value={product._id} />
-                      <button
-                        type="submit"
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer"
-                      >
-                        Xóa
-                      </button>
-                    </form>
+                    <DeleteButton
+                      id={product._id}
+                      serverAction={serverMoveProductToTrash}
+                      confirmText="Bạn có chắc chắn muốn xóa sản phẩm này?"
+                      loadingText="Đang xóa sản phẩm..."
+                      errorText="Lỗi khi xóa sản phẩm. Vui lòng thử lại."
+                      buttonText="Xóa"
+                      onName="DeleteProduct"
+                    />
                   }
                 />
               </td>
