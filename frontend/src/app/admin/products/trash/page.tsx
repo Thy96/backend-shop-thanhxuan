@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
-import { getTrashProducts } from '@/lib/api/apiProducts';
-import { getProductCategories } from '@/lib/api/apiProductCategories';
+import { getTrashProducts } from '@/lib/api/productQueries';
+import { getProductCategories } from '@/lib/api/productCategoryQueries';
 import {
   serverRestoreProduct,
   serverForceDeleteProduct,

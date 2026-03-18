@@ -1,27 +1,31 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { ChevronLeft } from 'lucide-react';
-
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
-import { createProducts } from '@/lib/api/apiProducts';
-import { getProductCategories } from '@/lib/api/apiProductCategories';
+import { serverCreateProduct } from '@/app/actions/productActions';
 
-import { finalPrice } from '@/utils/format';
+import { ChevronLeft } from 'lucide-react';
 import { CategoryOption } from '@/utils/category';
+import isEditorContentValid from '@/utils/validationEditor';
+import { finalPrice } from '@/utils/format';
 
 import Input from '@/components/Input/Input';
 import Select from '@/components/Select/Select';
 import Button from '@/components/Button/Button';
-import isEditorContentValid from '@/utils/validationEditor';
 import Editor from '@/components/Editor/Editor';
 import LoadingClient from '@/components/Loading/LoadingClient';
 
 export default function CreateProductPage() {
   const router = useRouter();
   const editorRef = useRef<any>(null);
+  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [loadingCate, setLoadingCate] = useState(true);
+  const [isPending, startTransition] = useTransition();
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     price: 0,
@@ -31,19 +35,15 @@ export default function CreateProductPage() {
     status: 'draft',
   });
 
-  const [categories, setCategories] = useState<CategoryOption[]>([]);
-  const [isPending, startTransition] = useTransition();
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [loadingCate, setLoadingCate] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
-  const [percent, setPercent] = useState('0');
-  const [quality, setQuality] = useState('0');
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await getProductCategories();
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const res = await fetch(`${apiUrl}/api/admin/products/categories`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const data = await res.json();
         setCategories(data);
       } catch (error) {
         console.error(error);
@@ -60,18 +60,15 @@ export default function CreateProductPage() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    const target = e.target as
-      | HTMLInputElement
-      | HTMLTextAreaElement
-      | HTMLSelectElement;
     const { name, value } = e.target;
-    // 2) Sale: chỉ nhận 0..100, loại 0 đầu, sync percent & formData
+    
+    // Handle numeric fields
     if (name === 'sale') {
       let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0'))
+      if (numStr.length > 1 && numStr.startsWith('0')) {
         numStr = numStr.replace(/^0+/, '');
+      }
       if (numStr === '') {
-        setPercent('');
         setFormData((prev) => ({ ...prev, sale: 0 }));
         return;
       }
@@ -79,50 +76,34 @@ export default function CreateProductPage() {
       if (isNaN(num)) num = 0;
       if (num > 100) num = 100;
       if (num < 0) num = 0;
-
-      setPercent(num.toString());
       setFormData((prev) => ({ ...prev, sale: num }));
-      return; // ⚠️ dừng ở đây để không bị dòng default ghi đè
+      return;
     }
 
-    // 3️⃣ Stock: không được âm
-    if (name === 'stock') {
+    if (name === 'stock' || name === 'price') {
       let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0'))
+      if (numStr.length > 1 && numStr.startsWith('0')) {
         numStr = numStr.replace(/^0+/, '');
+      }
       if (numStr === '') {
-        setQuality('');
-        setFormData((prev) => ({ ...prev, stock: 0 }));
+        setFormData((prev) => ({ ...prev, [name]: 0 }));
         return;
       }
       let num = Number(numStr);
       if (isNaN(num)) num = 0;
       if (num < 0) num = 0;
-
-      setQuality(num.toString());
-      setFormData((prev) => ({ ...prev, stock: num }));
-      return; // ⚠️ dừng ở đây để không bị dòng default ghi đè
-    }
-
-    // 3) Các field số khác (nếu có): price, stock...
-    const numericFields = new Set(['price', 'stock']);
-    if (numericFields.has(name)) {
-      const num = Number((target as HTMLInputElement).value);
-      setFormData((prev) => ({ ...prev, [name]: isNaN(num) ? 0 : num }));
+      setFormData((prev) => ({ ...prev, [name]: num }));
       return;
     }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAdditionalImagesChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
     const selectedFiles = Array.from(e.target.files);
 
-    // Giới hạn 3 ảnh
     if (images.length + selectedFiles.length > 3) {
       alert('Chỉ được chọn tối đa 3 hình ảnh');
       return;
@@ -136,43 +117,41 @@ export default function CreateProductPage() {
     setImages((prev) => [...prev, ...newImages]);
   };
 
-  const removeAdditionalImage = (index: number) => {
+  const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoadingSubmit(true);
-    if (!editorRef.current) {
-      alert('Editor chưa sẵn sàng');
-      return;
-    }
-
-    const content = await editorRef.current.save();
-
-    if (!isEditorContentValid(content)) {
-      alert('Vui lòng nhập nội dung');
-      return;
-    }
-
-    const data = {
-      images: images.map((img) => img.file),
-      title: formData.title,
-      content,
-      price: formData.price,
-      sale: formData.sale,
-      stock: formData.stock,
-      categoryId: formData.categoryId,
-      status: formData.status,
-    };
 
     try {
-      await createProducts(data);
+      if (!editorRef.current) throw new Error('Editor chưa sẵn sàng');
+
+      const content = await editorRef.current.save();
+
+      if (!isEditorContentValid(content)) {
+        throw new Error('Vui lòng nhập nội dung');
+      }
+
+      const data = {
+        images: images.map((img) => img.file),
+        title: formData.title,
+        content,
+        price: formData.price,
+        sale: formData.sale,
+        stock: formData.stock,
+        categoryId: formData.categoryId,
+        status: formData.status,
+      };
+
+      await serverCreateProduct(data);
       startTransition(() => {
         router.push('/admin/products');
       });
-    } catch (err: any) {
-      setError(err.message || 'Tạo không thành công');
+    } catch (error: any) {
+      setError(error.message || 'Tạo không thành công!');
+    } finally {
       setLoadingSubmit(false);
     }
   }
@@ -190,15 +169,15 @@ export default function CreateProductPage() {
         <ChevronLeft width={23} height={23} /> Quay Lại
       </Button>
       <form onSubmit={handleSubmit} className="space-y-2 mt-4">
-        {/* Ảnh */}
+        {/* Images */}
         <div>
           <Input
-            label="📁 Chọn nhiều hình ảnh"
+            label="📁 Chọn hình ảnh (tối đa 3)"
             id="images"
             type="file"
             accept="image/*"
             multiple
-            onChange={handleAdditionalImagesChange}
+            onChange={handleImagesChange}
             classNames={{
               wrapper: '!mb-1',
               input: 'hidden',
@@ -211,14 +190,14 @@ export default function CreateProductPage() {
               <div key={index} className="relative group">
                 <Image
                   src={img.preview}
-                  alt={`Additional Preview ${index}`}
-                  className="w-full h-33 object-cover rounded-lg border"
+                  alt={`Preview ${index}`}
+                  className="w-full h-32 object-cover rounded-lg border"
                   width={100}
                   height={100}
                 />
                 <button
                   type="button"
-                  onClick={() => removeAdditionalImage(index)}
+                  onClick={() => removeImage(index)}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
                 >
                   ✕
@@ -227,12 +206,11 @@ export default function CreateProductPage() {
             ))}
           </div>
           <p className="text-xs text-red-500 mt-1 mb-4">
-            * Tối đa 3 hình ảnh và hình ảnh giới hạn 5MB
+            * Tối đa 3 hình ảnh, giới hạn 5MB mỗi file
           </p>
         </div>
 
         <div className="flex gap-4 items-end">
-          {/* Category */}
           <div className="flex-1">
             <Select
               options={categories.map((cat) => ({
@@ -246,7 +224,6 @@ export default function CreateProductPage() {
             />
           </div>
 
-          {/* Status */}
           <div className="w-56">
             <Select
               name="status"
@@ -262,62 +239,59 @@ export default function CreateProductPage() {
           </div>
         </div>
 
-        {/* Tiêu đề */}
         <Input
           id="title"
-          placeholder="Nhập tên sản phẩm..."
+          label="Tiêu đề"
+          placeholder="Nhập tiêu đề sản phẩm..."
           name="title"
           onChange={handleChange}
+          value={formData.title}
           required
-          label="Tiêu đề"
         />
 
-        {/* Nội dung */}
         <Editor
           onReady={(editor) => {
             editorRef.current = editor;
           }}
         />
 
-        {/* Giá & Khuyến mãi & Stock */}
-        <div className="grid grid-cols-3 gap-2 mb-0">
+        <div className="grid grid-cols-3 gap-2">
           <Input
             id="price"
-            placeholder="Nhập giá sản phẩm..."
-            name="price"
-            onChange={handleChange}
-            required
             label="Giá tiền"
+            placeholder="Nhập giá..."
+            name="price"
+            type="number"
+            value={formData.price}
+            onChange={handleChange}
             note={
-              <>
-                <p className="text-xs text-red-500 mt-2">
-                  * Giá sản phẩm sau khi giảm {percent}%:{' '}
-                  {finalPrice(String(formData.price), String(formData.sale))}đ
-                </p>
-              </>
+              <p className="text-xs text-red-500 mt-2">
+                Giá sau giảm {formData.sale}%: {finalPrice(String(formData.price), String(formData.sale))}đ
+              </p>
             }
+            required
           />
           <Input
             id="sale"
-            placeholder="Nhập % sale..."
+            label="Giảm giá %"
+            placeholder="0-100"
             name="sale"
             type="number"
             min={0}
             max={100}
-            value={percent}
+            value={formData.sale}
             onChange={handleChange}
             required
-            label="Giảm giá %"
           />
           <Input
             id="stock"
-            placeholder="Stock"
+            label="Hàng tồn kho"
+            placeholder="Nhập số lượng..."
             name="stock"
             type="number"
             min={0}
-            value={quality}
+            value={formData.stock}
             onChange={handleChange}
-            label="Hàng tồn kho"
           />
         </div>
 

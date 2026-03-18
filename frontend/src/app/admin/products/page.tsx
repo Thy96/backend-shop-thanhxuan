@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
-import { getProducts } from '@/lib/api/apiProducts';
-import { getProductCategories } from '@/lib/api/apiProductCategories';
+import { getProducts } from '@/lib/api/productQueries';
+import { getProductCategories } from '@/lib/api/productCategoryQueries';
 import { serverMoveProductToTrash } from '@/app/actions/productActions';
 import { PaginationProps, ProductProps } from '@/lib/types';
 

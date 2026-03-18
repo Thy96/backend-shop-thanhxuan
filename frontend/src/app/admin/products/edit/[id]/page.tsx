@@ -4,18 +4,16 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 
-import { getProductById, updateProduct } from '@/lib/api/apiProducts';
-import { getProductCategories } from '@/lib/api/apiProductCategories';
+import { serverUpdateProduct } from '@/app/actions/productActions';
 
 import { finalPrice } from '@/utils/format';
+import { ChevronLeft } from 'lucide-react';
+import { CategoryOption } from '@/utils/category';
+import isEditorContentValid from '@/utils/validationEditor';
 
 import Input from '@/components/Input/Input';
 import Select from '@/components/Select/Select';
-
-import { ChevronLeft } from 'lucide-react';
-import { CategoryOption } from '@/utils/category';
 import Button from '@/components/Button/Button';
-import isEditorContentValid from '@/utils/validationEditor';
 import Editor from '@/components/Editor/Editor';
 import LoadingClient from '@/components/Loading/LoadingClient';
 
@@ -31,110 +29,27 @@ export default function EditProductPage() {
     sale: 0,
     stock: 0,
     categoryId: '',
-    status: '',
+    status: 'draft',
   });
 
   const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [images, setImages] = useState<{ file?: File; preview: string }[]>([]);
   const [isPending, startTransition] = useTransition();
   const [loadingPage, setLoadingPage] = useState(true);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [loadingCate, setLoadingCate] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
-  const [percent, setPercent] = useState('0');
-  const [quality, setQuality] = useState('0');
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const target = e.target as
-      | HTMLInputElement
-      | HTMLTextAreaElement
-      | HTMLSelectElement;
-    const { name, value } = e.target;
-
-    // Sale: chỉ nhận 0..100, loại 0 đầu, sync percent & formData
-    if (name === 'sale') {
-      let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0'))
-        numStr = numStr.replace(/^0+/, '');
-      if (numStr === '') {
-        setPercent('');
-        setFormData((prev) => ({ ...prev, sale: 0 }));
-        return;
-      }
-      let num = Number(numStr);
-      if (isNaN(num)) num = 0;
-      if (num > 100) num = 100;
-      if (num < 0) num = 0;
-
-      setPercent(num.toString());
-      setFormData((prev) => ({ ...prev, sale: num }));
-      return; // ⚠️ dừng ở đây để không bị dòng default ghi đè
-    }
-
-    // Stock: không được âm
-    if (name === 'stock') {
-      let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0'))
-        numStr = numStr.replace(/^0+/, '');
-      if (numStr === '') {
-        setQuality('');
-        setFormData((prev) => ({ ...prev, stock: 0 }));
-        return;
-      }
-      let num = Number(numStr);
-      if (isNaN(num)) num = 0;
-      if (num < 0) num = 0;
-
-      setQuality(num.toString());
-      setFormData((prev) => ({ ...prev, stock: num }));
-      return; // ⚠️ dừng ở đây để không bị dòng default ghi đè
-    }
-
-    // Các field số khác (nếu có): price, stock...
-    const numericFields = new Set(['price', 'stock']);
-    if (numericFields.has(name)) {
-      const num = Number((target as HTMLInputElement).value);
-      setFormData((prev) => ({ ...prev, [name]: isNaN(num) ? 0 : num }));
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Additional images change
-  const handleAdditionalImagesChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    if (!e.target.files) return;
-
-    const selectedFiles = Array.from(e.target.files);
-
-    // Giới hạn 3 ảnh
-    if (images.length + selectedFiles.length > 3) {
-      alert('Chỉ được chọn tối đa 3 hình ảnh');
-      return;
-    }
-
-    const newImages = selectedFiles.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-
-    setImages((prev) => [...prev, ...newImages]);
-  };
-
-  const removeAdditionalImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await getProductCategories();
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const res = await fetch(`${apiUrl}/api/admin/products/categories`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const data = await res.json();
         setCategories(data);
       } catch (error) {
         console.error(error);
@@ -149,13 +64,18 @@ export default function EditProductPage() {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        setLoadingPage(true); // nếu bạn có state loading
+        setLoadingPage(true);
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const res = await fetch(`${apiUrl}/api/admin/products/${params.id}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
 
-        const product = await getProductById(params.id as string);
+        if (!res.ok) throw new Error('Không tìm thấy sản phẩm');
 
-        if (!product) return;
+        const product = await res.json();
 
-        // ⭐ set form
         setFormData({
           title: product.title || '',
           content: product.content || '',
@@ -163,30 +83,24 @@ export default function EditProductPage() {
           sale: product.sale || 0,
           stock: product.stock || 0,
           categoryId: product.categoryId || '',
-          status: product.status || '',
+          status: product.status || 'draft',
         });
 
-        // ⭐ normalize images
         const normalizedImages = (product.images || []).map((img: any) => {
           const BASE_URL = 'http://localhost:4000';
-
           if (typeof img === 'string') {
             const fullUrl = img.startsWith('/uploads/')
               ? `${BASE_URL}${img}`
               : img;
-
-            return { file: null as any, preview: fullUrl };
+            return { file: undefined, preview: fullUrl };
           }
-
           return img;
         });
 
         setImages(normalizedImages);
-        setPercent(String(product.sale || 0));
-        setQuality(String(product.stock || 0));
-      } catch (err) {
+      } catch (err: any) {
         console.error('Fetch product error:', err);
-        setError('Không thể tải sản phẩm'); // nếu bạn có error state
+        setError('Không thể tải sản phẩm');
       } finally {
         setLoadingPage(false);
       }
@@ -195,40 +109,102 @@ export default function EditProductPage() {
     if (params.id) fetchProduct();
   }, [params.id]);
 
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+
+    if (name === 'sale') {
+      let numStr = value;
+      if (numStr.length > 1 && numStr.startsWith('0')) {
+        numStr = numStr.replace(/^0+/, '');
+      }
+      if (numStr === '') {
+        setFormData((prev) => ({ ...prev, sale: 0 }));
+        return;
+      }
+      let num = Number(numStr);
+      if (isNaN(num)) num = 0;
+      if (num > 100) num = 100;
+      if (num < 0) num = 0;
+      setFormData((prev) => ({ ...prev, sale: num }));
+      return;
+    }
+
+    if (name === 'stock' || name === 'price') {
+      let numStr = value;
+      if (numStr.length > 1 && numStr.startsWith('0')) {
+        numStr = numStr.replace(/^0+/, '');
+      }
+      if (numStr === '') {
+        setFormData((prev) => ({ ...prev, [name]: 0 }));
+        return;
+      }
+      let num = Number(numStr);
+      if (isNaN(num)) num = 0;
+      if (num < 0) num = 0;
+      setFormData((prev) => ({ ...prev, [name]: num }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const selectedFiles = Array.from(e.target.files);
+
+    if (images.length + selectedFiles.length > 3) {
+      alert('Chỉ được chọn tối đa 3 hình ảnh');
+      return;
+    }
+
+    const newImages = selectedFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setImages((prev) => [...prev, ...newImages]);
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoadingSubmit(true);
-    if (!editorRef.current) {
-      alert('Editor chưa sẵn sàng');
-      return;
-    }
 
-    const content = await editorRef.current.save();
-
-    if (!isEditorContentValid(content)) {
-      alert('Vui lòng nhập nội dung!!!');
-      return;
-    }
-
-    const data = {
-      images: images
-        .filter((img) => img.file) // chỉ ảnh mới
-        .map((img) => img.file as File),
-      title: formData.title,
-      content: content,
-      price: formData.price,
-      sale: formData.sale,
-      stock: formData.stock,
-      categoryId: formData.categoryId,
-      status: formData.status,
-    };
     try {
-      await updateProduct(params.id as string, data);
+      if (!editorRef.current) throw new Error('Editor chưa sẵn sàng');
+
+      const content = await editorRef.current.save();
+
+      if (!isEditorContentValid(content)) {
+        throw new Error('Vui lòng nhập nội dung');
+      }
+
+      const data = {
+        images: images.filter((img) => img.file).map((img) => img.file as File),
+        title: formData.title,
+        content,
+        price: formData.price,
+        sale: formData.sale,
+        stock: formData.stock,
+        categoryId: formData.categoryId,
+        status: formData.status,
+      };
+
+      await serverUpdateProduct(params.id as string, data);
       startTransition(() => {
         router.push('/admin/products');
       });
     } catch (error: any) {
       setError(error.message || 'Cập nhật không thành công!');
+    } finally {
       setLoadingSubmit(false);
     }
   }
@@ -248,15 +224,15 @@ export default function EditProductPage() {
         <ChevronLeft width={23} height={23} /> Quay Lại
       </Button>
       <form onSubmit={handleSubmit} className="space-y-2 mt-4">
-        {/* Ảnh */}
+        {/* Images */}
         <div>
           <Input
-            label="📁 Chọn nhiều hình ảnh"
+            label="📁 Chọn hình ảnh (tối đa 3)"
             id="images"
             type="file"
             accept="image/*"
             multiple
-            onChange={handleAdditionalImagesChange}
+            onChange={handleImagesChange}
             classNames={{
               wrapper: '!mb-1',
               input: 'hidden',
@@ -269,14 +245,14 @@ export default function EditProductPage() {
               <div key={index} className="relative group">
                 <Image
                   src={img.preview}
-                  alt={`Additional Preview ${index}`}
-                  className="w-full h-33 object-cover rounded-lg border"
-                  width={1000}
-                  height={1000}
+                  alt={`Preview ${index}`}
+                  className="w-full h-32 object-cover rounded-lg border"
+                  width={100}
+                  height={100}
                 />
                 <button
                   type="button"
-                  onClick={() => removeAdditionalImage(index)}
+                  onClick={() => removeImage(index)}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
                 >
                   ✕
@@ -285,36 +261,51 @@ export default function EditProductPage() {
             ))}
           </div>
           <p className="text-xs text-red-500 mt-1 mb-4">
-            * Tối đa 3 hình ảnh và hình ảnh giới hạn 5MB
+            * Tối đa 3 hình ảnh, giới hạn 5MB mỗi file
           </p>
         </div>
 
-        {/* Category */}
-        <Select
-          options={categories.map((cat) => ({
-            value: cat._id,
-            label: cat.name,
-          }))}
-          value={formData.categoryId}
-          name="categoryId"
-          onChange={handleChange}
-          label="Danh mục"
-          required
-        />
+        <div className="flex gap-4 items-end">
+          <div className="flex-1">
+            <Select
+              options={categories.map((cat) => ({
+                value: cat._id,
+                label: cat.name,
+              }))}
+              value={formData.categoryId}
+              name="categoryId"
+              onChange={handleChange}
+              label="Danh mục"
+              required
+            />
+          </div>
 
-        {/* Tiêu đề */}
+          <div className="w-56">
+            <Select
+              name="status"
+              label="Trạng thái"
+              value={formData.status}
+              onChange={handleChange}
+              options={[
+                { value: 'draft', label: 'Bản nháp' },
+                { value: 'available', label: 'Xuất bản' },
+              ]}
+              required
+            />
+          </div>
+        </div>
+
         <Input
           id="title"
-          placeholder="Nhập tên sản phẩm..."
+          label="Tiêu đề"
+          placeholder="Nhập tiêu đề sản phẩm..."
           name="title"
           value={formData.title}
           onChange={handleChange}
           required
-          label="Tiêu đề"
         />
 
-        {/* Nội dung */}
-        {formData.content && typeof formData.content === 'object' && (
+        {formData.content && (
           <Editor
             initialData={formData.content}
             onReady={(editor) => {
@@ -323,46 +314,44 @@ export default function EditProductPage() {
           />
         )}
 
-        {/* Giá & Khuyến mãi */}
-        <div className="grid grid-cols-3 gap-2 mb-0">
+        <div className="grid grid-cols-3 gap-2">
           <Input
             id="price"
-            placeholder="Nhập giá sản phẩm..."
+            label="Giá tiền"
+            placeholder="Nhập giá..."
             name="price"
+            type="number"
             value={formData.price}
             onChange={handleChange}
-            required
-            label="Giá tiền"
             note={
-              <>
-                <p className="text-xs text-red-500 mt-2">
-                  * Giá sản phẩm sau khi giảm {percent}%:{' '}
-                  {finalPrice(String(formData.price), String(formData.sale))}đ
-                </p>
-              </>
+              <p className="text-xs text-red-500 mt-2">
+                Giá sau giảm {formData.sale}%:{' '}
+                {finalPrice(String(formData.price), String(formData.sale))}đ
+              </p>
             }
+            required
           />
           <Input
             id="sale"
-            placeholder="Nhập % sale..."
+            label="Giảm giá %"
+            placeholder="0-100"
             name="sale"
             type="number"
             min={0}
             max={100}
-            value={percent}
+            value={formData.sale}
             onChange={handleChange}
             required
-            label="Giảm giá %"
           />
           <Input
             id="stock"
-            placeholder="Stock"
+            label="Hàng tồn kho"
+            placeholder="Nhập số lượng..."
             name="stock"
             type="number"
             min={0}
-            value={quality}
+            value={formData.stock}
             onChange={handleChange}
-            label="Hàng tồn kho"
           />
         </div>
 
