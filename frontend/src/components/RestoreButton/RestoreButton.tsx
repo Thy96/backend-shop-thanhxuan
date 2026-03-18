@@ -27,13 +27,21 @@ export default function RestoreButton({
   const [isPending, startTransition] = useTransition();
 
   const handleRestore = () => {
-    if (!confirm(confirmText)) return;
+    console.log(`[${onName}] Button clicked, id:`, id);
+    console.log(`[${onName}] Confirm text:`, confirmText);
 
+    if (!confirm(confirmText)) {
+      console.log(`[${onName}] User cancelled confirm`);
+      return;
+    }
+
+    console.log(`[${onName}] User confirmed, starting transition`);
     startTransition(async () => {
       try {
         console.log(`[${onName}] Restoring:`, id);
-        await serverAction(id);
-        console.log(`[${onName}] Success, refreshing page`);
+        const result = await serverAction(id);
+        console.log(`[${onName}] Success, result:`, result);
+        console.log(`[${onName}] Refreshing page`);
         router.refresh();
       } catch (error) {
         console.error(`[${onName}] Error:`, error);

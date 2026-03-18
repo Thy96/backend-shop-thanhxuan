@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import LoadingClient from '@/components/Loading/LoadingClient';
@@ -26,21 +27,32 @@ export default function ForceDeleteButton({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const handleForceDelete = () => {
-    if (!confirm(confirmText)) return;
+  const handleForceDelete = useCallback(() => {
+    console.log(`[${onName}] Button clicked, id:`, id);
+    console.log(`[${onName}] isPending:`, isPending);
 
+    const confirmed = window.confirm(confirmText);
+    console.log(`[${onName}] Confirm result:`, confirmed);
+
+    if (!confirmed) {
+      console.log(`[${onName}] User cancelled confirm`);
+      return;
+    }
+
+    console.log(`[${onName}] User confirmed, starting transition`);
     startTransition(async () => {
       try {
-        console.log(`[${onName}] Force deleting:`, id);
-        await serverAction(id);
-        console.log(`[${onName}] Success, refreshing page`);
+        console.log(`[${onName}] Calling serverAction for id:`, id);
+        const result = await serverAction(id);
+        console.log(`[${onName}] Success, result:`, result);
+        console.log(`[${onName}] Refreshing router`);
         router.refresh();
       } catch (error) {
-        console.error(`[${onName}] Error:`, error);
+        console.error(`[${onName}] Error caught:`, error);
         alert(errorText);
       }
     });
-  };
+  }, [onName, id, isPending, confirmText, serverAction, router, errorText]);
 
   return (
     <>
@@ -51,7 +63,7 @@ export default function ForceDeleteButton({
       >
         {isPending ? `${loadingText}` : buttonText}
       </button>
-      {isPending && <LoadingClient text={`${loadingText}`} />}
+      {isPending && <LoadingClient text={loadingText} />}
     </>
   );
 }

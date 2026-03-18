@@ -16,8 +16,8 @@ import AdminPageHeader from '@/components/Layout/Pages/AdminPageHeader';
 import AdminCard from '@/components/Layout/Pages/AdminCard';
 import AdminTable from '@/components/Layout/Pages/AdminTable';
 import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import RestoreButton from '@/components/RestoreNoteButton';
-import ForceDeleteButton from '@/components/ForceDeleteNoteButton';
+import RestoreButton from '@/components/RestoreButton/RestoreButton';
+import ForceDeleteButton from '@/components/ForceDeleteButton/ForceDeleteButton';
 
 export default async function TrashNotesPage({
   searchParams,
