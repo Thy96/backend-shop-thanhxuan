@@ -117,15 +117,11 @@ export default function EditProductPage() {
     const { name, value } = e.target;
 
     if (name === 'sale') {
-      let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0')) {
-        numStr = numStr.replace(/^0+/, '');
-      }
-      if (numStr === '') {
+      if (value === '') {
         setFormData((prev) => ({ ...prev, sale: 0 }));
         return;
       }
-      let num = Number(numStr);
+      let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num > 100) num = 100;
       if (num < 0) num = 0;
@@ -134,15 +130,11 @@ export default function EditProductPage() {
     }
 
     if (name === 'stock' || name === 'price') {
-      let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0')) {
-        numStr = numStr.replace(/^0+/, '');
-      }
-      if (numStr === '') {
+      if (value === '') {
         setFormData((prev) => ({ ...prev, [name]: 0 }));
         return;
       }
-      let num = Number(numStr);
+      let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num < 0) num = 0;
       setFormData((prev) => ({ ...prev, [name]: num }));

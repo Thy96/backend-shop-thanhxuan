@@ -57,7 +57,7 @@ export default function RestoreButton({
         disabled={isPending}
         className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-3 py-1 rounded transition text-center text-sm cursor-pointer w-full"
       >
-        {isPending ? `${loadingText}` : buttonText}
+        {buttonText}
       </button>
       {isPending && <LoadingClient text={`${loadingText}`} />}
     </>

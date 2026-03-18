@@ -60,7 +60,7 @@ export default function ForceDeleteButton({
         disabled={isPending}
         className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer"
       >
-        {isPending ? `${loadingText}` : buttonText}
+        {buttonText}
       </button>
       {isPending && <LoadingClient text={loadingText} />}
     </>

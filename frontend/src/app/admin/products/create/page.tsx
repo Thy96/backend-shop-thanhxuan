@@ -38,7 +38,8 @@ export default function CreateProductPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         const res = await fetch(`${apiUrl}/api/admin/products/categories`, {
           cache: 'no-store',
           credentials: 'include',
@@ -61,18 +62,14 @@ export default function CreateProductPage() {
     >,
   ) => {
     const { name, value } = e.target;
-    
-    // Handle numeric fields
+
+    // Handle sale - 0..100
     if (name === 'sale') {
-      let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0')) {
-        numStr = numStr.replace(/^0+/, '');
-      }
-      if (numStr === '') {
+      if (value === '') {
         setFormData((prev) => ({ ...prev, sale: 0 }));
         return;
       }
-      let num = Number(numStr);
+      let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num > 100) num = 100;
       if (num < 0) num = 0;
@@ -80,16 +77,13 @@ export default function CreateProductPage() {
       return;
     }
 
+    // Handle stock & price - no negative
     if (name === 'stock' || name === 'price') {
-      let numStr = value;
-      if (numStr.length > 1 && numStr.startsWith('0')) {
-        numStr = numStr.replace(/^0+/, '');
-      }
-      if (numStr === '') {
+      if (value === '') {
         setFormData((prev) => ({ ...prev, [name]: 0 }));
         return;
       }
-      let num = Number(numStr);
+      let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num < 0) num = 0;
       setFormData((prev) => ({ ...prev, [name]: num }));
@@ -266,7 +260,8 @@ export default function CreateProductPage() {
             onChange={handleChange}
             note={
               <p className="text-xs text-red-500 mt-2">
-                Giá sau giảm {formData.sale}%: {finalPrice(String(formData.price), String(formData.sale))}đ
+                Giá sau giảm {formData.sale}%:{' '}
+                {finalPrice(String(formData.price), String(formData.sale))}đ
               </p>
             }
             required
