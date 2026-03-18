@@ -47,7 +47,6 @@ export default function EditNoteCategoryPage() {
     fetchCategory();
   }, [id]);
 
-  // Submit update
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
