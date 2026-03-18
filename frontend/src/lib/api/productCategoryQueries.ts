@@ -39,12 +39,23 @@ export async function getProductCategories() {
 
 export async function getProductCategoryById(id: string) {
     try {
+        // const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        // console.log('[getProductCategoryById] Fetching from:', `${apiUrl}/api/admin/products/categories/${id}`);
+        const cookieStore = await cookies();
+        const cookieHeader = cookieStore
+            .getAll()
+            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+            .join('; ');
+
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        console.log('[getProductCategoryById] Fetching from:', `${apiUrl}/api/admin/products/categories/${id}`);
+        console.log('[getProductCategories] Fetching from:', `${apiUrl}/api/admin/products/categories`);
 
         const res = await fetch(`${apiUrl}/api/admin/products/categories/${id}`, {
             cache: "no-store",
             credentials: 'include',
+            headers: {
+                cookie: cookieHeader,
+            },
         });
 
         console.log('[getProductCategoryById] Response status:', res.status);
