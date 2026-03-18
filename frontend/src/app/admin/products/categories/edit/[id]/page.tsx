@@ -3,10 +3,8 @@
 import { useEffect, useState, FormEvent, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import {
-  getProductCategoryById,
-  updateProductCategory,
-} from '@/lib/api/apiProductCategories';
+import { getProductCategoryById } from '@/lib/api/apiProductCategories';
+import { serverUpdateProductCategory } from '@/app/actions/productCategoryActions';
 import { CategoryOption } from '@/utils/category';
 import Button from '@/components/Button/Button';
 import Input from '@/components/Input/Input';
@@ -58,13 +56,15 @@ export default function EditNoteCategoryPage() {
     const trimmedName = name.trim();
     if (!trimmedName) {
       setError('Vui lòng nhập tên category');
+      setLoadingSubmit(false);
       return;
     }
 
     try {
-      await updateProductCategory(id, {
+      await serverUpdateProductCategory(id, {
         name: trimmedName,
       });
+      setLoadingSubmit(false);
       startTransition(() => {
         router.push('/admin/products/categories');
       });

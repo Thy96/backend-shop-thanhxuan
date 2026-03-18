@@ -2,7 +2,7 @@
 
 import { useState, FormEvent, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createProductCategory } from '@/lib/api/apiProductCategories';
+import { serverCreateProductCategory } from '@/app/actions/productCategoryActions';
 import { ChevronLeft } from 'lucide-react';
 
 import Button from '@/components/Button/Button';
@@ -24,19 +24,15 @@ export default function CreateCategoryPage() {
     const trimmedName = name.trim();
     if (!trimmedName) {
       setError('Vui lòng nhập tên category');
+      setLoadingSubmit(false);
       return;
     }
 
     try {
-      const res = await createProductCategory({ name: trimmedName });
-
-      if (!res) {
-        setError('Tạo category thất bại. Vui lòng thử lại.');
-        setLoadingSubmit(false);
-        return;
-      }
+      await serverCreateProductCategory({ name: trimmedName });
 
       // Tạo xong thì quay lại list
+      setLoadingSubmit(false);
       startTransition(() => {
         router.push('/admin/products/categories');
       });

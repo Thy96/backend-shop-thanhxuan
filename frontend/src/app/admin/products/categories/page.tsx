@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
-import {
-  getProductCategories,
-  deleteProductCategory,
-} from '@/lib/api/apiProductCategories';
+import { getProductCategories } from '@/lib/api/productCategoryQueries';
+import { serverDeleteProductCategory } from '@/app/actions/productCategoryActions';
 import { CategoryOption } from '@/utils/category';
 
 import PageHeader from '@/components/Layout/Category/PageHeader';
@@ -18,7 +16,7 @@ export default async function CategoriesPage() {
     const id = formData.get('id')?.toString();
     if (!id) return;
 
-    await deleteProductCategory(id);
+    await serverDeleteProductCategory(id);
     revalidatePath('/admin/products/categories');
   }
 
