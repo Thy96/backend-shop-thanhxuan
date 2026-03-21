@@ -1,4 +1,7 @@
-﻿import Link from 'next/link';
+export const dynamic = 'force-dynamic';
+
+import { Suspense } from 'react';
+import Link from 'next/link';
 
 import { getProducts } from '@/lib/api/productQueries';
 import { getProductCategories } from '@/lib/api/productCategoryQueries';
@@ -52,8 +55,11 @@ export default async function ProductsPage({
           </Link>
         }
         count={pagination.total}
-        children={<ProductStatusFilter />}
-      />
+      >
+        <Suspense>
+          <ProductStatusFilter />
+        </Suspense>
+      </AdminPageHeader>
 
       <AdminCard>
         <AdminTable

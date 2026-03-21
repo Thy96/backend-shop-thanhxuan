@@ -1,4 +1,6 @@
-﻿import Link from 'next/link';
+export const dynamic = 'force-dynamic';
+
+import Link from 'next/link';
 
 import { getTrashNotes } from '@/lib/api/noteQueries';
 import {

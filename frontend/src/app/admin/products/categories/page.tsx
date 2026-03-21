@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
 import { getProductCategories } from '@/lib/api/productCategoryQueries';

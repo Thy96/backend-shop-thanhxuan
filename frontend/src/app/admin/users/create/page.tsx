@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { redirect } from 'next/navigation';
 import { getMe } from '@/lib/api/apiAuth';
 import CreateUserForm from './CreateUserForm';

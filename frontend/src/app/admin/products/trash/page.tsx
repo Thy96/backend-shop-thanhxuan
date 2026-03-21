@@ -1,4 +1,6 @@
-﻿import Link from 'next/link';
+export const dynamic = 'force-dynamic';
+
+import Link from 'next/link';
 
 import { getTrashProducts } from '@/lib/api/productQueries';
 import { getProductCategories } from '@/lib/api/productCategoryQueries';
