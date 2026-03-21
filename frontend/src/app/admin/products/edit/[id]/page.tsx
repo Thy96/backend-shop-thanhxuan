@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import type { OutputData } from '@editorjs/editorjs';
-import { serverCreateProduct } from '@/app/actions/productActions';
+import { serverUpdateProduct } from '@/app/actions/productActions';
 
 import { ChevronLeft } from 'lucide-react';
 import { CategoryOption } from '@/utils/format/category';
@@ -18,12 +18,28 @@ import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
-export default function CreateProductPage() {
+interface ProductDetail {
+  _id: string;
+  title: string;
+  price: number;
+  sale: number;
+  stock: number;
+  status: string;
+  categoryId: string | CategoryOption;
+  content: OutputData;
+  images: string[];
+}
+
+export default function EditProductPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const editorRef = useRef<{ save: () => Promise<OutputData> } | null>(null);
-  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([]);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [loadingCate, setLoadingCate] = useState(true);
+  const [loadingProduct, setLoadingProduct] = useState(true);
+  const [initialContent, setInitialContent] = useState<OutputData | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,25 +53,37 @@ export default function CreateProductPage() {
   });
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        const res = await fetch(`${apiUrl}/api/admin/products/categories`, {
-          cache: 'no-store',
-          credentials: 'include',
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const [productRes, cateRes] = await Promise.all([
+          fetch(`${apiUrl}/api/admin/products/${id}`, { cache: 'no-store', credentials: 'include' }),
+          fetch(`${apiUrl}/api/admin/products/categories`, { cache: 'no-store', credentials: 'include' }),
+        ]);
+        const product: ProductDetail = await productRes.json();
+        const cates: CategoryOption[] = await cateRes.json();
+
+        setCategories(cates);
+        setFormData({
+          title: product.title,
+          price: product.price,
+          sale: product.sale,
+          stock: product.stock,
+          categoryId: typeof product.categoryId === 'string' ? product.categoryId : product.categoryId._id,
+          status: product.status || 'draft',
         });
-        const data = await res.json();
-        setCategories(data);
-      } catch (error) {
-        console.error(error);
-        setError('Không lấy được danh sách category');
+        if (product.images?.length) setExistingImages(product.images);
+        if (product.content) setInitialContent(product.content);
+      } catch (err) {
+        console.error(err);
+        setError('Không thể tải dữ liệu sản phẩm');
       } finally {
+        setLoadingProduct(false);
         setLoadingCate(false);
       }
     };
-    fetchCategories();
-  }, []);
+    fetchData();
+  }, [id]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -64,12 +92,8 @@ export default function CreateProductPage() {
   ) => {
     const { name, value } = e.target;
 
-    // Handle sale - 0..100
     if (name === 'sale') {
-      if (value === '') {
-        setFormData((prev) => ({ ...prev, sale: 0 }));
-        return;
-      }
+      if (value === '') { setFormData((prev) => ({ ...prev, sale: 0 })); return; }
       let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num > 100) num = 100;
@@ -78,12 +102,8 @@ export default function CreateProductPage() {
       return;
     }
 
-    // Handle stock & price - no negative
     if (name === 'stock' || name === 'price') {
-      if (value === '') {
-        setFormData((prev) => ({ ...prev, [name]: 0 }));
-        return;
-      }
+      if (value === '') { setFormData((prev) => ({ ...prev, [name]: 0 })); return; }
       let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num < 0) num = 0;
@@ -96,24 +116,25 @@ export default function CreateProductPage() {
 
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-
     const selectedFiles = Array.from(e.target.files);
-
-    if (images.length + selectedFiles.length > 3) {
+    const totalCount = existingImages.length + newImages.length + selectedFiles.length;
+    if (totalCount > 3) {
       alert('Chỉ được chọn tối đa 3 hình ảnh');
       return;
     }
-
-    const newImages = selectedFiles.map((file) => ({
+    const mapped = selectedFiles.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
-
-    setImages((prev) => [...prev, ...newImages]);
+    setNewImages((prev) => [...prev, ...mapped]);
   };
 
-  const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -130,7 +151,6 @@ export default function CreateProductPage() {
       }
 
       const data = {
-        images: images.map((img) => img.file),
         title: formData.title,
         content,
         price: formData.price,
@@ -138,25 +158,28 @@ export default function CreateProductPage() {
         stock: formData.stock,
         categoryId: formData.categoryId,
         status: formData.status,
+        images: newImages.length > 0 ? newImages.map((img) => img.file) : null,
       };
 
-      await serverCreateProduct(data);
+      await serverUpdateProduct(id, data);
       startTransition(() => {
         router.push('/admin/products');
       });
     } catch (error: unknown) {
       setError(
-        error instanceof Error ? error.message : 'Tạo không thành công!',
+        error instanceof Error ? error.message : 'Cập nhật không thành công!',
       );
     } finally {
       setLoadingSubmit(false);
     }
   }
 
+  if (loadingProduct) return <LoadingClient text="Đang tải sản phẩm..." />;
+
   return (
     <>
       {(loadingSubmit || isPending) && (
-        <LoadingClient text="Đang tạo sản phẩm..." />
+        <LoadingClient text="Đang cập nhật sản phẩm..." />
       )}
       <Button
         type="button"
@@ -169,7 +192,7 @@ export default function CreateProductPage() {
         {/* Images */}
         <div>
           <Input
-            label="📁 Chọn hình ảnh (tối đa 3)"
+            label="📁 Chọn hình ảnh mới (tối đa 3)"
             id="images"
             type="file"
             accept="image/*"
@@ -183,18 +206,36 @@ export default function CreateProductPage() {
             }}
           />
           <div className="grid grid-cols-3 gap-2">
-            {images.map((img, index) => (
-              <div key={index} className="relative group">
+            {existingImages.map((url, index) => (
+              <div key={`existing-${index}`} className="relative group">
                 <Image
-                  src={img.preview}
-                  alt={`Preview ${index}`}
+                  src={url}
+                  alt={`Ảnh ${index + 1}`}
                   className="w-full h-32 object-cover rounded-lg border"
                   width={100}
                   height={100}
                 />
                 <button
                   type="button"
-                  onClick={() => removeImage(index)}
+                  onClick={() => removeExistingImage(index)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            {newImages.map((img, index) => (
+              <div key={`new-${index}`} className="relative group">
+                <Image
+                  src={img.preview}
+                  alt={`Ảnh mới ${index + 1}`}
+                  className="w-full h-32 object-cover rounded-lg border opacity-80"
+                  width={100}
+                  height={100}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeNewImage(index)}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
                 >
                   ✕
@@ -215,6 +256,7 @@ export default function CreateProductPage() {
                 label: cat.name,
               }))}
               name="categoryId"
+              value={formData.categoryId}
               onChange={handleChange}
               label="Danh mục"
               required
@@ -242,12 +284,13 @@ export default function CreateProductPage() {
           label="Tiêu đề"
           placeholder="Nhập tiêu đề sản phẩm..."
           name="title"
-          onChange={handleChange}
           value={formData.title}
+          onChange={handleChange}
           required
         />
 
         <Editor
+          initialData={initialContent}
           onReady={(editor) => {
             editorRef.current = editor;
           }}
@@ -294,7 +337,7 @@ export default function CreateProductPage() {
           />
         </div>
 
-        <Button type="submit">Thêm sản phẩm</Button>
+        <Button type="submit">Cập Nhật Sản Phẩm</Button>
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </>

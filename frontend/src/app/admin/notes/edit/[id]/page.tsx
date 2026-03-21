@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import type { OutputData } from '@editorjs/editorjs';
-import { serverCreateNote } from '@/app/actions/noteActions';
+import { serverUpdateNote } from '@/app/actions/noteActions';
 
 import { ChevronLeft } from 'lucide-react';
 import { CategoryOption } from '@/utils/format/category';
@@ -17,14 +17,28 @@ import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
-export default function CreateNotePage() {
+interface NoteDetail {
+  _id: string;
+  title: string;
+  categoryId: string | CategoryOption;
+  content: OutputData;
+  thumbnail: string;
+}
+
+export default function EditNotePage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const editorRef = useRef<{ save: () => Promise<OutputData> } | null>(null);
-  const [image, setImage] = useState<File | null>(null);
+  const [newImage, setNewImage] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [imageDeleted, setImageDeleted] = useState(false);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [loadingCate, setLoadingCate] = useState(true);
+  const [loadingNote, setLoadingNote] = useState(true);
+  const [initialContent, setInitialContent] = useState<OutputData | undefined>(
+    undefined,
+  );
   const [isPending, startTransition] = useTransition();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,23 +48,41 @@ export default function CreateNotePage() {
   });
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/admin/notes/categories', {
-          cache: 'no-store',
-          credentials: 'include',
+        const [noteRes, cateRes] = await Promise.all([
+          fetch(`/api/admin/notes/${id}`, {
+            cache: 'no-store',
+            credentials: 'include',
+          }),
+          fetch('/api/admin/notes/categories', {
+            cache: 'no-store',
+            credentials: 'include',
+          }),
+        ]);
+        const note: NoteDetail = await noteRes.json();
+        const cates: CategoryOption[] = await cateRes.json();
+
+        setCategories(cates);
+        setFormData({
+          title: note.title,
+          categoryId:
+            typeof note.categoryId === 'string'
+              ? note.categoryId
+              : note.categoryId._id,
         });
-        const data = await res.json();
-        setCategories(data);
-      } catch (error) {
-        console.error(error);
-        setError('Không lấy được danh sách category');
+        if (note.thumbnail) setPreview(note.thumbnail);
+        if (note.content) setInitialContent(note.content);
+      } catch (err) {
+        console.error(err);
+        setError('Không thể tải dữ liệu bài viết');
       } finally {
+        setLoadingNote(false);
         setLoadingCate(false);
       }
     };
-    fetchCategories();
-  }, []);
+    fetchData();
+  }, [id]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -64,59 +96,58 @@ export default function CreateNotePage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImage(file);
+      setNewImage(file);
       setFileName(file.name);
       setPreview(URL.createObjectURL(file));
-    } else {
-      setImage(null);
-      setFileName(null);
-      setPreview(null);
+      setImageDeleted(false);
     }
   };
 
   const removeImage = () => {
     setPreview(null);
-    setImage(null);
+    setNewImage(null);
+    setImageDeleted(true);
   };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoadingSubmit(true);
-    // console.log('EDITOR REF:', editorRef.current);
 
     try {
       if (!editorRef.current) throw new Error('Editor chưa sẵn sàng');
 
       const content = await editorRef.current.save();
-      // console.log('EDITOR CONTENT:', content);
 
       if (!isEditorContentValid(content))
         throw new Error('Vui lòng nhập nội dung');
 
       const data = {
-        thumbnail: image,
+        thumbnail: newImage,
         title: formData.title,
         content,
         categoryId: formData.categoryId,
+        imageDeleted,
       };
 
-      await serverCreateNote(data);
+      await serverUpdateNote(id, data);
       startTransition(() => {
         router.push('/admin/notes');
       });
     } catch (error: unknown) {
       setError(
-        error instanceof Error ? error.message : 'Tạo không thành công!',
+        error instanceof Error ? error.message : 'Cập nhật không thành công!',
       );
     } finally {
       setLoadingSubmit(false);
     }
   }
 
+  if (loadingNote) return <LoadingClient text="Đang tải bài viết..." />;
+
   return (
     <>
       {(loadingSubmit || isPending) && (
-        <LoadingClient text="Đang tạo bài viết..." />
+        <LoadingClient text="Đang cập nhật bài viết..." />
       )}
       <Button
         type="button"
@@ -144,14 +175,11 @@ export default function CreateNotePage() {
           {preview && (
             <div
               className="relative group"
-              style={{
-                width: '128px',
-                height: '128px',
-              }}
+              style={{ width: '128px', height: '128px' }}
             >
               <Image
                 src={preview}
-                alt={fileName ? fileName : 'example'}
+                alt={fileName ?? 'thumbnail'}
                 className="w-32 h-32 object-cover rounded-lg border"
                 width={350}
                 height={350}
@@ -176,29 +204,31 @@ export default function CreateNotePage() {
             label: cat.name,
           }))}
           name="categoryId"
+          value={formData.categoryId}
           onChange={handleChange}
           label="Thể Loại"
           required
           disabled={loadingCate}
         />
-        {/* Tiêu đề */}
+
         <Input
           id="title"
           label="Tiêu Đề"
           placeholder="Nhập tiêu đề..."
           name="title"
+          value={formData.title}
           onChange={handleChange}
           required
         />
 
-        {/* Nội dung */}
         <Editor
+          initialData={initialContent}
           onReady={(editor) => {
             editorRef.current = editor;
           }}
         />
 
-        <Button type="submit">Thêm Tin Tức</Button>
+        <Button type="submit">Cập Nhật Tin Tức</Button>
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </>
