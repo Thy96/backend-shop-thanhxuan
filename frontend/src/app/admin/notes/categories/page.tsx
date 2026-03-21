@@ -2,11 +2,11 @@ import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
 import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
 import { serverDeleteNoteCategory } from '@/app/actions/noteCategoryActions';
-import { CategoryOption } from '@/utils/category';
+import { CategoryOption } from '@/utils/format/category';
 
-import PageHeader from '@/components/Layout/Category/PageHeader';
-import Card from '@/components/Layout/Category/Card';
-import Tablelayout from '@/components/Layout/Category/Tablelayout';
+import PageHeader from '@/components/layout/Category/PageHeader';
+import Card from '@/components/layout/Category/Card';
+import Tablelayout from '@/components/layout/Category/Tablelayout';
 
 export default async function CategoriesPage() {
   const categories = await getNoteCategories();

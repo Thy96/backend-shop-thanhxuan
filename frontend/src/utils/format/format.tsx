@@ -137,7 +137,7 @@ export const finalPrice = (
   );
 };
 
-export function formatRevenue(data: any[]) {
+export function formatRevenue(data: { _id: number; value: number }[]) {
   const months = Array.from({ length: 12 }, (_, i) => ({
     name: `T${i + 1}`,
     value: 0,
@@ -150,17 +150,18 @@ export function formatRevenue(data: any[]) {
   return months;
 }
 
-export const formatMillions = (value: any) => {
-  if (value >= 1_000_000) {
-    return (value / 1_000_000).toFixed(1).replace('.0', '') + ' triệu';
+export const formatMillions = (value: number) => {
+  const num = Number(value);
+  if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1).replace('.0', '') + ' triệu';
   }
-  if (value >= 1_000) {
-    return (value / 1_000).toFixed(1).replace('.0', '') + 'k';
+  if (num >= 1_000) {
+    return (num / 1_000).toFixed(1).replace('.0', '') + 'k';
   }
-  return value;
+  return String(num);
 };
 
-export function formatChartData(data: any[]) {
+export function formatChartData(data: { _id: number; value: number }[]) {
   const months = Array.from({ length: 12 }, (_, i) => ({
     name: `T${i + 1}`,
     value: 0,

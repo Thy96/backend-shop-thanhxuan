@@ -1,44 +1,40 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { serverUpdateProduct } from '@/app/actions/productActions';
+import type { OutputData } from '@editorjs/editorjs';
+import { serverCreateProduct } from '@/app/actions/productActions';
 
-import { finalPrice } from '@/utils/format';
 import { ChevronLeft } from 'lucide-react';
-import { CategoryOption } from '@/utils/category';
-import isEditorContentValid from '@/utils/validationEditor';
+import { CategoryOption } from '@/utils/format/category';
+import isEditorContentValid from '@/utils/validation/validationEditor';
+import { finalPrice } from '@/utils/format/format';
 
-import Input from '@/components/Input/Input';
-import Select from '@/components/Select/Select';
-import Button from '@/components/Button/Button';
-import Editor from '@/components/Editor/Editor';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Input from '@/components/ui/forms/Input';
+import Select from '@/components/ui/forms/Select';
+import Button from '@/components/ui/forms/Button';
+import Editor from '@/components/ui/forms/Editor';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
-export default function EditProductPage() {
+export default function CreateProductPage() {
   const router = useRouter();
-  const params = useParams();
-  const editorRef = useRef<any>(null);
-
+  const editorRef = useRef<{ save: () => Promise<OutputData> } | null>(null);
+  const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [loadingCate, setLoadingCate] = useState(true);
+  const [isPending, startTransition] = useTransition();
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    content: '',
     price: 0,
     sale: 0,
     stock: 0,
     categoryId: '',
     status: 'draft',
   });
-
-  const [categories, setCategories] = useState<CategoryOption[]>([]);
-  const [images, setImages] = useState<{ file?: File; preview: string }[]>([]);
-  const [isPending, startTransition] = useTransition();
-  const [loadingPage, setLoadingPage] = useState(true);
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [loadingCate, setLoadingCate] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -61,54 +57,6 @@ export default function EditProductPage() {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    async function fetchProduct() {
-      try {
-        setLoadingPage(true);
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        const res = await fetch(`${apiUrl}/api/admin/products/${params.id}`, {
-          cache: 'no-store',
-          credentials: 'include',
-        });
-
-        if (!res.ok) throw new Error('Không tìm thấy sản phẩm');
-
-        const product = await res.json();
-
-        setFormData({
-          title: product.title || '',
-          content: product.content || '',
-          price: product.price || 0,
-          sale: product.sale || 0,
-          stock: product.stock || 0,
-          categoryId: product.categoryId || '',
-          status: product.status || 'draft',
-        });
-
-        const normalizedImages = (product.images || []).map((img: any) => {
-          const BASE_URL = 'http://localhost:4000';
-          if (typeof img === 'string') {
-            const fullUrl = img.startsWith('/uploads/')
-              ? `${BASE_URL}${img}`
-              : img;
-            return { file: undefined, preview: fullUrl };
-          }
-          return img;
-        });
-
-        setImages(normalizedImages);
-      } catch (err: any) {
-        console.error('Fetch product error:', err);
-        setError('Không thể tải sản phẩm');
-      } finally {
-        setLoadingPage(false);
-      }
-    }
-
-    if (params.id) fetchProduct();
-  }, [params.id]);
-
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -116,6 +64,7 @@ export default function EditProductPage() {
   ) => {
     const { name, value } = e.target;
 
+    // Handle sale - 0..100
     if (name === 'sale') {
       if (value === '') {
         setFormData((prev) => ({ ...prev, sale: 0 }));
@@ -129,6 +78,7 @@ export default function EditProductPage() {
       return;
     }
 
+    // Handle stock & price - no negative
     if (name === 'stock' || name === 'price') {
       if (value === '') {
         setFormData((prev) => ({ ...prev, [name]: 0 }));
@@ -180,7 +130,7 @@ export default function EditProductPage() {
       }
 
       const data = {
-        images: images.filter((img) => img.file).map((img) => img.file as File),
+        images: images.map((img) => img.file),
         title: formData.title,
         content,
         price: formData.price,
@@ -190,23 +140,23 @@ export default function EditProductPage() {
         status: formData.status,
       };
 
-      await serverUpdateProduct(params.id as string, data);
+      await serverCreateProduct(data);
       startTransition(() => {
         router.push('/admin/products');
       });
-    } catch (error: any) {
-      setError(error.message || 'Cập nhật không thành công!');
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error ? error.message : 'Tạo không thành công!',
+      );
     } finally {
       setLoadingSubmit(false);
     }
   }
 
-  if (loadingPage) return <LoadingClient />;
-
   return (
     <>
       {(loadingSubmit || isPending) && (
-        <LoadingClient text="Đang cập nhật sản phẩm..." />
+        <LoadingClient text="Đang tạo sản phẩm..." />
       )}
       <Button
         type="button"
@@ -264,11 +214,11 @@ export default function EditProductPage() {
                 value: cat._id,
                 label: cat.name,
               }))}
-              value={formData.categoryId}
               name="categoryId"
               onChange={handleChange}
               label="Danh mục"
               required
+              disabled={loadingCate}
             />
           </div>
 
@@ -292,19 +242,16 @@ export default function EditProductPage() {
           label="Tiêu đề"
           placeholder="Nhập tiêu đề sản phẩm..."
           name="title"
-          value={formData.title}
           onChange={handleChange}
+          value={formData.title}
           required
         />
 
-        {formData.content && (
-          <Editor
-            initialData={formData.content}
-            onReady={(editor) => {
-              editorRef.current = editor;
-            }}
-          />
-        )}
+        <Editor
+          onReady={(editor) => {
+            editorRef.current = editor;
+          }}
+        />
 
         <div className="grid grid-cols-3 gap-2">
           <Input
@@ -347,7 +294,8 @@ export default function EditProductPage() {
           />
         </div>
 
-        <Button type="submit">Cập nhật sản phẩm</Button>
+        <Button type="submit">Thêm sản phẩm</Button>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </>
   );

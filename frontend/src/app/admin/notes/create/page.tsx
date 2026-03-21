@@ -1,24 +1,25 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+import type { OutputData } from '@editorjs/editorjs';
 import { serverCreateNote } from '@/app/actions/noteActions';
 
 import { ChevronLeft } from 'lucide-react';
-import { CategoryOption } from '@/utils/category';
-import isEditorContentValid from '@/utils/validationEditor';
+import { CategoryOption } from '@/utils/format/category';
+import isEditorContentValid from '@/utils/validation/validationEditor';
 
-import Input from '@/components/Input/Input';
-import Select from '@/components/Select/Select';
-import Button from '@/components/Button/Button';
-import Editor from '@/components/Editor/Editor';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Input from '@/components/ui/forms/Input';
+import Select from '@/components/ui/forms/Select';
+import Button from '@/components/ui/forms/Button';
+import Editor from '@/components/ui/forms/Editor';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 export default function CreateNotePage() {
   const router = useRouter();
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<{ save: () => Promise<OutputData> } | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -103,8 +104,10 @@ export default function CreateNotePage() {
       startTransition(() => {
         router.push('/admin/notes');
       });
-    } catch (error: any) {
-      setError(error.message || 'Tạo không thành công!');
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error ? error.message : 'Tạo không thành công!',
+      );
     } finally {
       setLoadingSubmit(false);
     }
@@ -169,13 +172,14 @@ export default function CreateNotePage() {
 
         <Select
           options={categories.map((cat) => ({
-            value: cat._id, // 👈 DÙNG _id gán vào slug
+            value: cat._id,
             label: cat.name,
           }))}
           name="categoryId"
           onChange={handleChange}
           label="Thể Loại"
           required
+          disabled={loadingCate}
         />
         {/* Tiêu đề */}
         <Input
@@ -195,6 +199,7 @@ export default function CreateNotePage() {
         />
 
         <Button type="submit">Thêm Tin Tức</Button>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </>
   );

@@ -1,5 +1,6 @@
 'use server';
 
+import type { OutputData } from '@editorjs/editorjs';
 import { cookies } from 'next/headers';
 
 // Helper function to get auth token
@@ -12,7 +13,7 @@ async function getAuthToken(): Promise<string | null> {
 // Server Actions (mutations - dùng được từ client components)
 export async function serverCreateProduct(product: {
     title: string;
-    content: any;
+    content: OutputData;
     price: number;
     sale?: number;
     stock?: number;
@@ -76,7 +77,7 @@ export async function serverUpdateProduct(
     id: string,
     product: {
         title: string;
-        content: any;
+        content: OutputData;
         price: number;
         sale: number;
         stock: number;
@@ -152,7 +153,7 @@ export async function serverMoveProductToTrash(id: string) {
 
         console.log('[serverMoveProductToTrash] Response status:', res.status);
 
-        const data = await res.json().catch(() => ({} as any));
+        const data = await res.json().catch(() => ({} as Record<string, unknown>));
 
         if (!res.ok) {
             console.error('[serverMoveProductToTrash] Server error:', res.status, data);

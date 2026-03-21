@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 interface ForceDeleteButtonProps {
   id: string;

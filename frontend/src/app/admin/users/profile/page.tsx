@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 
-import Button from '@/components/Button/Button';
-import Input from '@/components/Input/Input';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Button from '@/components/ui/forms/Button';
+import Input from '@/components/ui/forms/Input';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 import useMe from '@/lib/hook/useMe';
 import { API_URL } from '@/utils/helps';
@@ -43,8 +43,8 @@ export default function ProfilePage() {
 
       setMessage('✅ Cập nhật thông tin thành công');
       setUser((prev) => prev && { ...prev, fullName, phone });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingSubmit(false);
     }

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,12 +8,12 @@ import { ChevronLeft } from 'lucide-react';
 import { CreateUserDTO } from '@/lib/types';
 import { createUser } from '@/lib/api/apiUserClient';
 
-import { ROLE_OPTIONS } from '@/utils/roleOptions';
+import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
 
-import Button from '@/components/Button/Button';
-import Input from '@/components/Input/Input';
-import Select from '@/components/Select/Select';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Button from '@/components/ui/forms/Button';
+import Input from '@/components/ui/forms/Input';
+import Select from '@/components/ui/forms/Select';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 function CreateUserForm() {
   const router = useRouter();
@@ -56,8 +56,8 @@ function CreateUserForm() {
       startTransition(() => {
         router.push('/admin/users');
       });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setLoadingSubmit(false);
     }
   }

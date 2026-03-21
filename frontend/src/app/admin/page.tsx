@@ -18,17 +18,26 @@ import {
   getRevenueByMonth,
   getVisitsByMonth,
 } from '@/lib/api/apiDashboard';
-import { formatChartData, formatRevenue } from '@/utils/format';
+import { formatChartData, formatRevenue } from '@/utils/format/format';
 
-import LoadingClient from '@/components/Loading/LoadingClient';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 import StatCard from '@/components/Dashboard/StatCard';
-import { formatMillions } from '../../utils/format';
+import { formatMillions } from '../../utils/format/format';
+
+interface DashboardStats {
+  totalPosts: number;
+  totalProducts: number;
+  totalOrders: number;
+  revenue: number;
+}
+
+type ChartDataPoint = { name: string; value: number };
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loadingPage, setLoadingPage] = useState(true);
-  const [revenueData, setRevenueData] = useState<any>([]);
-  const [visitData, setVisitData] = useState<any[]>([]);
+  const [revenueData, setRevenueData] = useState<ChartDataPoint[]>([]);
+  const [visitData, setVisitData] = useState<ChartDataPoint[]>([]);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -73,6 +82,7 @@ export default function DashboardPage() {
   }, []);
 
   if (loadingPage) return <LoadingClient />;
+  if (!stats) return null;
 
   return (
     <div className="p-6 space-y-6">
@@ -105,7 +115,7 @@ export default function DashboardPage() {
                 angle={-30}
                 textAnchor={'end'}
               />
-              <Tooltip formatter={(value: any) => formatMillions(value)} />
+              <Tooltip formatter={(value) => formatMillions(value as number)} />
               <Line
                 type="monotone"
                 dataKey="value"

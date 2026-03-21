@@ -1,13 +1,13 @@
-'use client';
+﻿'use client';
 
 import { useState, FormEvent, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { serverCreateNoteCategory } from '@/app/actions/noteCategoryActions';
 import { ChevronLeft } from 'lucide-react';
 
-import Button from '@/components/Button/Button';
-import Input from '@/components/Input/Input';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Button from '@/components/ui/forms/Button';
+import Input from '@/components/ui/forms/Input';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 export default function CreateCategoryPage() {
   const router = useRouter();

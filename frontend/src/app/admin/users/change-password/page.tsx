@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 import React, { useState } from 'react';
 
-import Button from '@/components/Button/Button';
-import Input from '@/components/Input/Input';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Button from '@/components/ui/forms/Button';
+import Input from '@/components/ui/forms/Input';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 import { changePassword } from '@/lib/api/apiChangePassword';
 
@@ -44,11 +44,15 @@ function ProfilePage() {
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (err: any) {
-      if (err?.errors) {
-        setErrors(err.errors);
+    } catch (err: unknown) {
+      if (err !== null && typeof err === 'object' && 'errors' in err) {
+        setErrors((err as { errors: Record<string, string> }).errors);
       } else {
-        setErrorMsg(err?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+        setErrorMsg(
+          err instanceof Error
+            ? err.message
+            : 'Có lỗi xảy ra. Vui lòng thử lại.',
+        );
       }
     } finally {
       setLoadingSubmit(false);

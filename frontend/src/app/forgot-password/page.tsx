@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 import { API_URL } from '@/utils/helps';
 
-import Button from '@/components/Button/Button';
-import Input from '@/components/Input/Input';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Button from '@/components/ui/forms/Button';
+import Input from '@/components/ui/forms/Input';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -35,8 +35,8 @@ export default function ForgotPasswordPage() {
       }
 
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Không thể gửi email');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Không thể gửi email');
     } finally {
       setLoadingSubmit(false);
     }

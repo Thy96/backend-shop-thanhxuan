@@ -6,14 +6,14 @@ import { blockUser, getUsers } from '@/lib/api/apiUserSSR';
 import { getMe } from '@/lib/api/apiAuth';
 import { PaginationProps, User } from '@/lib/types';
 
-import { getPaginationRange } from '@/utils/pagination';
-import { formatDate } from '@/utils/format';
+import { getPaginationRange } from '@/utils/format/pagination';
+import { formatDate } from '@/utils/format/format';
 
-import AdminPageHeader from '@/components/Layout/Pages/AdminPageHeader';
-import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import AdminCard from '@/components/Layout/Pages/AdminCard';
-import AdminTable from '@/components/Layout/Pages/AdminTable';
-import AdminRowActions from '@/components/Layout/Pages/AdminRowActions';
+import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
+import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import AdminCard from '@/components/layout/Admin/AdminCard';
+import AdminTable from '@/components/layout/Admin/AdminTable';
+import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
 
 export default async function UsersPage({
   searchParams,

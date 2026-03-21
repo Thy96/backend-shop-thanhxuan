@@ -93,7 +93,7 @@ export async function serverDeleteNoteCategory(id: string) {
 
         console.log('[serverDeleteNoteCategory] Response status:', res.status);
 
-        const data = await res.json().catch(() => ({} as any));
+        const data = await res.json().catch(() => ({} as Record<string, unknown>));
 
         if (!res.ok) {
             console.error('[serverDeleteNoteCategory] Server error:', res.status, data);

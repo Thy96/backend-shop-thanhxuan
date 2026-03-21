@@ -1,72 +1,20 @@
-'use client';
+﻿'use client';
 
-import { useEffect, useState, FormEvent, useTransition } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState, FormEvent, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { serverCreateProductCategory } from '@/app/actions/productCategoryActions';
 import { ChevronLeft } from 'lucide-react';
-import { getProductCategoryById } from '@/lib/api/productCategoryQueries';
-import { serverUpdateProductCategory } from '@/app/actions/productCategoryActions';
-import { CategoryOption } from '@/utils/category';
-import Button from '@/components/Button/Button';
-import Input from '@/components/Input/Input';
-import LoadingClient from '@/components/Loading/LoadingClient';
 
-export default function EditNoteCategoryPage() {
+import Button from '@/components/ui/forms/Button';
+import Input from '@/components/ui/forms/Input';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
+
+export default function CreateCategoryPage() {
   const router = useRouter();
-  const params = useParams();
-  const id = params.id as string;
-
-  const [category, setCategory] = useState<CategoryOption | null>(null);
   const [name, setName] = useState('');
   const [isPending, startTransition] = useTransition();
-  const [loadingpage, setLoadingPage] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Load category khi vào page
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchCategory = async () => {
-      try {
-        setLoadingPage(true);
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        console.log(
-          '[EditNoteCategoryPage] Fetching from:',
-          `${apiUrl}/api/admin/products/categories/${id}`,
-        );
-
-        const res = await fetch(
-          `${apiUrl}/api/admin/products/categories/${id}`,
-          {
-            cache: 'no-store',
-            credentials: 'include',
-          },
-        );
-
-        console.log('[EditNoteCategoryPage] Response status:', res.status);
-
-        if (!res.ok) {
-          throw new Error(`API Error ${res.status}: Không tìm thấy category.`);
-        }
-
-        const data = await res.json();
-        if (!data) {
-          setError('Không tìm thấy category.');
-          return;
-        }
-        setCategory(data);
-        setName(data.name);
-      } catch (err) {
-        console.error(err);
-        setError('Có lỗi khi tải category.');
-      } finally {
-        setLoadingPage(false);
-      }
-    };
-
-    fetchCategory();
-  }, [id]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -81,41 +29,24 @@ export default function EditNoteCategoryPage() {
     }
 
     try {
-      await serverUpdateProductCategory(id, {
-        name: trimmedName,
-      });
+      await serverCreateProductCategory({ name: trimmedName });
+
+      // Tạo xong thì quay lại list
       setLoadingSubmit(false);
       startTransition(() => {
         router.push('/admin/products/categories');
       });
     } catch (err) {
       console.error(err);
-      setError('Đã có lỗi xảy ra khi cập nhật. Vui lòng thử lại.');
+      setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
       setLoadingSubmit(false);
     }
   };
 
-  if (loadingpage) return <LoadingClient />;
-
-  if (error && !category) {
-    return (
-      <>
-        <p className="text-red-500">{error}</p>
-        <Button
-          type="button"
-          onClick={() => router.push('/admin/products/categories')}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer flex justify-center max-w-[200]"
-        >
-          <ChevronLeft width={23} height={23} /> Quay Lại Danh Mục
-        </Button>
-      </>
-    );
-  }
-
   return (
     <>
       {(loadingSubmit || isPending) && (
-        <LoadingClient text="Đang cập nhật danh mục..." />
+        <LoadingClient text="Đang tạo danh mục..." />
       )}
       <Button
         type="button"
@@ -127,19 +58,20 @@ export default function EditNoteCategoryPage() {
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
         <Input
           id="name"
-          label="Tên danh mục"
           name="name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded border px-3 py-2 text-sm"
+          placeholder="Ví dụ: Tin tức, Hướng dẫn..."
           required
+          label="Tên danh mục"
         />
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <Button type="submit" className="max-w-20">
-          Sửa
+        <Button type="submit" className="max-w-40">
+          Tạo danh mục
         </Button>
       </form>
     </>

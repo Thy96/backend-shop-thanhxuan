@@ -1,15 +1,16 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 
-import Input from '@/components/Input/Input';
+import Input from '@/components/ui/forms/Input';
 import { editUser, getUserById } from '@/lib/api/apiUserClient';
-import Select from '@/components/Select/Select';
-import Button from '@/components/Button/Button';
+import Select from '@/components/ui/forms/Select';
+import Button from '@/components/ui/forms/Button';
 import { ChevronLeft } from 'lucide-react';
-import LoadingClient from '@/components/Loading/LoadingClient';
-import { ROLE_OPTIONS } from '@/utils/roleOptions';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
+import { User } from '@/lib/types';
 
 function EditUserPage() {
   const router = useRouter();
@@ -17,7 +18,7 @@ function EditUserPage() {
 
   const id = params.id as string;
 
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState('');
   const [loadingPage, setLoadingPage] = useState(true);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -59,8 +60,8 @@ function EditUserPage() {
       startTransition(() => {
         router.push('/admin/users');
       });
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : String(err));
       setLoadingSubmit(false); // chỉ tắt khi lỗi
     }
   }

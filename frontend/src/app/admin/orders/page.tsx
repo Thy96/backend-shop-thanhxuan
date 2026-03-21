@@ -1,14 +1,21 @@
+﻿import React from 'react';
 import Image from 'next/image';
 
-import { ORDER_STATUS_LABEL, ORDER_STATUS_STYLE } from '@/utils/orderStatus';
+import {
+  ORDER_STATUS_LABEL,
+  ORDER_STATUS_STYLE,
+} from '@/utils/constants/orderStatus';
 import { getAllOrders } from '@/lib/api/apiOrders';
-import { OrderProps, PaginationProps } from '@/lib/types';
+import { OrderItem, OrderProps, PaginationProps } from '@/lib/types';
 
-import { getPaginationRange } from '@/utils/pagination';
-import { PAY_METHOD_LABEL, PAY_METHOD_STYLE } from '@/utils/payMethod';
+import { getPaginationRange } from '@/utils/format/pagination';
+import {
+  PAY_METHOD_LABEL,
+  PAY_METHOD_STYLE,
+} from '@/utils/constants/payMethod';
 
-import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import OrderStatusSelect from '@/components/OrderStatusSelect/OrderStatusSelect';
+import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import OrderStatusSelect from '@/components/ui/filters/OrderStatusSelect';
 
 export default async function MyOrdersPage({
   searchParams,
@@ -107,7 +114,7 @@ export default async function MyOrdersPage({
 
             {/* ===== ROW 3: PRODUCTS ===== */}
             <div className="p-6 space-y-4">
-              {order.items.map((item: any) => (
+              {order.items.map((item: OrderItem) => (
                 <div
                   key={item._id}
                   className="flex items-center gap-4 border rounded-lg p-4 hover:shadow transition border-blue-100"
@@ -155,7 +162,7 @@ const Info = ({
   valueClass = '',
 }: {
   label: string;
-  value: any;
+  value: React.ReactNode;
   valueClass?: string;
 }) => (
   <div>

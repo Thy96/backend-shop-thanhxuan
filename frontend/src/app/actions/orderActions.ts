@@ -8,13 +8,11 @@ export async function updateOrderStatusAction(orderId: string, status: string) {
     await updateOrderStatus(orderId, status);
     revalidatePath('/admin/orders');
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
       message:
-        error?.response?.data?.message ||
-        error?.message ||
-        'Không thể cập nhật trạng thái',
+        error instanceof Error ? error.message : 'Không thể cập nhật trạng thái',
     };
   }
 }

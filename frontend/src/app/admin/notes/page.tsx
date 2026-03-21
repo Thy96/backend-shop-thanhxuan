@@ -1,20 +1,20 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 import { getNotes } from '@/lib/api/noteQueries';
 import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
 import { serverMoveNoteToTrash } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
 
-import { getCategoryLabel } from '@/utils/category';
-import { formatDate } from '@/utils/format';
-import { getPaginationRange } from '@/utils/pagination';
+import { getCategoryLabel } from '@/utils/format/category';
+import { formatDate } from '@/utils/format/format';
+import { getPaginationRange } from '@/utils/format/pagination';
 
-import AdminPageHeader from '@/components/Layout/Pages/AdminPageHeader';
-import AdminCard from '@/components/Layout/Pages/AdminCard';
-import AdminTable from '@/components/Layout/Pages/AdminTable';
-import AdminRowActions from '@/components/Layout/Pages/AdminRowActions';
-import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import DeleteButton from '@/components/DeleteButton/DeleteButton';
+import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
+import AdminCard from '@/components/layout/Admin/AdminCard';
+import AdminTable from '@/components/layout/Admin/AdminTable';
+import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
+import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import DeleteButton from '@/components/ui/actions/DeleteButton';
 
 export default async function NotesPage({
   searchParams,

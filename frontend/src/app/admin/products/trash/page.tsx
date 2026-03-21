@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 import { getTrashProducts } from '@/lib/api/productQueries';
 import { getProductCategories } from '@/lib/api/productCategoryQueries';
@@ -8,16 +8,16 @@ import {
 } from '@/app/actions/productActions';
 import { PaginationProps, ProductProps } from '@/lib/types';
 
-import { getPaginationRange } from '@/utils/pagination';
-import { getCategoryLabel } from '@/utils/category';
-import { finalPrice, formatDate, formatNumber } from '@/utils/format';
+import { getPaginationRange } from '@/utils/format/pagination';
+import { getCategoryLabel } from '@/utils/format/category';
+import { finalPrice, formatDate, formatNumber } from '@/utils/format/format';
 
-import AdminPageHeader from '@/components/Layout/Pages/AdminPageHeader';
-import AdminCard from '@/components/Layout/Pages/AdminCard';
-import AdminTable from '@/components/Layout/Pages/AdminTable';
-import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import RestoreButton from '@/components/RestoreButton/RestoreButton';
-import ForceDeleteButton from '@/components/ForceDeleteButton/ForceDeleteButton';
+import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
+import AdminCard from '@/components/layout/Admin/AdminCard';
+import AdminTable from '@/components/layout/Admin/AdminTable';
+import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import RestoreButton from '@/components/ui/actions/RestoreButton';
+import ForceDeleteButton from '@/components/ui/actions/ForceDeleteButton';
 
 export default async function TrashProductsPage({
   searchParams,

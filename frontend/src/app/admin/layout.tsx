@@ -1,6 +1,6 @@
-import '../globals.css'; // nếu bạn cần global styles
-import Sidebar from '@/components/Sidebar/Sidebar';
-import ScrollTop from '@/components/ScrollTop/ScrollTop';
+﻿import '../globals.css'; // nếu bạn cần global styles
+import Sidebar from '@/components/layout/Sidebar';
+import ScrollTop from '@/components/ui/ScrollTop';
 
 export default function AdminLayout({
   children,

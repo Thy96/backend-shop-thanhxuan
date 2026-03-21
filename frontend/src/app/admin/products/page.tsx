@@ -1,21 +1,21 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 import { getProducts } from '@/lib/api/productQueries';
 import { getProductCategories } from '@/lib/api/productCategoryQueries';
 import { serverMoveProductToTrash } from '@/app/actions/productActions';
 import { PaginationProps, ProductProps } from '@/lib/types';
 
-import { getPaginationRange } from '@/utils/pagination';
-import { getCategoryLabel } from '@/utils/category';
-import { finalPrice, formatDate, formatNumber } from '@/utils/format';
+import { getPaginationRange } from '@/utils/format/pagination';
+import { getCategoryLabel } from '@/utils/format/category';
+import { finalPrice, formatDate, formatNumber } from '@/utils/format/format';
 
-import AdminPageHeader from '@/components/Layout/Pages/AdminPageHeader';
-import AdminCard from '@/components/Layout/Pages/AdminCard';
-import AdminTable from '@/components/Layout/Pages/AdminTable';
-import AdminRowActions from '@/components/Layout/Pages/AdminRowActions';
-import AdminPagination from '@/components/Layout/Pages/AdminPagination';
-import DeleteButton from '@/components/DeleteButton/DeleteButton';
-import ProductStatusFilter from '@/components/ProductStatusFilter/ProductStatusFilter';
+import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
+import AdminCard from '@/components/layout/Admin/AdminCard';
+import AdminTable from '@/components/layout/Admin/AdminTable';
+import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
+import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import DeleteButton from '@/components/ui/actions/DeleteButton';
+import ProductStatusFilter from '@/components/ui/filters/ProductStatusFilter';
 
 export default async function ProductsPage({
   searchParams,

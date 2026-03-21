@@ -1,5 +1,6 @@
 'use server';
 
+import type { OutputData } from '@editorjs/editorjs';
 import { cookies } from 'next/headers';
 
 // Helper function to get auth token
@@ -10,7 +11,7 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 // Server Actions (mutations - dùng được từ client components)
-export async function serverCreateNote(note: { title: string; content: any; thumbnail?: File | null; categoryId: string }) {
+export async function serverCreateNote(note: { title: string; content: OutputData; thumbnail?: File | null; categoryId: string }) {
     try {
         const formData = new FormData();
         formData.append('title', note.title);
@@ -53,7 +54,7 @@ export async function serverUpdateNote(
     id: string,
     note: {
         title: string;
-        content: any;
+        content: OutputData;
         thumbnail?: File | string | null;
         categoryId: string;
         imageDeleted?: boolean;
@@ -113,7 +114,7 @@ export async function serverMoveNoteToTrash(id: string) {
 
         console.log('[serverMoveNoteToTrash] Response status:', res.status);
 
-        const data = await res.json().catch(() => ({} as any));
+        const data = await res.json().catch(() => ({} as Record<string, unknown>));
 
         if (!res.ok) {
             console.error('[serverMoveNoteToTrash] Server error:', res.status, data);

@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import { ReactNode, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { API_URL } from '@/utils/helps';
 
-import Input from '@/components/Input/Input';
-import Button from '@/components/Button/Button';
+import Input from '@/components/ui/forms/Input';
+import Button from '@/components/ui/forms/Button';
 
 export default function ResetPasswordClient() {
   const searchParams = useSearchParams();

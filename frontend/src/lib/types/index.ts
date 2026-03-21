@@ -1,4 +1,4 @@
-import { CategoryOption } from "@/utils/category";
+import { CategoryOption } from "@/utils/format/category";
 import { UserOption } from "@/utils/user";
 import { ReactNode } from "react";
 

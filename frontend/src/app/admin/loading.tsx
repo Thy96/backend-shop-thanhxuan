@@ -1,4 +1,4 @@
-import LoadingServer from '@/components/Loading/LoadingServer';
+import LoadingServer from '@/components/ui/Loading/LoadingServer';
 
 export default function Loading() {
   return <LoadingServer />;

@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
-import { ORDER_STATUS_OPTIONS } from '@/utils/orderStatus';
-import { updateOrderStatusAction } from '@/actions/orderActions';
-import Select from '../Select/Select';
+import { ORDER_STATUS_OPTIONS } from '@/utils/constants/orderStatus';
+import { updateOrderStatusAction } from '@/app/actions/orderActions';
+import Select from '../forms/Select';
 import { ChangeEvent, useState, useTransition } from 'react';
 
 export default function OrderStatusSelect({

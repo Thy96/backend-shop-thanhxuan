@@ -93,7 +93,7 @@ export async function serverDeleteProductCategory(id: string) {
 
         console.log('[serverDeleteProductCategory] Response status:', res.status);
 
-        const data = await res.json().catch(() => ({} as any));
+        const data = await res.json().catch(() => ({} as Record<string, unknown>));
 
         if (!res.ok) {
             console.error('[serverDeleteProductCategory] Server error:', res.status, data);

@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import Select from '../Select/Select';
+import Select from '../forms/Select';
 
 export default function ProductStatusFilter() {
   const router = useRouter();

@@ -1,25 +1,26 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+import type { OutputData } from '@editorjs/editorjs';
 import { serverCreateProduct } from '@/app/actions/productActions';
 
 import { ChevronLeft } from 'lucide-react';
-import { CategoryOption } from '@/utils/category';
-import isEditorContentValid from '@/utils/validationEditor';
-import { finalPrice } from '@/utils/format';
+import { CategoryOption } from '@/utils/format/category';
+import isEditorContentValid from '@/utils/validation/validationEditor';
+import { finalPrice } from '@/utils/format/format';
 
-import Input from '@/components/Input/Input';
-import Select from '@/components/Select/Select';
-import Button from '@/components/Button/Button';
-import Editor from '@/components/Editor/Editor';
-import LoadingClient from '@/components/Loading/LoadingClient';
+import Input from '@/components/ui/forms/Input';
+import Select from '@/components/ui/forms/Select';
+import Button from '@/components/ui/forms/Button';
+import Editor from '@/components/ui/forms/Editor';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 export default function CreateProductPage() {
   const router = useRouter();
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<{ save: () => Promise<OutputData> } | null>(null);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [loadingCate, setLoadingCate] = useState(true);
@@ -143,8 +144,10 @@ export default function CreateProductPage() {
       startTransition(() => {
         router.push('/admin/products');
       });
-    } catch (error: any) {
-      setError(error.message || 'Tạo không thành công!');
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error ? error.message : 'Tạo không thành công!',
+      );
     } finally {
       setLoadingSubmit(false);
     }
@@ -215,6 +218,7 @@ export default function CreateProductPage() {
               onChange={handleChange}
               label="Danh mục"
               required
+              disabled={loadingCate}
             />
           </div>
 
@@ -291,6 +295,7 @@ export default function CreateProductPage() {
         </div>
 
         <Button type="submit">Thêm sản phẩm</Button>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </>
   );

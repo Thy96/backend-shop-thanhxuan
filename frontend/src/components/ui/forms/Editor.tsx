@@ -1,11 +1,17 @@
 'use client';
 
-import type { ToolConstructable } from '@editorjs/editorjs';
+import type { OutputData, ToolConstructable } from '@editorjs/editorjs';
 import { useEffect, useId, useRef } from 'react';
 
+interface EditorInstance {
+  isReady: Promise<void>;
+  save: () => Promise<OutputData>;
+  destroy: () => void;
+}
+
 interface EditorProps {
-  initialData?: any;
-  onReady?: (editor: any) => void;
+  initialData?: OutputData;
+  onReady?: (editor: Pick<EditorInstance, 'save'>) => void;
   children?: string;
 }
 
@@ -16,7 +22,7 @@ export default function Editor({
   onReady,
   children = 'Nội dung',
 }: EditorProps) {
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<EditorInstance | null>(null);
   const holderId = useId();
 
   useEffect(() => {

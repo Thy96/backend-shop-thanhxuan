@@ -1,71 +1,49 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { serverUpdateNote } from '@/app/actions/noteActions';
+import type { OutputData } from '@editorjs/editorjs';
+import { serverCreateNote } from '@/app/actions/noteActions';
 
 import { ChevronLeft } from 'lucide-react';
+import { CategoryOption } from '@/utils/format/category';
+import isEditorContentValid from '@/utils/validation/validationEditor';
 
-import { CategoryOption } from '@/utils/category';
-import isEditorContentValid from '@/utils/validationEditor';
+import Input from '@/components/ui/forms/Input';
+import Select from '@/components/ui/forms/Select';
+import Button from '@/components/ui/forms/Button';
+import Editor from '@/components/ui/forms/Editor';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
-import Input from '@/components/Input/Input';
-import Select from '@/components/Select/Select';
-import Button from '@/components/Button/Button';
-import Editor from '@/components/Editor/Editor';
-import LoadingClient from '@/components/Loading/LoadingClient';
-
-export default function EditNotePage() {
-  const editorRef = useRef<any>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    categoryId: '',
-  });
-  const [isPending, startTransition] = useTransition();
-  const [image, setImage] = useState<File | string | null>(null);
+export default function CreateNotePage() {
+  const router = useRouter();
+  const editorRef = useRef<{ save: () => Promise<OutputData> } | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [loadingCate, setLoadingCate] = useState(true);
-  const [loadingPage, setLoadingPage] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageDeleted, setImageDeleted] = useState(false);
-
-  const router = useRouter();
-  const params = useParams();
+  const [formData, setFormData] = useState({
+    title: '',
+    categoryId: '',
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        console.log(
-          '[EditNotePage] Fetching categories from:',
-          `${apiUrl}/api/admin/notes/categories`,
-        );
-
-        const res = await fetch(`${apiUrl}/api/admin/notes/categories`, {
+        const res = await fetch('/api/admin/notes/categories', {
           cache: 'no-store',
           credentials: 'include',
         });
-
-        console.log('[EditNotePage] Categories response status:', res.status);
-
-        if (!res.ok) {
-          throw new Error(
-            `API Error ${res.status}: Không lấy được danh sách category`,
-          );
-        }
-
         const data = await res.json();
-        console.log('[EditNotePage] Categories loaded:', data.length, 'items');
         setCategories(data);
       } catch (error) {
-        console.error('[EditNotePage] Categories error:', error);
+        console.error(error);
         setError('Không lấy được danh sách category');
       } finally {
         setLoadingCate(false);
@@ -73,59 +51,6 @@ export default function EditNotePage() {
     };
     fetchCategories();
   }, []);
-
-  useEffect(() => {
-    async function fetchNote() {
-      try {
-        setLoadingPage(true);
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        console.log(
-          '[EditNotePage] Fetching note from:',
-          `${apiUrl}/api/admin/notes/${params.id}`,
-        );
-
-        const res = await fetch(`${apiUrl}/api/admin/notes/${params.id}`, {
-          cache: 'no-store',
-          credentials: 'include',
-        });
-
-        console.log('[EditNotePage] Note response status:', res.status);
-
-        if (!res.ok) {
-          throw new Error(`API Error ${res.status}: Không tìm thấy ghi chú`);
-        }
-
-        const note = await res.json();
-
-        if (!note) {
-          throw new Error('Không tìm thấy ghi chú');
-        }
-
-        const parsedContent =
-          typeof note.content === 'string'
-            ? JSON.parse(note.content)
-            : note.content;
-
-        const data = {
-          title: note.title || '',
-          content: parsedContent || '',
-          categoryId: note.categoryId || '',
-        };
-
-        console.log('[EditNotePage] Note loaded successfully');
-        setFormData(data);
-        setPreview(note.thumbnail || '');
-      } catch (error: any) {
-        console.error('[EditNotePage] Fetch note error:', error);
-        setError(error?.message || 'Có lỗi khi tải ghi chú');
-      } finally {
-        setLoadingPage(false);
-      }
-    }
-
-    if (params.id) fetchNote();
-  }, [params.id]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -152,13 +77,12 @@ export default function EditNotePage() {
   const removeImage = () => {
     setPreview(null);
     setImage(null);
-    setImageDeleted(true);
   };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // console.log('EDITOR REF:', editorRef.current);
     setLoadingSubmit(true);
+    // console.log('EDITOR REF:', editorRef.current);
 
     try {
       if (!editorRef.current) throw new Error('Editor chưa sẵn sàng');
@@ -172,27 +96,27 @@ export default function EditNotePage() {
       const data = {
         thumbnail: image,
         title: formData.title,
-        content: content,
+        content,
         categoryId: formData.categoryId,
-        imageDeleted,
       };
-      await serverUpdateNote(params.id as string, data);
+
+      await serverCreateNote(data);
       startTransition(() => {
         router.push('/admin/notes');
       });
-    } catch (error: any) {
-      setError(error.message || 'Cập nhật không thành công!');
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error ? error.message : 'Tạo không thành công!',
+      );
     } finally {
       setLoadingSubmit(false);
     }
   }
 
-  if (loadingPage) return <LoadingClient />;
-
   return (
     <>
       {(loadingSubmit || isPending) && (
-        <LoadingClient text="Đang cập nhật bài viết..." />
+        <LoadingClient text="Đang tạo bài viết..." />
       )}
       <Button
         type="button"
@@ -245,37 +169,37 @@ export default function EditNotePage() {
             * Hình ảnh giới hạn 5MB
           </p>
         </div>
+
         <Select
           options={categories.map((cat) => ({
-            value: cat._id, // 👈 DÙNG _id gán vào slug
+            value: cat._id,
             label: cat.name,
           }))}
-          value={formData.categoryId}
           name="categoryId"
           onChange={handleChange}
           label="Thể Loại"
           required
+          disabled={loadingCate}
         />
+        {/* Tiêu đề */}
         <Input
           id="title"
-          label="Tiêu đề"
+          label="Tiêu Đề"
           placeholder="Nhập tiêu đề..."
           name="title"
-          defaultValue={formData.title}
           onChange={handleChange}
           required
         />
 
-        {formData.content && (
-          <Editor
-            initialData={formData.content}
-            onReady={(editor) => {
-              editorRef.current = editor;
-            }}
-          />
-        )}
+        {/* Nội dung */}
+        <Editor
+          onReady={(editor) => {
+            editorRef.current = editor;
+          }}
+        />
 
-        <Button type="submit">Cập nhật bài viết</Button>
+        <Button type="submit">Thêm Tin Tức</Button>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </>
   );

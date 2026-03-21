@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getMe } from '@/lib/api/apiAuth';
-import CreateUserForm from './createuserform';
+import CreateUserForm from './CreateUserForm';
 
 export default async function CreateUserPage() {
   const me = await getMe();
