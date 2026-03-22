@@ -35,7 +35,7 @@ type ChartDataPoint = { name: string; value: number };
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loadingPage, setLoadingPage] = useState(true);
+  const [loadingPage, setLoadingPage] = useState(false);
   const [revenueData, setRevenueData] = useState<ChartDataPoint[]>([]);
   const [visitData, setVisitData] = useState<ChartDataPoint[]>([]);
 
