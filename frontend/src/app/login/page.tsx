@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import Input from '@/components/ui/forms/Input';
 import Button from '@/components/ui/forms/Button';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,10 +17,12 @@ export default function LoginPage() {
     password?: string;
     general?: string;
   }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr({});
+    setIsLoading(true);
 
     try {
       // Phần này fetch vào folder auth login
@@ -49,6 +52,8 @@ export default function LoginPage() {
       setErr({
         general: 'Không thể kết nối đến máy chủ. Vui lòng thử lại.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -58,6 +63,7 @@ export default function LoginPage() {
         onSubmit={handleLogin}
         className="bg-white p-6 rounded shadow w-80 space-y-4"
       >
+        {isLoading && <LoadingClient text="Đang đăng nhập..." />}
         <h2 className="text-xl font-bold">Đăng Nhập</h2>
         <div>
           <Input
@@ -89,7 +95,7 @@ export default function LoginPage() {
         </div>
         {/* Lỗi chung từ server */}
         {err.general && <p className="text-red-600 text-sm">{err.general}</p>}
-        <Button type="submit" className="mb-2">
+        <Button type="submit" className="mb-2" disabled={isLoading}>
           Đăng Nhập
         </Button>
 

@@ -8,21 +8,31 @@ export async function POST(req: NextRequest) {
 
   let email = '', password = '';
   const ct = req.headers.get('content-type') || '';
-  if (ct.includes('application/json')) {
-    const b = await req.json(); email = String(b.email || ''); password = String(b.password || '');
-  } else {
-    const f = await req.formData(); email = String(f.get('email') || ''); password = String(f.get('password') || '');
+  try {
+    if (ct.includes('application/json')) {
+      const b = await req.json(); email = String(b.email || ''); password = String(b.password || '');
+    } else {
+      const f = await req.formData(); email = String(f.get('email') || ''); password = String(f.get('password') || '');
+    }
+  } catch {
+    return NextResponse.json({ message: 'Dữ liệu không hợp lệ' }, { status: 400 });
   }
 
-  const url = new URL('/api/admin/auth/login', base);
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      cookie: req.headers.get('cookie') || ''
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  let res: Response;
+  try {
+    const url = new URL('/api/admin/auth/login', base);
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        cookie: req.headers.get('cookie') || ''
+      },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (err) {
+    console.error('[auth/login] fetch error:', err);
+    return NextResponse.json({ message: 'Không thể kết nối đến máy chủ' }, { status: 503 });
+  }
 
   if (ct.includes('application/json')) {
     const data = await res.json().catch(() => ({}));
