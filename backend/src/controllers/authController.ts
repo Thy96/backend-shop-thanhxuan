@@ -163,8 +163,10 @@ export async function register(req: Request, res: Response) {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
     const verifyLink = `${backendUrl}/api/admin/auth/verify-email?token=${verifyToken}`;
 
-    // ⭐ gửi mail xác thực
-    await sendVerifyEmailMail(user.email, verifyLink);
+    // ⭐ fire-and-forget: không chặn response khi gửi mail
+    sendVerifyEmailMail(user.email, verifyLink).catch((err) => {
+      console.error('Failed to send verify email:', err);
+    });
 
     res.status(201).json({
       message: 'Đăng ký thành công',

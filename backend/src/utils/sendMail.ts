@@ -31,10 +31,6 @@ export async function sendVerifyEmailMail(to: string, verifyLink: string) {
   const mailUser = process.env.MAIL_APP_ADMIN;
   const mailPass = process.env.MAIL_APP_PASS;
 
-  console.log('[sendVerifyEmailMail] MAIL_APP_ADMIN:', mailUser ? mailUser : 'UNDEFINED');
-  console.log('[sendVerifyEmailMail] MAIL_APP_PASS:', mailPass ? '***set***' : 'UNDEFINED');
-  console.log('[sendVerifyEmailMail] sending to:', to);
-
   if (!mailUser || !mailPass) {
     throw new Error('MAIL_APP_ADMIN hoặc MAIL_APP_PASS chưa được cấu hình');
   }
@@ -50,5 +46,4 @@ export async function sendVerifyEmailMail(to: string, verifyLink: string) {
       <a href="${verifyLink}">${verifyLink}</a>
     `,
   });
-  console.log('[sendVerifyEmailMail] sent successfully to:', to);
 }
