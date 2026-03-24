@@ -43,9 +43,10 @@ export async function POST(
     const contentType = req.headers.get('content-type');
     const cookie = req.headers.get('cookie') || '';
 
-    let body;
+    let body: BodyInit | undefined;
     if (contentType?.includes('application/json')) {
-        body = await req.json().catch(() => ({}));
+        const json = await req.json().catch(() => ({}));
+        body = JSON.stringify(json);
     } else if (contentType?.includes('multipart/form-data')) {
         body = await req.formData();
     } else {
@@ -90,9 +91,10 @@ export async function PUT(
     const contentType = req.headers.get('content-type');
     const cookie = req.headers.get('cookie') || '';
 
-    let body;
+    let body: BodyInit | undefined;
     if (contentType?.includes('application/json')) {
-        body = await req.json().catch(() => ({}));
+        const json = await req.json().catch(() => ({}));
+        body = JSON.stringify(json);
     } else if (contentType?.includes('multipart/form-data')) {
         body = await req.formData();
     } else {

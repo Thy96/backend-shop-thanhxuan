@@ -87,7 +87,7 @@ function EditUserPage() {
       >
         <ChevronLeft width={23} height={23} /> Quay Lại
       </Button>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center mt-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-semibold text-center mb-6">
             Chỉnh sửa User
