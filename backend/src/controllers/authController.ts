@@ -89,7 +89,7 @@ export async function logout(req: Request, res: Response) {
 export async function register(req: Request, res: Response) {
   try {
     const verifyToken = crypto.randomBytes(32).toString('hex');
-    const { email, password, fullName, phone, address } = req.body || {};
+    const { email, password, fullName, phone, address, role } = req.body || {};
     const errors: Record<string, string> = {};
 
     const emailNormalized = String(email || '').trim().toLowerCase();
@@ -141,12 +141,15 @@ export async function register(req: Request, res: Response) {
     }
 
     // ✅ tạo user
+    const allowedRoles = [Role.ADMIN, Role.EDITOR, Role.USER];
+    const assignedRole = allowedRoles.includes(role) ? role : Role.USER;
+
     const user = new User({
       email: emailNormalized,
       fullName: fullName.trim(),
       phone,
       address: address.trim(),
-      role: Role.USER,
+      role: assignedRole,
       // ⭐ verify email
       verifyToken,
       verifyTokenExpires: new Date(Date.now() + 1000 * 60 * 60), // 1h
@@ -159,7 +162,10 @@ export async function register(req: Request, res: Response) {
 
     const verifyLink = `https://backend-shop-thanhxuan.onrender.com/api/admin/auth/verify-email?token=${verifyToken}`;
 
-    await sendVerifyEmailMail(user.email, verifyLink);
+    // ⭐ fire-and-forget: không chặn response khi gửi mail
+    sendVerifyEmailMail(user.email, verifyLink).catch((err) => {
+      console.error('Failed to send verify email:', err);
+    });
 
     res.status(201).json({
       message: 'Đăng ký thành công',
