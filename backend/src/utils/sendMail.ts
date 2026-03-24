@@ -1,18 +1,20 @@
 import * as nodemailer from 'nodemailer'
-import 'dotenv/config';
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.MAIL_APP_ADMIN,
-    pass: process.env.MAIL_APP_PASS,
-  },
-});
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.MAIL_APP_ADMIN,
+      pass: process.env.MAIL_APP_PASS,
+    },
+  });
+}
 
 // ⭐ gửi mail reset password
 export async function sendResetPasswordMail(to: string, resetLink: string) {
+  const transporter = createTransporter();
   await transporter.sendMail({
     from: `"Support" <${process.env.MAIL_APP_ADMIN}>`,
     to,
@@ -26,6 +28,7 @@ export async function sendResetPasswordMail(to: string, resetLink: string) {
 
 // ⭐ gửi mail verify email
 export async function sendVerifyEmailMail(to: string, verifyLink: string) {
+  const transporter = createTransporter();
   await transporter.sendMail({
     from: `"Support" <${process.env.MAIL_APP_ADMIN}>`,
     to,

@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-dotenv.config()
+dotenv.config({ path: '.env.local' })
 
 import express from "express";
 import cors from "cors";
@@ -40,7 +40,7 @@ app.use(cors({
   origin: (origin, callback) => {
     // Cho phép requests không có origin (like mobile apps, curl, postman)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
