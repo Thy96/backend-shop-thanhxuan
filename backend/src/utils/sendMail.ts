@@ -28,9 +28,20 @@ export async function sendResetPasswordMail(to: string, resetLink: string) {
 
 // ⭐ gửi mail verify email
 export async function sendVerifyEmailMail(to: string, verifyLink: string) {
+  const mailUser = process.env.MAIL_APP_ADMIN;
+  const mailPass = process.env.MAIL_APP_PASS;
+
+  console.log('[sendVerifyEmailMail] MAIL_APP_ADMIN:', mailUser ? mailUser : 'UNDEFINED');
+  console.log('[sendVerifyEmailMail] MAIL_APP_PASS:', mailPass ? '***set***' : 'UNDEFINED');
+  console.log('[sendVerifyEmailMail] sending to:', to);
+
+  if (!mailUser || !mailPass) {
+    throw new Error('MAIL_APP_ADMIN hoặc MAIL_APP_PASS chưa được cấu hình');
+  }
+
   const transporter = createTransporter();
   await transporter.sendMail({
-    from: `"Support" <${process.env.MAIL_APP_ADMIN}>`,
+    from: `"Support" <${mailUser}>`,
     to,
     subject: 'Xác thực email',
     html: `
@@ -39,4 +50,5 @@ export async function sendVerifyEmailMail(to: string, verifyLink: string) {
       <a href="${verifyLink}">${verifyLink}</a>
     `,
   });
+  console.log('[sendVerifyEmailMail] sent successfully to:', to);
 }

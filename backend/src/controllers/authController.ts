@@ -160,12 +160,11 @@ export async function register(req: Request, res: Response) {
 
     await user.save();
 
-    const verifyLink = `https://backend-shop-thanhxuan.onrender.com/api/admin/auth/verify-email?token=${verifyToken}`;
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
+    const verifyLink = `${backendUrl}/api/admin/auth/verify-email?token=${verifyToken}`;
 
-    // ⭐ fire-and-forget: không chặn response khi gửi mail
-    sendVerifyEmailMail(user.email, verifyLink).catch((err) => {
-      console.error('Failed to send verify email:', err);
-    });
+    // ⭐ gửi mail xác thực
+    await sendVerifyEmailMail(user.email, verifyLink);
 
     res.status(201).json({
       message: 'Đăng ký thành công',
