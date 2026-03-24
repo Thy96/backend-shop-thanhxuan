@@ -21,6 +21,7 @@ function EditUserPage() {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState('');
   const [loadingPage, setLoadingPage] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -28,10 +29,14 @@ function EditUserPage() {
   useEffect(() => {
     async function fetchUser() {
       setLoadingPage(true);
+      setFetchError(null);
       try {
         const data = await getUserById(id);
 
         if (!data) {
+          setFetchError(
+            'Không tìm thấy user hoặc bạn không có quyền truy cập.',
+          );
           setUser(null);
           return;
         }
@@ -40,6 +45,7 @@ function EditUserPage() {
         setRole(data.role); // ⭐ set role mặc định
       } catch (err) {
         console.error(err);
+        setFetchError('Lỗi kết nối, vui lòng thử lại.');
       } finally {
         setLoadingPage(false);
       }
@@ -67,7 +73,7 @@ function EditUserPage() {
   }
 
   if (loadingPage) return <LoadingClient />;
-  if (!user) return <div>User không tồn tại</div>;
+  if (!user) return <div>{fetchError ?? 'User không tồn tại'}</div>;
 
   return (
     <>

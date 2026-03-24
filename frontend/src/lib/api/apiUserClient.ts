@@ -1,9 +1,7 @@
-import { API_URL } from '@/utils/helps';
-
 export async function getUserById(id: string) {
-  const res = await fetch(`${API_URL}/api/admin/users/${id}`, {
+  const res = await fetch(`/api/admin/users/${id}`, {
     cache: 'no-store',
-    credentials: 'include'
+    credentials: 'include',
   });
 
   if (!res.ok) return null;
@@ -18,7 +16,7 @@ export async function createUser(user: {
   address: string;
   role: string;
 }) {
-  const res = await fetch(`${API_URL}/api/admin/auth/register`, {
+  const res = await fetch(`/api/admin/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(user),
@@ -44,7 +42,7 @@ export async function editUser(id: string, data: {
   phone?: string;
   role?: string;
 }) {
-  const res = await fetch(`${API_URL}/api/admin/users/${id}`, {
+  const res = await fetch(`/api/admin/users/${id}`, {
     method: "PUT",
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
