@@ -57,13 +57,11 @@ export default function Editor({
                       const formData = new FormData();
                       formData.append('thumbnail', file);
 
-                      const res = await fetch(
-                        `${process.env.NEXT_PUBLIC_API_URL}/api/uploads`,
-                        {
-                          method: 'POST',
-                          body: formData,
-                        },
-                      );
+                      const res = await fetch('/api/admin/uploads', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include',
+                      });
 
                       console.log('UPLOAD STATUS:', res.status);
                       console.log('UPLOAD OK:', res.ok);
