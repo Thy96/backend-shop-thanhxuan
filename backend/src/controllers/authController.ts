@@ -160,8 +160,8 @@ export async function register(req: Request, res: Response) {
 
     await user.save();
 
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
-    const verifyLink = `${backendUrl}/api/admin/auth/verify-email?token=${verifyToken}`;
+    const clientUrl = process.env.CLIENT_ORIGIN || 'http://localhost:5000';
+    const verifyLink = `${clientUrl}/verify-email?token=${verifyToken}`;
 
     // ⭐ fire-and-forget: không chặn response khi gửi mail
     sendVerifyEmailMail(user.email, verifyLink).catch((err) => {
@@ -240,8 +240,8 @@ export async function resendVerify(req: Request, res: Response) {
 
   await user.save();
 
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
-  const verifyLink = `${backendUrl}/api/admin/auth/verify-email?token=${verifyToken}`;
+  const clientUrl = process.env.CLIENT_ORIGIN || 'http://localhost:5000';
+  const verifyLink = `${clientUrl}/verify-email?token=${verifyToken}`;
 
   sendVerifyEmailMail(user.email, verifyLink).then(() => {
     console.log('[resendVerify] Email sent successfully to:', user.email);
