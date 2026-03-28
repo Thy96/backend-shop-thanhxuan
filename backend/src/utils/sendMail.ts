@@ -1,49 +1,41 @@
-import * as nodemailer from 'nodemailer'
+async function brevoSend(to: string, subject: string, htmlContent: string) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) throw new Error('BREVO_API_KEY chưa được cấu hình');
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.MAIL_APP_ADMIN,
-      pass: process.env.MAIL_APP_PASS,
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      sender: { name: 'Support', email: 'caodinhthy1996@gmail.com' },
+      to: [{ email: to }],
+      subject,
+      htmlContent,
+    }),
   });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`Brevo error: ${JSON.stringify(err)}`);
+  }
 }
 
 // ⭐ gửi mail reset password
 export async function sendResetPasswordMail(to: string, resetLink: string) {
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: `"Support" <${process.env.MAIL_APP_ADMIN}>`,
+  await brevoSend(
     to,
-    subject: 'Thay Đổi Mật Khẩu',
-    html: `
-      <p>Click vào link để đổi mật khẩu:</p>
-      <a href="${resetLink}">${resetLink}</a>
-    `,
-  });
+    'Thay Đổi Mật Khẩu',
+    `<p>Click vào link để đổi mật khẩu:</p><a href="${resetLink}">${resetLink}</a>`,
+  );
 }
 
 // ⭐ gửi mail verify email
 export async function sendVerifyEmailMail(to: string, verifyLink: string) {
-  const mailUser = process.env.MAIL_APP_ADMIN;
-  const mailPass = process.env.MAIL_APP_PASS;
-
-  if (!mailUser || !mailPass) {
-    throw new Error('MAIL_APP_ADMIN hoặc MAIL_APP_PASS chưa được cấu hình');
-  }
-
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: `"Support" <${mailUser}>`,
+  await brevoSend(
     to,
-    subject: 'Xác thực email',
-    html: `
-      <h2>Xác thực tài khoản</h2>
-      <p>Nhấn vào link bên dưới để xác thực email:</p>
-      <a href="${verifyLink}">${verifyLink}</a>
-    `,
-  });
+    'Xác thực email',
+    `<h2>Xác thực tài khoản</h2><p>Nhấn vào link bên dưới để xác thực email:</p><a href="${verifyLink}">${verifyLink}</a>`,
+  );
 }

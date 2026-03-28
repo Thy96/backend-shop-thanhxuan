@@ -243,8 +243,10 @@ export async function resendVerify(req: Request, res: Response) {
   const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
   const verifyLink = `${backendUrl}/api/admin/auth/verify-email?token=${verifyToken}`;
 
-  sendVerifyEmailMail(user.email, verifyLink).catch((err) => {
-    console.error('Failed to resend verify email:', err);
+  sendVerifyEmailMail(user.email, verifyLink).then(() => {
+    console.log('[resendVerify] Email sent successfully to:', user.email);
+  }).catch((err) => {
+    console.error('[resendVerify] Failed to send email:', err?.message || err);
   });
 
   res.json({ message: 'Đã gửi lại email xác thực' });

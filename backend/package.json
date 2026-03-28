@@ -16,6 +16,7 @@
     "license": "ISC",
     "type": "commonjs",
     "dependencies": {
+        "@getbrevo/brevo": "^5.0.3",
         "bcrypt": "^6.0.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
@@ -27,6 +28,7 @@
         "multer": "^2.0.2",
         "nodemailer": "^7.0.12",
         "remove-markdown": "^0.6.2",
+        "resend": "^6.9.4",
         "slugify": "^1.6.6",
         "uuid": "^11.1.0",
         "zod": "^4.1.13"
