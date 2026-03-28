@@ -599,6 +599,16 @@ export const restoreProduct = async (req: Request, res: Response) => {
   }
 };
 
+// Đếm số sản phẩm trong thùng rác
+export const getTrashProductCount = async (req: Request, res: Response) => {
+  try {
+    const total = await ProductModel.countDocuments({ isDeleted: true });
+    res.json({ total });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server' });
+  }
+};
+
 // Xóa vĩnh viễn sản phẩm
 export const forceDeleteProduct = async (req: Request, res: Response) => {
   try {

@@ -1,5 +1,5 @@
 import express from "express";
-import { getAll, postNote, updateNote, getNoteById, moveNoteToTrash, getTrashNotes, restoreNote, forceDeleteNote, getNoteBySlug } from "../controllers/noteController";
+import { getAll, postNote, updateNote, getNoteById, moveNoteToTrash, getTrashNotes, restoreNote, forceDeleteNote, getNoteBySlug, getTrashNoteCount } from "../controllers/noteController";
 import { upload } from "../lib/config/upload";
 import { authenticate, authorize } from '../middlewares/auth';
 
@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.get('/', getAll);
 /* ====== TRASH ====== */
+router.get('/trash/count', getTrashNoteCount);
 router.get('/trash', getTrashNotes);
 
 router.post('/', authenticate, authorize('admin', 'editor'), upload.single("thumbnail"), postNote);

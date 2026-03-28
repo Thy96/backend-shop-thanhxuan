@@ -547,6 +547,16 @@ export const restoreNote = async (req: Request, res: Response) => {
   }
 };
 
+// Đếm số bài viết trong thùng rác
+export const getTrashNoteCount = async (req: Request, res: Response) => {
+  try {
+    const total = await NoteModel.countDocuments({ isDeleted: true });
+    res.json({ total });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server' });
+  }
+};
+
 // Xóa vĩnh viễn bài viết
 export const forceDeleteNote = async (req: Request, res: Response) => {
   try {

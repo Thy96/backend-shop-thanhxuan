@@ -125,4 +125,5 @@ export interface MenuProps {
   icon?: ReactNode;
   subMenu?: MenuProps[];
   roles?: Role[];
+  trashCountKey?: string;
 }

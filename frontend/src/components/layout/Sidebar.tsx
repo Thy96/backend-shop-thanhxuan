@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import {
@@ -38,6 +38,7 @@ const optionSidebar: MenuProps[] = [
         label: 'Thùng rác',
         url: '/admin/notes/trash',
         icon: <Trash2 className="w-5 h-5" />,
+        trashCountKey: 'notes',
       },
     ],
   },
@@ -55,6 +56,7 @@ const optionSidebar: MenuProps[] = [
         label: 'Thùng rác',
         url: '/admin/products/trash',
         icon: <Trash2 className="w-5 h-5" />,
+        trashCountKey: 'products',
       },
     ],
   },
@@ -84,8 +86,31 @@ const optionSidebar: MenuProps[] = [
 const Sidebar = () => {
   const params = useParams();
   const pathName = usePathname();
-  const [openMenu, setOpenMenu] = useState<string | null>(null); // menu nào đang mở
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [trashCounts, setTrashCounts] = useState<Record<string, number>>({});
   const activeSlugs = ['edit', 'create'];
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [notesRes, productsRes] = await Promise.all([
+          fetch('/api/admin/notes/trash/count', { credentials: 'include' }),
+          fetch('/api/admin/products/trash/count', { credentials: 'include' }),
+        ]);
+        const [notesData, productsData] = await Promise.all([
+          notesRes.json(),
+          productsRes.json(),
+        ]);
+        setTrashCounts({
+          notes: notesData.total || 0,
+          products: productsData.total || 0,
+        });
+      } catch {
+        // silent
+      }
+    };
+    fetchCounts();
+  }, [pathName]);
 
   return (
     <aside className={` bg-gray-800 text-white flex flex-col relative w-max`}>
@@ -180,6 +205,11 @@ const Sidebar = () => {
                       >
                         <span className="shrink-0">{sub.icon}</span>
                         <span>{sub.label}</span>
+                        {sub.trashCountKey && trashCounts[sub.trashCountKey] > 0 && (
+                          <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                            {trashCounts[sub.trashCountKey]}
+                          </span>
+                        )}
                       </Link>
                     );
                   })}
