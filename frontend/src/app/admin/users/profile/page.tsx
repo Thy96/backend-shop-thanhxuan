@@ -7,7 +7,6 @@ import Input from '@/components/ui/forms/Input';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 import useMe from '@/lib/hook/useMe';
-import { API_URL } from '@/utils/helps';
 
 export default function ProfilePage() {
   const { user, setUser, loading } = useMe();
@@ -31,7 +30,7 @@ export default function ProfilePage() {
     setError('');
 
     try {
-      const res = await fetch(`${API_URL}/api/admin/auth/me`, {
+      const res = await fetch('/api/admin/auth/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, phone }),

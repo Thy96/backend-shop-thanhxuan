@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { API_URL } from '@/utils/helps';
 
 export interface Me {
   _id: string;
@@ -19,7 +18,7 @@ export default function useMe() {
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/admin/auth/me`, {
+        const res = await fetch('/api/admin/auth/me', {
           credentials: 'include',
         });
 
