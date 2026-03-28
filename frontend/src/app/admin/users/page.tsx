@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 
-import { blockUser, getUsers } from '@/lib/api/apiUserSSR';
+import { blockUser, getUsers, resendVerifyUser } from '@/lib/api/apiUserSSR';
 import { getMe } from '@/lib/api/apiAuth';
 import { PaginationProps, User } from '@/lib/types';
 
@@ -53,6 +53,22 @@ export default async function UsersPage({
 
     revalidatePath('/admin/users');
   };
+
+  const handleResendVerify = async (formData: FormData) => {
+    'use server';
+
+    const email = formData.get('email') as string;
+
+    const cookieStore = cookies();
+    const cookieHeader = (await cookieStore)
+      .getAll()
+      .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+      .join('; ');
+
+    await resendVerifyUser(email, cookieHeader);
+
+    revalidatePath('/admin/users');
+  };
   return (
     <>
       <AdminPageHeader
@@ -82,6 +98,7 @@ export default async function UsersPage({
               <th className="px-1 py-4 text-center w-[130]">SDT</th>
               <th className="px-1 py-4 w-[70]">Role</th>
               <th className="px-1 py-4 w-[160]">Ngày tạo</th>
+              <th className="px-1 py-4 w-[100] text-center">Xác thực</th>
               <th className="px-1 py-4 w-[100] text-center">Trạng thái</th>
               {isAdmin && <th className="px-4 py-4 text-right w-[150]"></th>}
             </tr>
@@ -104,6 +121,25 @@ export default async function UsersPage({
                 <td className="px-1 py-4">{user.role}</td>
                 <td className="px-1 py-4">
                   {formatDate(user.createdAt, user.updatedAt)}
+                </td>
+                <td className="px-1 py-4">
+                  <div className="flex justify-center items-center">
+                    {user.isVerified ? (
+                      <span className="text-green-600 text-xs font-semibold">
+                        ✓ Đã xác thực
+                      </span>
+                    ) : (
+                      <form action={handleResendVerify}>
+                        <input type="hidden" name="email" value={user.email} />
+                        <button
+                          type="submit"
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-xs transition cursor-pointer"
+                        >
+                          Gửi xác thực
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </td>
                 <td className="px-1 py-4">
                   <div className="flex justify-center items-center">

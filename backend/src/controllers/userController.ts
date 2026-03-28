@@ -53,6 +53,7 @@ export async function getUsers(req: AuthenticatedRequest, res: Response) {
           isActive: 1,
           isBlocked: 1,
           blockedAt: 1,
+          isVerified: 1,
         }
       }
     ])

@@ -38,3 +38,22 @@ export async function blockUser(id: string, cookieHeader?: string) {
 
   return res.json();
 }
+
+export async function resendVerifyUser(email: string, cookieHeader?: string) {
+  const res = await fetch(`${API_URL}/api/admin/auth/resend-verify`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookieHeader ? { cookie: cookieHeader } : {}),
+    },
+    body: JSON.stringify({ email }),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || 'Gửi xác thực thất bại');
+  }
+
+  return res.json();
+}

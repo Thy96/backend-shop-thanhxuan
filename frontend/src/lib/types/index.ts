@@ -38,6 +38,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   isActive?: boolean;
+  isVerified?: boolean;
 }
 
 export interface CreateUserDTO {
