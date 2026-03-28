@@ -43,6 +43,7 @@ export default function RestoreButton({
         console.log(`[${onName}] Success, result:`, result);
         console.log(`[${onName}] Refreshing page`);
         router.refresh();
+        window.dispatchEvent(new Event('trash-updated'));
       } catch (error) {
         console.error(`[${onName}] Error:`, error);
         alert(errorText);

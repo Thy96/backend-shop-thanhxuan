@@ -110,6 +110,9 @@ const Sidebar = () => {
       }
     };
     fetchCounts();
+
+    window.addEventListener('trash-updated', fetchCounts);
+    return () => window.removeEventListener('trash-updated', fetchCounts);
   }, [pathName]);
 
   return (
@@ -205,11 +208,12 @@ const Sidebar = () => {
                       >
                         <span className="shrink-0">{sub.icon}</span>
                         <span>{sub.label}</span>
-                        {sub.trashCountKey && trashCounts[sub.trashCountKey] > 0 && (
-                          <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-                            {trashCounts[sub.trashCountKey]}
-                          </span>
-                        )}
+                        {sub.trashCountKey &&
+                          trashCounts[sub.trashCountKey] > 0 && (
+                            <span className=" bg-red-500 text-white text-xs rounded-full px-0.5 py-0.5 min-w-[20px] text-center">
+                              {trashCounts[sub.trashCountKey]}
+                            </span>
+                          )}
                       </Link>
                     );
                   })}

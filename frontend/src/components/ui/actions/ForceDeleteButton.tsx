@@ -46,6 +46,7 @@ export default function ForceDeleteButton({
         console.log(`[${onName}] Success, result:`, result);
         console.log(`[${onName}] Refreshing router`);
         router.refresh();
+        window.dispatchEvent(new Event('trash-updated'));
       } catch (error) {
         console.error(`[${onName}] Error caught:`, error);
         alert(errorText);
