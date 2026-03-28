@@ -35,6 +35,7 @@ export default function DeleteButton({
         await serverAction(id);
         console.log(`[${onName}] Success, refreshing page`);
         router.refresh();
+        window.dispatchEvent(new Event('trash-updated'));
       } catch (error) {
         console.error(`[${onName}] Error:`, error);
         alert(errorText);
