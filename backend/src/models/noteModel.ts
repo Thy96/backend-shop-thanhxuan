@@ -6,6 +6,7 @@ export interface INote extends Document {
   title: string;
   slug: string;
   content: Object;
+  status: string;
   categoryId: Types.ObjectId | ICategory;
   author: Types.ObjectId | IUser;
   updatedBy: Types.ObjectId | IUser;
@@ -32,6 +33,11 @@ const noteSchema = new Schema<INote>({
   content: {
     type: Object,
     required: true
+  },
+  status: {
+    type: String,
+    enum: ["draft", "published"],
+    default: "draft"
   },
   categoryId: {
     type: Schema.Types.ObjectId,

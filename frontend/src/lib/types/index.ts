@@ -55,6 +55,7 @@ export interface NoteProps {
   thumbnail: string;
   title: string;
   slug: string;
+  status: string;
   categoryId: string | CategoryOption;
   author: UserOption;
   updatedBy: UserOption;

@@ -18,7 +18,7 @@ import AdminTable from '@/components/layout/Admin/AdminTable';
 import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
 import DeleteButton from '@/components/ui/actions/DeleteButton';
-import ProductStatusFilter from '@/components/ui/filters/ProductStatusFilter';
+import StatusFilter from '@/components/ui/filters/StatusFilter';
 
 export default async function ProductsPage({
   searchParams,
@@ -57,7 +57,13 @@ export default async function ProductsPage({
         count={pagination.total}
       >
         <Suspense>
-          <ProductStatusFilter />
+          <StatusFilter
+            basePath="/admin/products"
+            options={[
+              { value: 'draft', label: 'Bản nháp' },
+              { value: 'available', label: 'Xuất bản' },
+            ]}
+          />
         </Suspense>
       </AdminPageHeader>
 

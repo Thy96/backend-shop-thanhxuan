@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 
 // Server-side queries (dùng cookies)
-export async function getNotes(page = 1, limit = 10) {
+export async function getNotes(page = 1, limit = 10, status = '') {
     try {
         const cookieStore = await cookies();
         const cookieHeader = cookieStore
@@ -10,9 +10,11 @@ export async function getNotes(page = 1, limit = 10) {
             .join('; ');
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        console.log('[getNotes] Fetching from:', `${apiUrl}/api/admin/notes?page=${page}&limit=${limit}`);
+        const query = new URLSearchParams({ page: String(page), limit: String(limit) });
+        if (status) query.set('status', status);
+        console.log('[getNotes] Fetching from:', `${apiUrl}/api/admin/notes?${query.toString()}`);
 
-        const res = await fetch(`${apiUrl}/api/admin/notes?page=${page}&limit=${limit}`, {
+        const res = await fetch(`${apiUrl}/api/admin/notes?${query.toString()}`, {
             cache: "no-store",
             credentials: 'include',
             headers: {

@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 
 import { getNotes } from '@/lib/api/noteQueries';
 import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
 import { serverMoveNoteToTrash } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
+import StatusFilter from '@/components/ui/filters/StatusFilter';
 
 import { getCategoryLabel } from '@/utils/format/category';
 import { formatDate } from '@/utils/format/format';
@@ -21,10 +23,11 @@ import DeleteButton from '@/components/ui/actions/DeleteButton';
 export default async function NotesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; status?: string }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
+  const status = params.status || '';
   const limit = 10;
 
   const {
@@ -33,7 +36,7 @@ export default async function NotesPage({
   }: {
     data: NoteProps[];
     pagination: PaginationProps;
-  } = await getNotes(page, limit);
+  } = await getNotes(page, limit, status);
 
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
 
@@ -52,7 +55,17 @@ export default async function NotesPage({
           </Link>
         }
         count={pagination.total}
-      />
+      >
+        <Suspense>
+          <StatusFilter
+            basePath="/admin/notes"
+            options={[
+              { value: 'draft', label: 'Bản nháp' },
+              { value: 'published', label: 'Xuất bản' },
+            ]}
+          />
+        </Suspense>
+      </AdminPageHeader>
 
       <AdminCard>
         <AdminTable

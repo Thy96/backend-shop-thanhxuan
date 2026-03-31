@@ -23,6 +23,10 @@ export const getAll = async (req: Request, res: Response) => {
       matchStage.title = { $regex: String(req.query.keyword), $options: 'i' };
     }
 
+    if (req.query.status && ['draft', 'published'].includes(String(req.query.status))) {
+      matchStage.status = String(req.query.status);
+    }
+
     const totalResult = await NoteModel.aggregate([
       { $match: matchStage },
       { $count: "total" }
@@ -124,6 +128,7 @@ export const getAll = async (req: Request, res: Response) => {
             fullName: "$updatedBy.fullName",
             email: "$updatedBy.email"
           },
+          status: 1,
           categoryId: 1,
           category: {
             _id: "$category._id",

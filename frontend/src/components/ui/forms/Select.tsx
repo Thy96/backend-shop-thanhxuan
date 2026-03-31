@@ -13,10 +13,12 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   hideOption?: boolean;
   label?: string;
   className?: string;
+  selectClassName?: string;
 }
 
 function Select({
   className,
+  selectClassName,
   name,
   value,
   onChange,
@@ -34,7 +36,7 @@ function Select({
       )}
       <div className="relative">
         <select
-          className="bg-white w-full p-3 pr-10 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition appearance-none cursor-pointer"
+          className={`bg-white w-full p-3 pr-10 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition appearance-none cursor-pointer ${selectClassName ?? ''}`}
           name={name}
           value={value}
           onChange={onChange}
