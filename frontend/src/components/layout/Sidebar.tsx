@@ -66,7 +66,7 @@ const optionSidebar: MenuProps[] = [
     icon: <ShoppingBagIcon />,
   },
   {
-    label: 'Danh sách User',
+    label: 'Danh sách thành viên',
     url: '/admin/users',
     icon: <LucideClipboardSignature />,
   },

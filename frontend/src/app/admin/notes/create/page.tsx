@@ -172,29 +172,36 @@ export default function CreateNotePage() {
           </p>
         </div>
 
-        <Select
-          options={categories.map((cat) => ({
-            value: cat._id,
-            label: cat.name,
-          }))}
-          name="categoryId"
-          onChange={handleChange}
-          label="Thể Loại"
-          required
-          disabled={loadingCate}
-        />
+        <div className="flex gap-4 items-end">
+          <div className="flex-1">
+            <Select
+              options={categories.map((cat) => ({
+                value: cat._id,
+                label: cat.name,
+              }))}
+              name="categoryId"
+              onChange={handleChange}
+              label="Thể Loại"
+              required
+              disabled={loadingCate}
+            />
+          </div>
 
-        <Select
-          name="status"
-          label="Trạng thái"
-          value={formData.status}
-          onChange={handleChange}
-          options={[
-            { value: 'draft', label: 'Bản nháp' },
-            { value: 'published', label: 'Xuất bản' },
-          ]}
-          required
-        />
+          <div className="w-56">
+            <Select
+              name="status"
+              label="Trạng thái"
+              value={formData.status}
+              onChange={handleChange}
+              options={[
+                { value: 'draft', label: 'Bản nháp' },
+                { value: 'published', label: 'Xuất bản' },
+              ]}
+              required
+            />
+          </div>
+        </div>
+
         {/* Tiêu đề */}
         <Input
           id="title"

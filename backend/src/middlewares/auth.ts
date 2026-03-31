@@ -6,6 +6,17 @@ import { JWTPayload, Role } from '../services/auth';
 import { AuthenticatedRequest } from '../types/auth';
 import UserModel from '../models/userModel';
 
+// throttle cập nhật lastSeenAt: mỗi user tối đa 1 lần / 30 giây
+const lastSeenCache = new Map<string, number>();
+const LAST_SEEN_THROTTLE = 30_000;
+
+function updateLastSeen(uid: string) {
+  const now = Date.now();
+  if ((lastSeenCache.get(uid) ?? 0) + LAST_SEEN_THROTTLE > now) return;
+  lastSeenCache.set(uid, now);
+  UserModel.findByIdAndUpdate(uid, { lastSeenAt: new Date(now) }).catch(() => { });
+}
+
 function getTokenFromReq(req: Request): string | undefined {
   const auth = req.headers.authorization;
   const bearer = auth && auth.startsWith('Bearer ') ? auth.slice(7) : undefined;
@@ -53,6 +64,7 @@ export async function authenticate(req: AuthenticatedRequest, res: Response, nex
     }
 
     req.user = decoded;
+    updateLastSeen(decoded.uid);
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Token không hợp lệ' });

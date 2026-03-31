@@ -25,6 +25,7 @@ export interface IUser extends Document {
   isVerified: boolean;
   verifyToken?: string;
   verifyTokenExpires?: Date;
+  lastSeenAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +52,7 @@ const userSchema = new Schema<IUser>({
   isVerified: { type: Boolean, default: false },
   verifyToken: { type: String, select: false },
   verifyTokenExpires: { type: Date, select: false },
+  lastSeenAt: { type: Date, default: null },
 }, { timestamps: true });
 
 // ✅ set plain password (KHÔNG HASH)

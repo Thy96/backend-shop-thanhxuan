@@ -2,7 +2,11 @@ export function formatNumber(num: number): string {
   return num.toLocaleString('en-US');
 }
 
-export function formatDate(createdAt: string, updatedAt: string) {
+export function formatDate(
+  createdAt: string,
+  updatedAt: string,
+  status?: string,
+) {
   const created = new Date(createdAt);
   const updated = new Date(updatedAt);
 
@@ -10,6 +14,19 @@ export function formatDate(createdAt: string, updatedAt: string) {
   const diff = (updated.getTime() - created.getTime()) / 1000;
 
   if (diff < 10) {
+    if (status === 'draft') {
+      return (
+        <>
+          Bản nháp
+          <br />
+          {created.toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })}
+        </>
+      );
+    }
     return (
       <>
         Đã xuất bản

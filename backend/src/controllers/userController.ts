@@ -29,7 +29,10 @@ export async function getUsers(req: AuthenticatedRequest, res: Response) {
       {
         $addFields: {
           isActive: {
-            $eq: ['$_id', new mongoose.Types.ObjectId(currentUserId)]
+            $gt: [
+              '$lastSeenAt',
+              { $subtract: [new Date(), 5 * 60 * 1000] }
+            ]
           }
         }
       },

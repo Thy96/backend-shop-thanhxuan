@@ -109,7 +109,7 @@ export default async function NotesPage({
                 {getCategoryLabel(note.categoryId, categories)}
               </td>
               <td className="px-1 py-4">
-                {formatDate(note.createdAt, note.updatedAt)}
+                {formatDate(note.createdAt, note.updatedAt, note.status)}
               </td>
 
               <td className="px-4 py-4 text-right">
