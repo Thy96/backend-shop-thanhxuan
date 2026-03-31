@@ -23,6 +23,7 @@ interface NoteDetail {
   categoryId: string | CategoryOption;
   content: OutputData;
   thumbnail: string;
+  status: string;
 }
 
 export default function EditNotePage() {
@@ -45,6 +46,7 @@ export default function EditNotePage() {
   const [formData, setFormData] = useState({
     title: '',
     categoryId: '',
+    status: 'draft',
   });
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export default function EditNotePage() {
             typeof note.categoryId === 'string'
               ? note.categoryId
               : note.categoryId._id,
+          status: note.status || 'draft',
         });
         if (note.thumbnail) setPreview(note.thumbnail);
         if (note.content) setInitialContent(note.content);
@@ -127,6 +130,7 @@ export default function EditNotePage() {
         content,
         categoryId: formData.categoryId,
         imageDeleted,
+        status: formData.status,
       };
 
       await serverUpdateNote(id, data);
@@ -209,6 +213,18 @@ export default function EditNotePage() {
           label="Thể Loại"
           required
           disabled={loadingCate}
+        />
+
+        <Select
+          name="status"
+          label="Trạng thái"
+          value={formData.status}
+          onChange={handleChange}
+          options={[
+            { value: 'draft', label: 'Bản nháp' },
+            { value: 'published', label: 'Xuất bản' },
+          ]}
+          required
         />
 
         <Input

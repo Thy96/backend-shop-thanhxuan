@@ -31,6 +31,7 @@ export default function CreateNotePage() {
   const [formData, setFormData] = useState({
     title: '',
     categoryId: '',
+    status: 'draft',
   });
 
   useEffect(() => {
@@ -98,6 +99,7 @@ export default function CreateNotePage() {
         title: formData.title,
         content,
         categoryId: formData.categoryId,
+        status: formData.status,
       };
 
       await serverCreateNote(data);
@@ -180,6 +182,18 @@ export default function CreateNotePage() {
           label="Thể Loại"
           required
           disabled={loadingCate}
+        />
+
+        <Select
+          name="status"
+          label="Trạng thái"
+          value={formData.status}
+          onChange={handleChange}
+          options={[
+            { value: 'draft', label: 'Bản nháp' },
+            { value: 'published', label: 'Xuất bản' },
+          ]}
+          required
         />
         {/* Tiêu đề */}
         <Input

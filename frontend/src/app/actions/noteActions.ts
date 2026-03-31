@@ -11,12 +11,13 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 // Server Actions (mutations - dùng được từ client components)
-export async function serverCreateNote(note: { title: string; content: OutputData; thumbnail?: File | null; categoryId: string }) {
+export async function serverCreateNote(note: { title: string; content: OutputData; thumbnail?: File | null; categoryId: string; status: string }) {
     try {
         const formData = new FormData();
         formData.append('title', note.title);
         formData.append('content', JSON.stringify(note.content));
         formData.append('categoryId', note.categoryId);
+        formData.append('status', note.status);
         if (note.thumbnail) {
             formData.append('thumbnail', note.thumbnail);
         }
@@ -58,6 +59,7 @@ export async function serverUpdateNote(
         thumbnail?: File | string | null;
         categoryId: string;
         imageDeleted?: boolean;
+        status: string;
     }
 ) {
     try {
@@ -66,6 +68,7 @@ export async function serverUpdateNote(
         formData.append('content', JSON.stringify(note.content));
         formData.append('categoryId', note.categoryId);
         formData.append('imageDeleted', note.imageDeleted ? 'true' : 'false');
+        formData.append('status', note.status);
         if (note.thumbnail) {
             formData.append('thumbnail', note.thumbnail);
         }

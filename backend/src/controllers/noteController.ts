@@ -355,7 +355,7 @@ export const getNoteBySlug = async (req: Request, res: Response) => {
 // Tạo bài viết mới
 export const postNote = async (req: AuthenticatedRequest, res: Response) => {
   console.log('📦 req.body:', req.body); // Debug
-  const { title, content, categoryId } = req.body;
+  const { title, content, categoryId, status } = req.body;
   const userId = req.user?.uid;
 
   if (!userId) {
@@ -403,8 +403,9 @@ export const postNote = async (req: AuthenticatedRequest, res: Response) => {
   }
 
   const thumbnail = req.file ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` : undefined;
+  const noteStatus = status && ['draft', 'published'].includes(status) ? status : 'draft';
   try {
-    const newNote = new NoteModel({ thumbnail, title: title.trim(), slug, content: parsedContent, categoryId, author: userId, });
+    const newNote = new NoteModel({ thumbnail, title: title.trim(), slug, content: parsedContent, categoryId, status: noteStatus, author: userId, });
 
     const savedNote = await newNote.save();
 
@@ -421,7 +422,7 @@ export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ message: "ID không hợp lệ" });
   }
-  const { title, content, categoryId, imageDeleted } = req.body;
+  const { title, content, categoryId, imageDeleted, status } = req.body;
   const userId = req.user?.uid;
 
   if (!title || !title.trim()) {
@@ -471,7 +472,8 @@ export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
       thumbnail = null;
     }
 
-    const updateData: any = { thumbnail, title, slug, content: parsedContent, categoryId, updatedBy: userId };
+    const noteStatus = status && ['draft', 'published'].includes(status) ? status : existingNote.status;
+    const updateData: any = { thumbnail, title, slug, content: parsedContent, categoryId, status: noteStatus, updatedBy: userId };
     const updatedNote = await NoteModel.findByIdAndUpdate(
       req.params.id,
       updateData,
