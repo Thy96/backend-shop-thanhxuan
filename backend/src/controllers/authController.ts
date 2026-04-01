@@ -42,7 +42,7 @@ export async function login(req: Request, res: Response) {
   }
 
   if (user.isBlocked) {
-    return res.status(403).json({ message: "Tài khoản của bạn hiện đang tạm khóa" });
+    return res.status(403).json({ message: "Tài khoản của bạn đang bị khóa. Xin vui lòng liên hệ với quản trị viên" });
   }
 
   if (user.role === Role.USER) {

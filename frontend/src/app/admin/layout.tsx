@@ -1,12 +1,20 @@
 ﻿import '../globals.css'; // nếu bạn cần global styles
+import { redirect } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import ScrollTop from '@/components/ui/ScrollTop';
+import { getMe } from '@/lib/api/apiAuth';
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const me = await getMe();
+
+  if (!me?.user) {
+    redirect('/login');
+  }
+
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}

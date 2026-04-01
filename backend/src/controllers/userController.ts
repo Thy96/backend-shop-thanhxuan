@@ -134,6 +134,11 @@ export async function blockUser(req: AuthenticatedRequest, res: Response) {
     user.isBlocked = !user.isBlocked;
     user.blockedAt = user.isBlocked ? new Date() : null;
 
+    // Tăng tokenVersion để vô hiệu hóa JWT hiện tại ngay lập tức
+    if (user.isBlocked) {
+      user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+    }
+
     await user.save();
 
     res.json({

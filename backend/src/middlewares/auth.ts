@@ -59,6 +59,10 @@ export async function authenticate(req: AuthenticatedRequest, res: Response, nex
       return res.status(401).json({ message: 'User không tồn tại' });
     }
 
+    if (user.isBlocked) {
+      return res.status(403).json({ message: 'Tài khoản của bạn đang bị khóa. Xin vui lòng liên hệ với quản trị viên' });
+    }
+
     if (decoded.tokenVersion !== user.tokenVersion) {
       return res.status(401).json({ message: 'Token đã bị vô hiệu hóa' });
     }

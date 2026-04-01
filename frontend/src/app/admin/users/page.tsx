@@ -16,6 +16,7 @@ import AdminPagination from '@/components/layout/Admin/AdminPagination';
 import AdminCard from '@/components/layout/Admin/AdminCard';
 import AdminTable from '@/components/layout/Admin/AdminTable';
 import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
+import BlockUserButton from '@/components/layout/Admin/BlockUserButton';
 
 export default async function UsersPage({
   searchParams,
@@ -165,15 +166,11 @@ export default async function UsersPage({
                       }
                       onDelete={
                         !isSelf && (
-                          <form action={handleBlock}>
-                            <input type="hidden" name="id" value={user._id} />
-                            <button
-                              type="submit"
-                              className={`bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer`}
-                            >
-                              {user.isBlocked ? 'Mở khóa' : 'Khóa'}
-                            </button>
-                          </form>
+                          <BlockUserButton
+                            id={user._id}
+                            isBlocked={user.isBlocked}
+                            action={handleBlock}
+                          />
                         )
                       }
                     />
