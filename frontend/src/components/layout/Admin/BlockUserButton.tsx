@@ -1,29 +1,29 @@
 'use client';
 
 import Button from '@/components/ui/forms/Button';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 import { useFormStatus } from 'react-dom';
 
 function SubmitButton({ isBlocked }: { isBlocked: boolean }) {
   const { pending } = useFormStatus();
 
   return (
-    <Button
-      type="submit"
-      disabled={pending}
-      className={`text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${
-        isBlocked
-          ? 'bg-green-500 hover:bg-green-600'
-          : 'bg-red-500 hover:bg-red-600'
-      }`}
-    >
-      {pending
-        ? isBlocked
-          ? 'Đang mở khóa...'
-          : 'Đang khóa...'
-        : isBlocked
-          ? 'Mở khóa'
-          : 'Khóa'}
-    </Button>
+    <>
+      {pending && (
+        <LoadingClient text={isBlocked ? 'Đang mở khóa...' : 'Đang khóa...'} />
+      )}
+      <Button
+        type="submit"
+        disabled={pending}
+        className={`text-white !px-3 !py-1 rounded transition text-center text-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${
+          isBlocked
+            ? 'bg-green-600 hover:bg-green-700'
+            : 'bg-red-500 hover:bg-red-600'
+        }`}
+      >
+        {isBlocked ? 'Mở khóa' : 'Khóa'}
+      </Button>
+    </>
   );
 }
 
