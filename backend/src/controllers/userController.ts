@@ -92,7 +92,7 @@ export async function getUserById(req: AuthenticatedRequest, res: Response) {
 export async function editUser(req: AuthenticatedRequest, res: Response) {
   try {
     const { id } = req.params;
-    const { fullName, phone, role } = req.body;
+    const { fullName, phone, role, address } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -102,6 +102,7 @@ export async function editUser(req: AuthenticatedRequest, res: Response) {
     user.fullName = fullName ?? user.fullName;
     user.phone = phone ?? user.phone;
     user.role = role ?? user.role;
+    user.address = address ?? user.address;
 
     await user.save();
 

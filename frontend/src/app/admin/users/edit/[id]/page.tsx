@@ -1,16 +1,17 @@
 'use client';
 
+import { ChevronLeft } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { User } from '@/lib/types';
 
-import Input from '@/components/ui/forms/Input';
+import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
 import { editUser, getUserById } from '@/lib/api/apiUserClient';
+import Input from '@/components/ui/forms/Input';
 import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
-import { ChevronLeft } from 'lucide-react';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
-import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
-import { User } from '@/lib/types';
+import VietnamAddressSelect from '@/components/ui/forms/VietnamAddressSelect';
 
 function EditUserPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ function EditUserPage() {
 
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState('');
+  const [address, setAddress] = useState('');
   const [loadingPage, setLoadingPage] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -42,7 +44,8 @@ function EditUserPage() {
         }
 
         setUser(data);
-        setRole(data.role); // ⭐ set role mặc định
+        setRole(data.role);
+        setAddress(data.address ?? '');
       } catch (err) {
         console.error(err);
         setFetchError('Lỗi kết nối, vui lòng thử lại.');
@@ -60,7 +63,7 @@ function EditUserPage() {
     setLoadingSubmit(true);
 
     try {
-      await editUser(id, { role });
+      await editUser(id, { role, address });
 
       // ⭐ redirect sau khi edit
       startTransition(() => {
@@ -102,6 +105,12 @@ function EditUserPage() {
               onChange={(e) => setRole(e.target.value)}
               options={ROLE_OPTIONS}
               defaultValue={user.role}
+            />
+
+            <VietnamAddressSelect
+              label="Địa chỉ"
+              value={address}
+              onChange={setAddress}
             />
 
             <Button

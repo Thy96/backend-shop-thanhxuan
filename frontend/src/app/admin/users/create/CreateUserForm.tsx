@@ -14,6 +14,7 @@ import Button from '@/components/ui/forms/Button';
 import Input from '@/components/ui/forms/Input';
 import Select from '@/components/ui/forms/Select';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import VietnamAddressSelect from '@/components/ui/forms/VietnamAddressSelect';
 
 function CreateUserForm() {
   const router = useRouter();
@@ -120,14 +121,10 @@ function CreateUserForm() {
           label="Mật khẩu"
         />
 
-        <Input
-          id="address"
-          placeholder="Nhập địa chỉ..."
-          name="address"
-          value={form.address}
-          onChange={handleChange}
-          required
+        <VietnamAddressSelect
           label="Địa chỉ"
+          value={form.address}
+          onChange={(address) => setForm((prev) => ({ ...prev, address }))}
         />
 
         {/* role */}

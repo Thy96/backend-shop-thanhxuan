@@ -41,6 +41,7 @@ export async function editUser(id: string, data: {
   fullName?: string;
   phone?: string;
   role?: string;
+  address?: string;
 }) {
   const res = await fetch(`/api/admin/users/${id}`, {
     method: "PUT",
