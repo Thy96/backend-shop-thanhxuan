@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Select from '@/components/ui/forms/Select';
 import Input from './Input';
 
@@ -57,6 +57,8 @@ export default function VietnamAddressSelect({
   const [wardName, setWardName] = useState('');
   const [detail, setDetail] = useState('');
 
+  const lastEmitted = useRef('');
+
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
@@ -74,6 +76,7 @@ export default function VietnamAddressSelect({
   // Khi có value (edit mode) và provinces đã load → thử tìm code
   useEffect(() => {
     if (!value || provinces.length === 0) return;
+    if (value === lastEmitted.current) return; // bỏ qua nếu chính mình vừa emit
     const parsed = parseAddress(value);
     if (!parsed) return;
 
@@ -149,80 +152,80 @@ export default function VietnamAddressSelect({
     const parts = [detail, wardName, districtName, provinceName].filter(
       Boolean,
     );
-    onChange(parts.join(', '));
+    const newAddress = parts.join(', ');
+    lastEmitted.current = newAddress;
+    onChange(newAddress);
   }, [detail, wardName, districtName, provinceName, onChange]);
 
   return (
     <div className="space-y-1">
-      {label && (
-        <p className="block mb-1 text-lg font-medium text-gray-700">{label}</p>
-      )}
-
-      {/* Tỉnh / Thành phố */}
-      <Select
-        label={
-          loadingProvinces
-            ? 'Tỉnh / Thành phố (Đang tải...)'
-            : 'Tỉnh / Thành phố'
-        }
-        value={String(provinceCode)}
-        disabled={loadingProvinces}
-        options={provinces.map((p) => ({
-          value: String(p.code),
-          label: p.name,
-        }))}
-        onChange={(e) => {
-          const code = Number(e.target.value);
-          const name = provinces.find((p) => p.code === code)?.name ?? '';
-          setProvinceCode(code || '');
-          setProvinceName(name);
-          setDistrictCode('');
-          setDistrictName('');
-          setWardName('');
-        }}
-      />
-
-      {/* Quận / Huyện */}
-      <Select
-        label={loadingDistricts ? 'Quận / Huyện (Đang tải...)' : 'Quận / Huyện'}
-        value={String(districtCode)}
-        disabled={provinceCode === '' || loadingDistricts}
-        options={districts.map((d) => ({
-          value: String(d.code),
-          label: d.name,
-        }))}
-        onChange={(e) => {
-          const code = Number(e.target.value);
-          const name = districts.find((d) => d.code === code)?.name ?? '';
-          setDistrictCode(code || '');
-          setDistrictName(name);
-          setWardName('');
-        }}
-      />
-
-      {/* Phường / Xã */}
-      <Select
-        label={loadingWards ? 'Phường / Xã (Đang tải...)' : 'Phường / Xã'}
-        value={wardName}
-        disabled={districtCode === '' || loadingWards}
-        options={wards.map((w) => ({ value: w.name, label: w.name }))}
-        onChange={(e) => setWardName(e.target.value)}
-      />
-
       {/* Địa chỉ chi tiết */}
-      <div>
-        <label className="block mb-1 text-sm font-medium text-gray-600">
-          Số nhà / Đường (tùy chọn)
-        </label>
-        <Input
-          type="text"
-          placeholder="VD: 123 Đường Lê Lợi"
-          value={detail}
-          onChange={(e) => setDetail(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+      <Input
+        label="Số nhà / Đường (tùy chọn)"
+        type="text"
+        placeholder="VD: 123 Đường Lê Lợi"
+        value={detail}
+        onChange={(e) => setDetail(e.target.value)}
+        className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+      />
+
+      <div className="flex gap-3">
+        {/* Tỉnh / Thành phố */}
+        <Select
+          label={
+            loadingProvinces
+              ? 'Tỉnh / Thành phố (Đang tải...)'
+              : 'Tỉnh / Thành phố'
+          }
+          className="flex-1"
+          value={String(provinceCode)}
+          disabled={loadingProvinces}
+          options={provinces.map((p) => ({
+            value: String(p.code),
+            label: p.name,
+          }))}
+          onChange={(e) => {
+            const code = Number(e.target.value);
+            const name = provinces.find((p) => p.code === code)?.name ?? '';
+            setProvinceCode(code || '');
+            setProvinceName(name);
+            setDistrictCode('');
+            setDistrictName('');
+            setWardName('');
+          }}
+        />
+
+        {/* Quận / Huyện */}
+        <Select
+          label={
+            loadingDistricts ? 'Quận / Huyện (Đang tải...)' : 'Quận / Huyện'
+          }
+          className="flex-1"
+          value={String(districtCode)}
+          disabled={provinceCode === '' || loadingDistricts}
+          options={districts.map((d) => ({
+            value: String(d.code),
+            label: d.name,
+          }))}
+          onChange={(e) => {
+            const code = Number(e.target.value);
+            const name = districts.find((d) => d.code === code)?.name ?? '';
+            setDistrictCode(code || '');
+            setDistrictName(name);
+            setWardName('');
+          }}
+        />
+
+        {/* Phường / Xã */}
+        <Select
+          label={loadingWards ? 'Phường / Xã (Đang tải...)' : 'Phường / Xã'}
+          className="flex-1"
+          value={wardName}
+          disabled={districtCode === '' || loadingWards}
+          options={wards.map((w) => ({ value: w.name, label: w.name }))}
+          onChange={(e) => setWardName(e.target.value)}
         />
       </div>
-
       {/* Preview */}
       {provinceName && (
         <p className="text-xs text-gray-400 italic">
