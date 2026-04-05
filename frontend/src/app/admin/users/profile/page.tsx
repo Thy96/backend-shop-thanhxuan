@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Button from '@/components/ui/forms/Button';
 import Input from '@/components/ui/forms/Input';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import VietnamAddressSelect from '@/components/ui/forms/VietnamAddressSelect';
 
 import useMe from '@/lib/hook/useMe';
 
@@ -12,6 +13,7 @@ export default function ProfilePage() {
   const { user, setUser, loading } = useMe();
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -20,6 +22,7 @@ export default function ProfilePage() {
     if (user) {
       setFullName(user.fullName || '');
       setPhone(user.phone || '');
+      setAddress(user.address || '');
     }
   }, [user]);
 
@@ -33,7 +36,7 @@ export default function ProfilePage() {
       const res = await fetch('/api/admin/auth/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, phone }),
+        body: JSON.stringify({ fullName, phone, address }),
         credentials: 'include',
       });
 
@@ -41,7 +44,7 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error(data.message);
 
       setMessage('✅ Cập nhật thông tin thành công');
-      setUser((prev) => prev && { ...prev, fullName, phone });
+      setUser((prev) => prev && { ...prev, fullName, phone, address });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -101,6 +104,13 @@ export default function ProfilePage() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             name="phone"
+          />
+
+          {/* Address */}
+          <VietnamAddressSelect
+            label="Địa chỉ"
+            value={address}
+            onChange={(val) => setAddress(val)}
           />
 
           {/* Role */}

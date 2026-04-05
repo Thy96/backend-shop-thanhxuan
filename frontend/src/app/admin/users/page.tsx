@@ -73,7 +73,7 @@ export default async function UsersPage({
   return (
     <>
       <AdminPageHeader
-        title="Danh sách User"
+        title="Danh sách thành viên"
         count={pagination.total}
         action={
           isAdmin && (

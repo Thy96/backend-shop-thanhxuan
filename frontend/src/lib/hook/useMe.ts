@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 
 export interface Me {
+  [x: string]: string;
   _id: string;
-  fullName?: string;
+  fullName: string;
   email: string;
   phone: string;
   role: string;
+  address: string;
   createdAt: string;
 }
 

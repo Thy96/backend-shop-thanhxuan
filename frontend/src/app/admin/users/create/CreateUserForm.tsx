@@ -54,6 +54,7 @@ function CreateUserForm() {
 
     try {
       await createUser(data);
+      setLoadingSubmit(false);
       startTransition(() => {
         router.push('/admin/users');
       });
@@ -66,7 +67,7 @@ function CreateUserForm() {
   return (
     <>
       {(loadingSubmit || isPending) && (
-        <LoadingClient text="Đang tạo user..." />
+        <LoadingClient text="Đang tạo thành viên..." />
       )}
       <Button
         type="button"
