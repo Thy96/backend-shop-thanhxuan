@@ -272,7 +272,7 @@ export async function updateMe(req: AuthenticatedRequest, res: Response) {
       return res.status(401).json({ message: 'Chưa đăng nhập' });
     }
 
-    const { fullName, phone } = req.body;
+    const { fullName, phone, address } = req.body;
 
     if (!fullName || fullName === '') {
       return res.status(400).json({ message: 'Yêu cầu nhập Full Name' });
@@ -290,10 +290,11 @@ export async function updateMe(req: AuthenticatedRequest, res: Response) {
       req.user?.uid,
       {
         fullName: fullName.trim(),
-        phone: phone
+        phone: phone,
+        ...(address !== undefined && { address: address.trim() }),
       },
       { new: true, runValidators: true }
-    ).select('_id fullName email role phone')
+    ).select('_id fullName email role phone address')
 
     if (!u) {
       return res.status(404).json({ message: 'User không tồn tại' });
@@ -307,6 +308,7 @@ export async function updateMe(req: AuthenticatedRequest, res: Response) {
         fullName: u?.fullName,
         role: u?.role,
         phone: u?.phone,
+        address: u?.address,
       }
     })
   } catch (error) {

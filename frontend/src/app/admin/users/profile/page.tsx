@@ -69,7 +69,7 @@ export default function ProfilePage() {
   return (
     <>
       {loadingSubmit && <LoadingClient />}
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 m-auto">
+      <div className="w-full bg-white rounded-2xl shadow-lg p-8 m-auto">
         {/* Title */}
         <h2 className="text-2xl font-semibold text-center mb-6">
           Thông tin cá nhân
