@@ -20,38 +20,40 @@ export async function forgotPassword(req: Request, res: Response) {
 
     const user = await UserModel.findOne({ email: normalizedEmail });
 
-    if (user) {
-      if (
-        user.resetPasswordRequestedAt &&
-        Date.now() - user.resetPasswordRequestedAt.getTime() < WAIT_TIME
-      ) {
-        return res.status(429).json({
-          message: 'Vui lòng đợi trước khi yêu cầu lại',
-        });
-      }
+    if (!user) {
+      return res.status(404).json({ message: 'Email không tồn tại' });
+    }
 
-      const token = crypto.randomBytes(32).toString('hex');
-      const hashedToken = crypto
-        .createHash('sha256')
-        .update(token)
-        .digest('hex');
+    if (
+      user.resetPasswordRequestedAt &&
+      Date.now() - user.resetPasswordRequestedAt.getTime() < WAIT_TIME
+    ) {
+      return res.status(429).json({
+        message: 'Vui lòng đợi trước khi yêu cầu lại',
+      });
+    }
 
-      user.resetPasswordRequestedAt = new Date();
-      user.resetPasswordToken = hashedToken;
-      user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+    const token = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
 
+    user.resetPasswordRequestedAt = new Date();
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    await user.save();
+
+    const resetUrl = `${CLIENT_ORIGIN}/reset-password?token=${token}`;
+
+    try {
+      await sendResetPasswordMail(normalizedEmail, resetUrl);
+    } catch (err) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
       await user.save();
-
-      const resetUrl = `${CLIENT_ORIGIN}/reset-password?token=${token}`;
-
-      try {
-        await sendResetPasswordMail(normalizedEmail, resetUrl);
-      } catch (err) {
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        await user.save();
-        throw err;
-      }
+      throw err;
     }
 
     const elapsed = Date.now() - start;
