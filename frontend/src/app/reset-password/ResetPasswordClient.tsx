@@ -6,6 +6,7 @@ import { API_URL } from '@/utils/helps';
 
 import Input from '@/components/ui/forms/Input';
 import Button from '@/components/ui/forms/Button';
+import LoadingClient from '@/components/ui/Loading/LoadingClient';
 
 export default function ResetPasswordClient() {
   const searchParams = useSearchParams();
@@ -16,6 +17,7 @@ export default function ResetPasswordClient() {
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState<ReactNode>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,29 +30,39 @@ export default function ResetPasswordClient() {
       return setError('Mật khẩu không khớp');
     }
 
-    const res = await fetch(`${API_URL}/api/admin/auth/reset-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, password }),
-    });
+    setLoading(true);
+    setError('');
 
-    const data = await res.json();
+    try {
+      const res = await fetch(`${API_URL}/api/admin/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password }),
+      });
 
-    if (!res.ok) {
-      return setError(data.message || 'Lỗi reset mật khẩu');
+      const data = await res.json();
+
+      if (!res.ok) {
+        return setError(data.message || 'Lỗi reset mật khẩu');
+      }
+
+      setSuccess(
+        <>
+          Đổi mật khẩu thành công! <br />
+          Trở lại trang đăng nhập sau vài giây!
+        </>,
+      );
+      setTimeout(() => router.push('/login'), 2000);
+    } catch {
+      setError('Đã xảy ra lỗi, vui lòng thử lại');
+    } finally {
+      setLoading(false);
     }
-
-    setSuccess(
-      <>
-        Đổi mật khẩu thành công! <br />
-        Trở lại trang đăng nhập sau vài giây!
-      </>,
-    );
-    setTimeout(() => router.push('/login'), 2000);
   };
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white shadow rounded">
+      {loading && <LoadingClient text="Đang đặt lại mật khẩu..." />}
       <h2 className="text-xl font-bold mb-4">Thay Đổi Mật Khẩu</h2>
 
       {!success && error && <p className="text-red-500 mb-3">{error}</p>}
