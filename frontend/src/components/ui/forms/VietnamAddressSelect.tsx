@@ -41,11 +41,7 @@ function parseAddress(address: string) {
   return null;
 }
 
-export default function VietnamAddressSelect({
-  value,
-  onChange,
-  label,
-}: Props) {
+export default function VietnamAddressSelect({ value, onChange }: Props) {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);

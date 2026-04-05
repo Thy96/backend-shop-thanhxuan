@@ -5,3 +5,6 @@ node_modules
 .next
 dist
 build
+
+# Seed scripts
+backend/scripts/
