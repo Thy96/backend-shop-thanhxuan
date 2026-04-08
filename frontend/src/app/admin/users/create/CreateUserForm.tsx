@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 
 import { CreateUserDTO } from '@/lib/types';
-import { createUser } from '@/lib/api/apiUserClient';
+import { serverCreateUser } from '@/app/actions/userActions';
 
 import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
 
@@ -53,12 +53,13 @@ function CreateUserForm() {
     };
 
     try {
-      await createUser(data);
+      await serverCreateUser(data);
       startTransition(() => {
         router.push('/admin/users');
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
+    } finally {
       setLoadingSubmit(false);
     }
   }

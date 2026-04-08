@@ -262,6 +262,7 @@ export default function CreateProductPage() {
             type="number"
             value={formData.price}
             onChange={handleChange}
+            onFocus={(e) => e.target.select()}
             note={
               <p className="text-xs text-red-500 mt-2">
                 Giá sau giảm {formData.sale}%:{' '}
@@ -280,6 +281,7 @@ export default function CreateProductPage() {
             max={100}
             value={formData.sale}
             onChange={handleChange}
+            onFocus={(e) => e.target.select()}
             required
           />
           <Input
@@ -291,6 +293,7 @@ export default function CreateProductPage() {
             min={0}
             value={formData.stock}
             onChange={handleChange}
+            onFocus={(e) => e.target.select()}
           />
         </div>
 

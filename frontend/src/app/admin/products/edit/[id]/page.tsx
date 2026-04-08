@@ -35,11 +35,15 @@ export default function EditProductPage() {
   const router = useRouter();
   const editorRef = useRef<{ save: () => Promise<OutputData> } | null>(null);
   const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([]);
+  const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>(
+    [],
+  );
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [loadingCate, setLoadingCate] = useState(true);
   const [loadingProduct, setLoadingProduct] = useState(true);
-  const [initialContent, setInitialContent] = useState<OutputData | undefined>(undefined);
+  const [initialContent, setInitialContent] = useState<OutputData | undefined>(
+    undefined,
+  );
   const [isPending, startTransition] = useTransition();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,10 +59,17 @@ export default function EditProductPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         const [productRes, cateRes] = await Promise.all([
-          fetch(`${apiUrl}/api/admin/products/${id}`, { cache: 'no-store', credentials: 'include' }),
-          fetch(`${apiUrl}/api/admin/products/categories`, { cache: 'no-store', credentials: 'include' }),
+          fetch(`${apiUrl}/api/admin/products/${id}`, {
+            cache: 'no-store',
+            credentials: 'include',
+          }),
+          fetch(`${apiUrl}/api/admin/products/categories`, {
+            cache: 'no-store',
+            credentials: 'include',
+          }),
         ]);
         const product: ProductDetail = await productRes.json();
         const cates: CategoryOption[] = await cateRes.json();
@@ -69,7 +80,10 @@ export default function EditProductPage() {
           price: product.price,
           sale: product.sale,
           stock: product.stock,
-          categoryId: typeof product.categoryId === 'string' ? product.categoryId : product.categoryId._id,
+          categoryId:
+            typeof product.categoryId === 'string'
+              ? product.categoryId
+              : product.categoryId._id,
           status: product.status || 'draft',
         });
         if (product.images?.length) setExistingImages(product.images);
@@ -93,7 +107,10 @@ export default function EditProductPage() {
     const { name, value } = e.target;
 
     if (name === 'sale') {
-      if (value === '') { setFormData((prev) => ({ ...prev, sale: 0 })); return; }
+      if (value === '') {
+        setFormData((prev) => ({ ...prev, sale: 0 }));
+        return;
+      }
       let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num > 100) num = 100;
@@ -103,7 +120,10 @@ export default function EditProductPage() {
     }
 
     if (name === 'stock' || name === 'price') {
-      if (value === '') { setFormData((prev) => ({ ...prev, [name]: 0 })); return; }
+      if (value === '') {
+        setFormData((prev) => ({ ...prev, [name]: 0 }));
+        return;
+      }
       let num = Number(value);
       if (isNaN(num)) num = 0;
       if (num < 0) num = 0;
@@ -117,7 +137,8 @@ export default function EditProductPage() {
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
-    const totalCount = existingImages.length + newImages.length + selectedFiles.length;
+    const totalCount =
+      existingImages.length + newImages.length + selectedFiles.length;
     if (totalCount > 3) {
       alert('Chỉ được chọn tối đa 3 hình ảnh');
       return;
@@ -305,6 +326,7 @@ export default function EditProductPage() {
             type="number"
             value={formData.price}
             onChange={handleChange}
+            onFocus={(e) => e.target.select()}
             note={
               <p className="text-xs text-red-500 mt-2">
                 Giá sau giảm {formData.sale}%:{' '}
@@ -323,6 +345,7 @@ export default function EditProductPage() {
             max={100}
             value={formData.sale}
             onChange={handleChange}
+            onFocus={(e) => e.target.select()}
             required
           />
           <Input
@@ -334,6 +357,7 @@ export default function EditProductPage() {
             min={0}
             value={formData.stock}
             onChange={handleChange}
+            onFocus={(e) => e.target.select()}
           />
         </div>
 

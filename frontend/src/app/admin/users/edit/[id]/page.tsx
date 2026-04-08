@@ -6,7 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { User } from '@/lib/types';
 
 import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
-import { editUser, getUserById } from '@/lib/api/apiUserClient';
+import { serverUpdateUser } from '@/app/actions/userActions';
 import Input from '@/components/ui/forms/Input';
 import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
@@ -33,7 +33,11 @@ function EditUserPage() {
       setLoadingPage(true);
       setFetchError(null);
       try {
-        const data = await getUserById(id);
+        const res = await fetch(`/api/admin/users/${id}`, {
+          cache: 'no-store',
+          credentials: 'include',
+        });
+        const data = res.ok ? await res.json() : null;
 
         if (!data) {
           setFetchError(
@@ -63,7 +67,7 @@ function EditUserPage() {
     setLoadingSubmit(true);
 
     try {
-      await editUser(id, { role, address });
+      await serverUpdateUser(id, { role, address });
 
       // ⭐ redirect sau khi edit
       startTransition(() => {
