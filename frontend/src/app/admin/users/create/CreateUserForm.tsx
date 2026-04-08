@@ -54,7 +54,6 @@ function CreateUserForm() {
 
     try {
       await createUser(data);
-      setLoadingSubmit(false);
       startTransition(() => {
         router.push('/admin/users');
       });
