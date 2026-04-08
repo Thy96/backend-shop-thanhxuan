@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ChevronLeft } from 'lucide-react';
@@ -28,7 +28,6 @@ function CreateUserForm() {
     role: 'user',
   });
 
-  const [isPending, startTransition] = useTransition();
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [error, setError] = useState('');
 
@@ -54,9 +53,7 @@ function CreateUserForm() {
 
     try {
       await serverCreateUser(data);
-      startTransition(() => {
-        router.push('/admin/users');
-      });
+      router.push('/admin/users');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -66,9 +63,7 @@ function CreateUserForm() {
 
   return (
     <>
-      {(loadingSubmit || isPending) && (
-        <LoadingClient text="Đang tạo thành viên..." />
-      )}
+      {loadingSubmit && <LoadingClient text="Đang tạo thành viên..." />}
       <Button
         type="button"
         onClick={() => router.push('/admin/users')}

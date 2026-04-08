@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 
-import { blockUser, getUsers, resendVerifyUser } from '@/lib/api/apiUserSSR';
+import { blockUser, getUsers, resendVerifyUser } from '@/lib/api/userQueries';
 import { getMe } from '@/lib/api/apiAuth';
 import { PaginationProps, User } from '@/lib/types';
 
