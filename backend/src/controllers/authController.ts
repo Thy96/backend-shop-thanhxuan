@@ -256,7 +256,7 @@ export async function me(req: AuthenticatedRequest, res: Response) {
   const uid = req.user?.uid;
   if (!uid) return res.status(401).json({ message: 'Chưa đăng nhập' });
 
-  const USER_PUBLIC_FIELDS = '_id fullName email role createdAt phone';
+  const USER_PUBLIC_FIELDS = '_id fullName email role createdAt phone address';
   const u = await User.findById(uid)
     .select(USER_PUBLIC_FIELDS)
     .lean();

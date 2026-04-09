@@ -95,14 +95,30 @@ function EditUserPage() {
         <ChevronLeft width={23} height={23} /> Quay Lại
       </Button>
       <div className="flex items-center justify-center mt-4">
-        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+        <div className="w-full max-w-3xl bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-semibold text-center mb-6">
             Chỉnh sửa thành viên
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="Họ và tên" defaultValue={user.fullName} disabled />
-            <Input label="Số điện thoại" defaultValue={user.phone} disabled />
+            <Input
+              label="Họ và tên"
+              defaultValue={user.fullName}
+              disabled
+              classNames={{
+                input:
+                  'border-gray-300 !bg-gray-200 text-gray-600 cursor-not-allowed',
+              }}
+            />
+            <Input
+              label="Số điện thoại"
+              defaultValue={user.phone}
+              disabled
+              classNames={{
+                input:
+                  'border-gray-300 !bg-gray-200 text-gray-600 cursor-not-allowed',
+              }}
+            />
 
             <Select
               label="Phân quyền"

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { blockUser, getUsers, resendVerifyUser } from '@/lib/api/userQueries';
 import { getMe } from '@/lib/api/apiAuth';
 import { PaginationProps, User } from '@/lib/types';
-
+import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
 import { getPaginationRange } from '@/utils/format/pagination';
 import { formatDate } from '@/utils/format/format';
 
@@ -119,7 +119,10 @@ export default async function UsersPage({
                 <td className="px-4 py-4">{user.fullName}</td>
                 <td className="px-1 py-4">{user.email}</td>
                 <td className="px-1 py-4 text-center">{user.phone}</td>
-                <td className="px-1 py-4">{user.role}</td>
+                <td className="px-1 py-4">
+                  {ROLE_OPTIONS.find((r) => r.value === user.role)?.label ??
+                    user.role}
+                </td>
                 <td className="px-1 py-4">
                   {formatDate(user.createdAt, user.updatedAt)}
                 </td>

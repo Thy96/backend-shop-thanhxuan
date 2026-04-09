@@ -28,7 +28,8 @@ interface Props {
 }
 
 function parseAddress(address: string) {
-  // Định dạng: "Chi tiết, Xã/Phường, Quận/Huyện, Tỉnh/Thành phố"
+  // Định dạng: "Chi tiết, Xã/Phường, Quận/Huyện, Tỉnh/Thành phố" (4 phần)
+  // Hoặc: "Xã/Phường, Quận/Huyện, Tỉnh/Thành phố" (3 phần, không có detail)
   const parts = address.split(',').map((s) => s.trim());
   if (parts.length === 4) {
     return {
@@ -36,6 +37,14 @@ function parseAddress(address: string) {
       ward: parts[1],
       district: parts[2],
       province: parts[3],
+    };
+  }
+  if (parts.length === 3) {
+    return {
+      detail: '',
+      ward: parts[0],
+      district: parts[1],
+      province: parts[2],
     };
   }
   return null;
@@ -54,6 +63,12 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
   const [detail, setDetail] = useState('');
 
   const lastEmitted = useRef('');
+  const onChangeRef = useRef(onChange);
+  const isInitializingRef = useRef(false);
+  const initValueRef = useRef('');
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  });
 
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
@@ -71,16 +86,33 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
 
   // Khi có value (edit mode) và provinces đã load → thử tìm code
   useEffect(() => {
+    console.log(
+      '[VietnamAddress] effect fired | value:',
+      JSON.stringify(value),
+      '| provinces:',
+      provinces.length,
+      '| lastEmitted:',
+      JSON.stringify(lastEmitted.current),
+    );
     if (!value || provinces.length === 0) return;
     if (value === lastEmitted.current) return; // bỏ qua nếu chính mình vừa emit
     const parsed = parseAddress(value);
+    console.log('[VietnamAddress] parsed:', parsed);
     if (!parsed) return;
 
     const matchedProvince = provinces.find((p) => p.name === parsed.province);
-    if (matchedProvince) {
-      setProvinceCode(matchedProvince.code);
-      setProvinceName(matchedProvince.name);
-    }
+    console.log(
+      '[VietnamAddress] matchedProvince:',
+      matchedProvince,
+      '| looking for:',
+      parsed.province,
+    );
+    if (!matchedProvince) return;
+
+    isInitializingRef.current = true;
+    initValueRef.current = value; // lưu value gốc cho các bước cascade
+    setProvinceCode(matchedProvince.code);
+    setProvinceName(matchedProvince.name);
     setDetail(parsed.detail || '');
   }, [value, provinces]);
 
@@ -104,16 +136,21 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
 
   // Khi districts load xong → tìm district từ parsed value
   useEffect(() => {
-    if (!value || districts.length === 0) return;
-    const parsed = parseAddress(value);
-    if (!parsed) return;
+    if (!isInitializingRef.current || districts.length === 0) return;
+    const parsed = parseAddress(initValueRef.current);
+    if (!parsed) {
+      isInitializingRef.current = false;
+      return;
+    }
 
     const matchedDistrict = districts.find((d) => d.name === parsed.district);
     if (matchedDistrict) {
       setDistrictCode(matchedDistrict.code);
       setDistrictName(matchedDistrict.name);
+    } else {
+      isInitializingRef.current = false;
     }
-  }, [districts, value]);
+  }, [districts]);
 
   // Load phường/xã khi chọn quận/huyện
   useEffect(() => {
@@ -132,32 +169,38 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
 
   // Khi wards load xong → tìm ward từ parsed value
   useEffect(() => {
-    if (!value || wards.length === 0) return;
-    const parsed = parseAddress(value);
-    if (!parsed) return;
+    if (!isInitializingRef.current || wards.length === 0) return;
+    const parsed = parseAddress(initValueRef.current);
+    if (!parsed) {
+      isInitializingRef.current = false;
+      return;
+    }
 
     const matchedWard = wards.find((w) => w.name === parsed.ward);
     if (matchedWard) {
       setWardName(matchedWard.name);
     }
-  }, [wards, value]);
+    isInitializingRef.current = false; // cascade hoàn tất
+  }, [wards]);
 
-  // Emit address string mỗi khi thay đổi
+  // Emit address string mỗi khi thay đổi (chỉ khi user tương tác, không phải init)
   useEffect(() => {
     if (!provinceName) return;
+    if (isInitializingRef.current) return; // chặn emit trong lúc cascade init
     const parts = [detail, wardName, districtName, provinceName].filter(
       Boolean,
     );
     const newAddress = parts.join(', ');
+    if (newAddress === lastEmitted.current) return;
     lastEmitted.current = newAddress;
-    onChange(newAddress);
-  }, [detail, wardName, districtName, provinceName, onChange]);
+    onChangeRef.current(newAddress);
+  }, [detail, wardName, districtName, provinceName]);
 
   return (
     <div className="space-y-1">
       {/* Địa chỉ chi tiết */}
       <Input
-        label="Số nhà / Đường (tùy chọn)"
+        label="Số nhà / Đường"
         type="text"
         placeholder="VD: 123 Đường Lê Lợi"
         value={detail}

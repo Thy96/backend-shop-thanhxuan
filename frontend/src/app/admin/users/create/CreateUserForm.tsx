@@ -53,10 +53,10 @@ function CreateUserForm() {
 
     try {
       await serverCreateUser(data);
+      setLoadingSubmit(false);
       router.push('/admin/users');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
-    } finally {
       setLoadingSubmit(false);
     }
   }
