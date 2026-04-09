@@ -86,27 +86,12 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
 
   // Khi có value (edit mode) và provinces đã load → thử tìm code
   useEffect(() => {
-    console.log(
-      '[VietnamAddress] effect fired | value:',
-      JSON.stringify(value),
-      '| provinces:',
-      provinces.length,
-      '| lastEmitted:',
-      JSON.stringify(lastEmitted.current),
-    );
     if (!value || provinces.length === 0) return;
     if (value === lastEmitted.current) return; // bỏ qua nếu chính mình vừa emit
     const parsed = parseAddress(value);
-    console.log('[VietnamAddress] parsed:', parsed);
     if (!parsed) return;
 
     const matchedProvince = provinces.find((p) => p.name === parsed.province);
-    console.log(
-      '[VietnamAddress] matchedProvince:',
-      matchedProvince,
-      '| looking for:',
-      parsed.province,
-    );
     if (!matchedProvince) return;
 
     isInitializingRef.current = true;

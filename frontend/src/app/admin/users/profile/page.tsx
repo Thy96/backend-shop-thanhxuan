@@ -20,7 +20,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (user) {
-      console.log('[Profile] user.address:', JSON.stringify(user.address));
       setFullName(user.fullName || '');
       setPhone(user.phone || '');
       setAddress(user.address || '');
