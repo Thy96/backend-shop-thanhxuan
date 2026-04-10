@@ -61,6 +61,16 @@ app.use(express.urlencoded({ extended: true }));
 // Admin middleware
 app.use('/api/admin', trackVisit);
 
+// Lazy DB connection middleware — runs once per cold start on Vercel
+app.use(async (_req, _res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Routes
 adminRouter.use('/notes/categories', noteCategoryRoutes);
 adminRouter.use('/products/categories', productCategoryRoutes);
@@ -84,14 +94,16 @@ app.use((err: any, _req: any, res: any, _next: any) => {
   res.status(err.status || 500).json({ message: err.message || 'Server đang bị lỗi' });
 });
 
-// Start server
-(async () => {
-  try {
-    // Kết nối MongoDB
-    await connectDB();
-    app.listen(PORT, () => console.log(`🚀 http://localhost:${PORT}`));
-  } catch (e) {
-    console.error('Không thể kết nối Database:', e);
-    process.exit(1);
-  }
-})();
+// Start server (development only — Vercel uses exported app)
+if (process.env.NODE_ENV !== 'production') {
+  (async () => {
+    try {
+      await connectDB();
+      app.listen(PORT, () => console.log(`🚀 http://localhost:${PORT}`));
+    } catch (e) {
+      console.error('Không thể kết nối Database:', e);
+    }
+  })();
+}
+
+export default app;
