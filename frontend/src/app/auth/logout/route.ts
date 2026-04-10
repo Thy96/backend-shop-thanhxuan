@@ -12,12 +12,12 @@ export async function POST(req: NextRequest) {
       headers: { cookie: req.headers.get('cookie') || '' },
     });
 
-    // Lấy header Set-Cookie từ BE (xoá cookie) và forward lại cho FE domain
-    const setCookie = res.headers.get('set-cookie');
+    // Lấy toàn bộ Set-Cookie headers từ BE (xoá cookie) và forward lại cho FE domain
+    const setCookies = res.headers.getSetCookie();
 
     // Redirect về /login dù BE trả gì; nếu muốn chặt hơn có thể kiểm tra res.ok
     const next = NextResponse.redirect(new URL('/login?logout=1', req.url), { status: 302 });
-    if (setCookie) next.headers.set('set-cookie', setCookie);
+    setCookies.forEach(cookie => next.headers.append('set-cookie', cookie));
     return next;
   } catch (e) {
     console.error('Logout handler crashed:', e);

@@ -45,8 +45,8 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ Thành công
-      router.push('/admin');
+      // ✅ Thành công — dùng hard navigation để browser commit cookie trước
+      window.location.href = '/admin';
     } catch (error) {
       console.error('Login error:', error);
       setErr({
