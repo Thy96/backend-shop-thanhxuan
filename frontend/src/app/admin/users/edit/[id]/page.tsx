@@ -108,24 +108,8 @@ function EditUserPage() {
               defaultValue={user.role}
             />
 
-            <Input
-              label="Họ và tên"
-              defaultValue={user.fullName}
-              disabled
-              classNames={{
-                input:
-                  'border-gray-300 !bg-gray-200 text-gray-600 cursor-not-allowed',
-              }}
-            />
-            <Input
-              label="Số điện thoại"
-              defaultValue={user.phone}
-              disabled
-              classNames={{
-                input:
-                  'border-gray-300 !bg-gray-200 text-gray-600 cursor-not-allowed',
-              }}
-            />
+            <Input label="Họ và tên" defaultValue={user.fullName} disabled />
+            <Input label="Số điện thoại" defaultValue={user.phone} disabled />
 
             <VietnamAddressSelect
               label="Địa chỉ"

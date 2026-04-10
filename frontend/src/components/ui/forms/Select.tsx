@@ -36,7 +36,7 @@ function Select({
       )}
       <div className="relative">
         <select
-          className={`bg-white w-full p-3 pr-10 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition appearance-none cursor-pointer ${selectClassName ?? ''}`}
+          className={`bg-white w-full p-3 pr-10 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition appearance-none cursor-pointer disabled:border-gray-300 disabled:!bg-gray-200 disabled:cursor-not-allowed disabled:text-gray-600 ${selectClassName ?? ''}`}
           name={name}
           value={value}
           onChange={onChange}

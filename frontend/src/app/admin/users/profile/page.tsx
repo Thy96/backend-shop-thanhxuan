@@ -77,16 +77,7 @@ export default function ProfilePage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
-          <Input
-            label="Email"
-            value={user.email}
-            disabled
-            name="email"
-            classNames={{
-              input:
-                'border-gray-300 !bg-gray-200 text-gray-600 cursor-not-allowed',
-            }}
-          />
+          <Input label="Email" value={user.email} disabled name="email" />
 
           {/* Full Name */}
           <Input

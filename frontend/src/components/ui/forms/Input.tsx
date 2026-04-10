@@ -28,7 +28,7 @@ function Input({ label, error, classNames, note, ...props }: InputProps) {
       )}
       <input
         {...props}
-        className={`w-full p-3 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition bg-white ${
+        className={`w-full p-3 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition bg-white disabled:border-gray-300 disabled:!bg-gray-200 disabled:cursor-not-allowed disabled:text-gray-600 ${
           classNames?.input || ''
         } ${error ? 'border-red-500 focus:ring-red-400' : ''}`}
       />
