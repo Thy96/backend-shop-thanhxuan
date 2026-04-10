@@ -101,6 +101,13 @@ function EditUserPage() {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <Select
+              label="Phân quyền"
+              onChange={(e) => setRole(e.target.value)}
+              options={ROLE_OPTIONS}
+              defaultValue={user.role}
+            />
+
             <Input
               label="Họ và tên"
               defaultValue={user.fullName}
@@ -120,17 +127,11 @@ function EditUserPage() {
               }}
             />
 
-            <Select
-              label="Phân quyền"
-              onChange={(e) => setRole(e.target.value)}
-              options={ROLE_OPTIONS}
-              defaultValue={user.role}
-            />
-
             <VietnamAddressSelect
               label="Địa chỉ"
               value={address}
               onChange={setAddress}
+              disabled={true}
             />
 
             <Button

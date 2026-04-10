@@ -25,6 +25,7 @@ interface Props {
   value?: string; // chuỗi địa chỉ hiện tại (để parse khi edit)
   onChange: (address: string) => void;
   label?: string;
+  disabled?: boolean;
 }
 
 function parseAddress(address: string) {
@@ -50,7 +51,11 @@ function parseAddress(address: string) {
   return null;
 }
 
-export default function VietnamAddressSelect({ value, onChange }: Props) {
+export default function VietnamAddressSelect({
+  value,
+  onChange,
+  disabled,
+}: Props) {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
@@ -190,6 +195,7 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
         placeholder="VD: 123 Đường Lê Lợi"
         value={detail}
         onChange={(e) => setDetail(e.target.value)}
+        disabled={disabled}
         className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
       />
 
@@ -203,7 +209,7 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
           }
           className="flex-1"
           value={String(provinceCode)}
-          disabled={loadingProvinces}
+          disabled={disabled || loadingProvinces}
           options={provinces.map((p) => ({
             value: String(p.code),
             label: p.name,
@@ -226,7 +232,7 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
           }
           className="flex-1"
           value={String(districtCode)}
-          disabled={provinceCode === '' || loadingDistricts}
+          disabled={disabled || provinceCode === '' || loadingDistricts}
           options={districts.map((d) => ({
             value: String(d.code),
             label: d.name,
@@ -245,7 +251,7 @@ export default function VietnamAddressSelect({ value, onChange }: Props) {
           label={loadingWards ? 'Phường / Xã (Đang tải...)' : 'Phường / Xã'}
           className="flex-1"
           value={wardName}
-          disabled={districtCode === '' || loadingWards}
+          disabled={disabled || districtCode === '' || loadingWards}
           options={wards.map((w) => ({ value: w.name, label: w.name }))}
           onChange={(e) => setWardName(e.target.value)}
         />
