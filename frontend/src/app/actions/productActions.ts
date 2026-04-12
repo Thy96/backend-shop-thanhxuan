@@ -17,6 +17,7 @@ export async function serverCreateProduct(product: {
     price: number;
     sale?: number;
     stock?: number;
+    points?: number;
     images?: File[] | null;
     categoryId: string;
     status?: string;
@@ -38,6 +39,10 @@ export async function serverCreateProduct(product: {
 
         if (product.stock !== undefined) {
             formData.append('stock', String(product.stock));
+        }
+
+        if (product.points !== undefined) {
+            formData.append('points', String(product.points));
         }
 
         if (product.status) {
@@ -81,6 +86,7 @@ export async function serverUpdateProduct(
         price: number;
         sale: number;
         stock: number;
+        points: number;
         categoryId: string;
         status: string;
         images?: File[] | null;
@@ -103,6 +109,10 @@ export async function serverUpdateProduct(
 
         if (product.stock !== undefined) {
             formData.append('stock', String(product.stock));
+        }
+
+        if (product.points !== undefined) {
+            formData.append('points', String(product.points));
         }
 
         if (product.status) {

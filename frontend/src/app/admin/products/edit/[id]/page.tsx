@@ -24,6 +24,7 @@ interface ProductDetail {
   price: number;
   sale: number;
   stock: number;
+  points: number;
   status: string;
   categoryId: string | CategoryOption;
   content: OutputData;
@@ -52,6 +53,7 @@ export default function EditProductPage() {
     price: 0,
     sale: 0,
     stock: 0,
+    points: 0,
     categoryId: '',
     status: 'draft',
   });
@@ -80,6 +82,7 @@ export default function EditProductPage() {
           price: product.price,
           sale: product.sale,
           stock: product.stock,
+          points: product.points ?? 0,
           categoryId:
             typeof product.categoryId === 'string'
               ? product.categoryId
@@ -119,7 +122,7 @@ export default function EditProductPage() {
       return;
     }
 
-    if (name === 'stock' || name === 'price') {
+    if (name === 'stock' || name === 'price' || name === 'points') {
       if (value === '') {
         setFormData((prev) => ({ ...prev, [name]: 0 }));
         return;
@@ -177,6 +180,7 @@ export default function EditProductPage() {
         price: formData.price,
         sale: formData.sale,
         stock: formData.stock,
+        points: formData.points,
         categoryId: formData.categoryId,
         status: formData.status,
         images: newImages.length > 0 ? newImages.map((img) => img.file) : null,
@@ -317,7 +321,7 @@ export default function EditProductPage() {
           }}
         />
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           <Input
             id="price"
             label="Giá tiền"
@@ -356,6 +360,17 @@ export default function EditProductPage() {
             type="number"
             min={0}
             value={formData.stock}
+            onChange={handleChange}
+            onFocus={(e) => e.target.select()}
+          />
+          <Input
+            id="points"
+            label="Điểm thưởng"
+            placeholder="Điểm khi mua..."
+            name="points"
+            type="number"
+            min={0}
+            value={formData.points}
             onChange={handleChange}
             onFocus={(e) => e.target.select()}
           />

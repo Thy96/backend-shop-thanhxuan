@@ -6,6 +6,7 @@ import { ORDER_STATUS_LABEL, OrderStatus, PaymentMethod } from '../types';
 
 import Order from '../models/orderProductModel';
 import ProductModel from '../models/productModel';
+import UserModel from '../models/userModel';
 
 export const getMyOrders = async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -343,7 +344,27 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
     await order.save({ session });
 
     /* --------------------------------------------------
-     * 8️⃣ COMMIT TRANSACTION
+     * 8️⃣ TÍCH ĐIỂM KHI HOÀN THÀNH
+     * -------------------------------------------------- */
+
+    if (nextStatus === OrderStatus.COMPLETED && order.user) {
+      let totalPoints = 0;
+      for (const item of order.items) {
+        const product = item.product as any;
+        const pointsPerUnit = typeof product.points === 'number' ? product.points : 0;
+        totalPoints += pointsPerUnit * item.quantity;
+      }
+      if (totalPoints > 0) {
+        await UserModel.findByIdAndUpdate(
+          order.user,
+          { $inc: { points: totalPoints } },
+          { session }
+        );
+      }
+    }
+
+    /* --------------------------------------------------
+     * 9️⃣ COMMIT TRANSACTION
      * -------------------------------------------------- */
 
     await session.commitTransaction();

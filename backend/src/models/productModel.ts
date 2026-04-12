@@ -9,6 +9,7 @@ export interface IProduct extends Document {
   price: number;
   sale: number;
   stock: number;
+  points: number;
   categoryId: Types.ObjectId | ICategory;
   status: string;
   author: Types.ObjectId | IUser;
@@ -41,6 +42,10 @@ const productSchema = new Schema({
     default: 0
   },
   stock: {
+    type: Number,
+    default: 0
+  },
+  points: {
     type: Number,
     default: 0
   },

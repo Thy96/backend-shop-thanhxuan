@@ -19,6 +19,7 @@ export interface ProductProps {
   price: number;
   sale: number;
   stock: number;
+  points: number;
   categoryId: string | CategoryOption;
   author: UserOption;
   updatedBy: UserOption;
@@ -33,6 +34,7 @@ export interface User {
   role: string;
   phone: string;
   address?: string;
+  points: number;
   isBlocked: boolean;
   blockedAt: Date | null;
   createdAt: string;

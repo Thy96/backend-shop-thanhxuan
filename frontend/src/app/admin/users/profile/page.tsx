@@ -76,6 +76,28 @@ export default function ProfilePage() {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="flex justify-between mb-6">
+            {/* Role */}
+            <div className="flex gap-2.5">
+              <label className="block mb-1 text-lg font-medium text-gray-700">
+                Chức vụ
+              </label>
+              <span className="inline-block rounded-full bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1">
+                {user.role.toUpperCase()}
+              </span>
+            </div>
+
+            {/* Points */}
+            <div className="flex gap-2.5">
+              <label className="block mb-1 text-lg font-medium text-gray-700">
+                Điểm tích lũy
+              </label>
+              <span className="inline-block rounded-full bg-yellow-100 text-yellow-700 text-sm font-semibold px-3 py-1">
+                🎯 {(user.points ?? 0).toLocaleString()} điểm
+              </span>
+            </div>
+          </div>
+
           {/* Email */}
           <Input label="Email" value={user.email} disabled name="email" />
 
@@ -103,16 +125,6 @@ export default function ProfilePage() {
             value={address}
             onChange={(val) => setAddress(val)}
           />
-
-          {/* Role */}
-          <div className="mb-6">
-            <label className="block mb-1 text-lg font-medium text-gray-700">
-              Chức vụ
-            </label>
-            <span className="inline-block rounded-full bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1">
-              {user.role.toUpperCase()}
-            </span>
-          </div>
 
           {/* Messages */}
           {message && (

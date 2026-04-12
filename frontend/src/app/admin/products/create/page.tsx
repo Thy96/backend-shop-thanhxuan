@@ -32,6 +32,7 @@ export default function CreateProductPage() {
     price: 0,
     sale: 0,
     stock: 0,
+    points: 0,
     categoryId: '',
     status: 'draft',
   });
@@ -79,7 +80,7 @@ export default function CreateProductPage() {
     }
 
     // Handle stock & price - no negative
-    if (name === 'stock' || name === 'price') {
+    if (name === 'stock' || name === 'price' || name === 'points') {
       if (value === '') {
         setFormData((prev) => ({ ...prev, [name]: 0 }));
         return;
@@ -136,6 +137,7 @@ export default function CreateProductPage() {
         price: formData.price,
         sale: formData.sale,
         stock: formData.stock,
+        points: formData.points,
         categoryId: formData.categoryId,
         status: formData.status,
       };
@@ -253,7 +255,7 @@ export default function CreateProductPage() {
           }}
         />
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           <Input
             id="price"
             label="Giá tiền"
@@ -292,6 +294,17 @@ export default function CreateProductPage() {
             type="number"
             min={0}
             value={formData.stock}
+            onChange={handleChange}
+            onFocus={(e) => e.target.select()}
+          />
+          <Input
+            id="points"
+            label="Điểm thưởng"
+            placeholder="Điểm khi mua..."
+            name="points"
+            type="number"
+            min={0}
+            value={formData.points}
             onChange={handleChange}
             onFocus={(e) => e.target.select()}
           />
