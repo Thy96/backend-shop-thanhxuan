@@ -94,8 +94,8 @@ app.use((err: any, _req: any, res: any, _next: any) => {
   res.status(err.status || 500).json({ message: err.message || 'Server đang bị lỗi' });
 });
 
-// Start server (development only — Vercel uses exported app)
-if (process.env.NODE_ENV !== 'production') {
+// Start server — skip on Vercel (serverless), but listen on Render and locally
+if (!process.env.VERCEL) {
   (async () => {
     try {
       await connectDB();
