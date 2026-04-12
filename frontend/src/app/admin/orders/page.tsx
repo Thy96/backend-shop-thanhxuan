@@ -75,6 +75,11 @@ export default async function MyOrdersPage({
                   value={new Date(order.createdAt).toLocaleDateString()}
                 />
                 <Info label="Số sản phẩm" value={order.items.length} />
+                <Info
+                  label="Tổng điểm thưởng"
+                  value={`${order.items.reduce((sum, i) => sum + (i.points ?? 0) * i.quantity, 0)}`}
+                  valueClass="text-yellow-600"
+                />
               </div>
 
               <div
@@ -139,6 +144,11 @@ export default async function MyOrdersPage({
                     <p className="text-sm text-gray-500">
                       Số lượng: {item.quantity}
                     </p>
+                    {(item.points ?? 0) > 0 && (
+                      <p className="text-xs text-yellow-600 font-medium mt-0.5">
+                        Số thưởng: {(item.points ?? 0) * item.quantity}
+                      </p>
+                    )}
                   </div>
 
                   {/* Sub total */}

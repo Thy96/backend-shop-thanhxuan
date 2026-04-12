@@ -199,6 +199,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
         price: product.price,
         quantity: item.quantity,
         image: product.images?.[0] || '',
+        points: product.points ?? 0,
       });
 
       totalPrice += product.price * item.quantity;

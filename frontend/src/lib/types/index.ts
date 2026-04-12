@@ -81,6 +81,7 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image: string;
+  points: number;
 }
 
 export interface ShippingAddress {

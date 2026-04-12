@@ -80,6 +80,7 @@ export default async function ProductsPage({
               <th className="px-1 py-4 w-[130]">Chuyên mục</th>
               <th className="px-1 py-4 w-[130]">Ngày tạo</th>
               <th className="px-1 py-4 w-[80]">Tồn kho</th>
+              <th className="px-1 py-4 w-[80]">Điểm</th>
               <th className="px-4 py-4 text-right w-[150]"></th>
             </tr>
           }
@@ -136,6 +137,11 @@ export default async function ProductsPage({
                 {formatDate(product.createdAt, product.updatedAt)}
               </td>
               <td className="px-1 py-4 text-center">{product.stock}</td>
+              <td className="px-1 py-4 text-center">
+                <span className="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {product.points ?? 0}
+                </span>
+              </td>
               <td className="px-4 py-4 text-right">
                 <AdminRowActions
                   editHref={`/admin/products/edit/${product._id}`}

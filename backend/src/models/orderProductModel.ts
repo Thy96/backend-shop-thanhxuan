@@ -14,6 +14,7 @@ export interface OrderItem {
   price: number;
   quantity: number;
   image: string;
+  points: number;
 }
 
 export interface ShippingAddress {
@@ -52,6 +53,7 @@ const OrderSchema = new Schema<OrderDocument>({
       price: { type: Number, required: true },
       quantity: { type: Number, required: true },
       image: { type: String, default: '' },
+      points: { type: Number, default: 0 },
     },
   ],
 

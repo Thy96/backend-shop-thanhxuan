@@ -78,7 +78,7 @@ export default function ProfilePage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex justify-between mb-6">
             {/* Role */}
-            <div className="flex gap-2.5">
+            <div className="flex gap-2.5 items-center">
               <label className="block mb-1 text-lg font-medium text-gray-700">
                 Chức vụ
               </label>
@@ -88,7 +88,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Points */}
-            <div className="flex gap-2.5">
+            <div className="flex gap-2.5 items-center">
               <label className="block mb-1 text-lg font-medium text-gray-700">
                 Điểm tích lũy
               </label>
