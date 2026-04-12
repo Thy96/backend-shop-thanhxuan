@@ -351,8 +351,7 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
     if (nextStatus === OrderStatus.COMPLETED && order.user) {
       let totalPoints = 0;
       for (const item of order.items) {
-        const product = item.product as any;
-        const pointsPerUnit = typeof product.points === 'number' ? product.points : 0;
+        const pointsPerUnit = typeof item.points === 'number' ? item.points : 0;
         totalPoints += pointsPerUnit * item.quantity;
       }
       if (totalPoints > 0) {
