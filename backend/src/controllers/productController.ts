@@ -99,6 +99,8 @@ export const getAll = async (req: Request, res: Response) => {
           title: 1,
           price: 1,
           stock: 1,
+          sale: 1,
+          points: 1,
           status: 1,
           author: {
             _id: "$author._id",
@@ -383,7 +385,7 @@ export const getProductById = async (req: Request, res: Response) => {
 export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   console.log('📦 req.body:', req.body); // Debug
   const {
-    title, content, price, sale, stock, categoryId, status } = req.body;
+    title, content, price, sale, stock, points, categoryId, status } = req.body;
   const userId = req.user?.uid;
 
   if (!userId) {
@@ -428,6 +430,7 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   const stockNumber = Number(stock) || 0;
   const priceNumber = Number(price) || 0;
   const saleNumber = Number(sale) || 0;
+  const pointsNumber = Number(points) || 0;
 
   try {
     const newProduct = new ProductModel({
@@ -437,6 +440,7 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
       price: priceNumber,
       sale: saleNumber,
       stock: stockNumber,
+      points: pointsNumber,
       status: status ?? 'draft',
       categoryId,
       author: userId,
@@ -453,45 +457,6 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   }
 }
 
-// export const publishProduct = async (req: AuthenticatedRequest, res: Response) => {
-//   try {
-//     const product = await ProductModel.findById(req.params.id);
-//     if (!product) return res.status(404).json({ message: 'Không tìm thấy' });
-
-//     if (product.stock <= 0) {
-//       return res.status(400).json({ message: 'Không thể publish khi hết hàng' });
-//     }
-
-//     product.status = "available";
-//     if (!req.user?.uid) {
-//       return res.status(401).json({ message: "Unauthorized" });
-//     }
-//     product.updatedBy = req.user?.uid;
-
-//     await product.save();
-
-//     res.json({ message: "Publish thành công", data: product });
-//   } catch {
-//     res.status(500).json({ message: "Lỗi server" });
-//   }
-// };
-
-// export const unpublishProduct = async (req: AuthenticatedRequest, res: Response) => {
-//   try {
-//     const product = await ProductModel.findByIdAndUpdate(
-//       req.params.id,
-//       { status: "draft", updatedBy: req.user?.uid },
-//       { new: true }
-//     );
-
-//     if (!product) return res.status(404).json({ message: "Không tìm thấy" });
-
-//     res.json({ message: "Đã chuyển về draft", data: product });
-//   } catch {
-//     res.status(500).json({ message: "Lỗi server" });
-//   }
-// };
-
 // Cập nhật sản phẩm
 export const updateProduct = async (req: AuthenticatedRequest, res: Response) => {
   // console.log('📦 req.body:', req.body);
@@ -499,7 +464,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
     return res.status(400).json({ message: 'ID không hợp lệ' });
   }
   const {
-    title, content, price, sale, stock, categoryId, status } = req.body;
+    title, content, price, sale, stock, points, categoryId, status } = req.body;
   const userId = req.user?.uid;
 
   let images: string[] = [];
@@ -516,6 +481,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   const stockNumber = Number(stock) || 0;
   const priceNumber = Number(price) || 0;
   const saleNumber = Number(sale) || 0;
+  const pointsNumber = Number(points) || 0;
 
   let parsedContent
   try {
@@ -526,7 +492,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   }
 
   try {
-    const updateData: any = { title, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, categoryId, status, updatedBy: userId };
+    const updateData: any = { title, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryId, status, updatedBy: userId };
     if (images.length > 0) {
       updateData.images = images;
     }
