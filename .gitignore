@@ -6,5 +6,8 @@ node_modules
 dist
 build
 
+# VS Code
+.vscode/settings.json
+
 # Seed scripts
 backend/scripts/
