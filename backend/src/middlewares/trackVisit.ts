@@ -7,16 +7,6 @@ const visitCache = new Map<string, number>();
 // throttle 5s
 const THROTTLE_TIME = 5000;
 
-// cleanup chạy nền 1 lần
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, time] of visitCache.entries()) {
-    if (now - time > THROTTLE_TIME) {
-      visitCache.delete(key);
-    }
-  }
-}, THROTTLE_TIME);
-
 // middleware
 export const trackVisit = async (
   req: AuthenticatedRequest,
