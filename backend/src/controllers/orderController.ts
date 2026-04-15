@@ -351,15 +351,23 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
     if (nextStatus === OrderStatus.COMPLETED && order.user) {
       let totalPoints = 0;
       for (const item of order.items) {
-        const pointsPerUnit = typeof item.points === 'number' ? item.points : 0;
+        // Ưu tiên điểm lưu trong đơn; nếu = 0 fallback sang điểm hiện tại của sản phẩm
+        const populatedProduct = item.product as any;
+        const storedPoints = typeof item.points === 'number' ? item.points : 0;
+        const pointsPerUnit = storedPoints > 0 ? storedPoints : (populatedProduct?.points ?? 0);
         totalPoints += pointsPerUnit * item.quantity;
+        console.log(`[POINTS] item="${item.name}" stored=${storedPoints} productPoints=${populatedProduct?.points ?? 0} qty=${item.quantity} → +${pointsPerUnit * item.quantity}`);
       }
+      console.log(`[POINTS] totalPoints=${totalPoints} userId=${order.user}`);
       if (totalPoints > 0) {
         await UserModel.findByIdAndUpdate(
           order.user,
           { $inc: { points: totalPoints } },
           { session }
         );
+        console.log(`[POINTS] ✅ Cộng ${totalPoints} điểm cho user ${order.user}`);
+      } else {
+        console.log(`[POINTS] ⚠️ totalPoints=0 → không cộng điểm`);
       }
     }
 
