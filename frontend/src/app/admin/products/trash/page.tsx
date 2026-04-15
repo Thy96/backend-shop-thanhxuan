@@ -69,6 +69,7 @@ export default async function TrashProductsPage({
               <th className="px-1 py-4 w-[130]">Chuyên mục</th>
               <th className="px-1 py-4 w-[130]">Ngày xóa</th>
               <th className="px-1 py-4 w-[100]">Tồn kho</th>
+              <th className="px-1 py-4 w-[80]">Điểm</th>
               <th className="px-4 py-4 text-right w-[150]"></th>
             </tr>
           }
@@ -112,6 +113,11 @@ export default async function TrashProductsPage({
                 {formatDate(product.createdAt, product.updatedAt)}
               </td>
               <td className="px-1 py-4 text-center">{product.stock}</td>
+              <td className="px-1 py-4 text-center">
+                <span className="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {formatNumber(product.points ?? 0)}
+                </span>
+              </td>
               <td className="px-4 py-4 text-right flex flex-col gap-2">
                 {/* Restore */}
                 <RestoreButton

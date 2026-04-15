@@ -6,6 +6,7 @@ import Button from '@/components/ui/forms/Button';
 import Input from '@/components/ui/forms/Input';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
 import VietnamAddressSelect from '@/components/ui/forms/VietnamAddressSelect';
+import { formatNumber } from '@/utils/format/format';
 
 import useMe from '@/lib/hook/useMe';
 
@@ -93,7 +94,7 @@ export default function ProfilePage() {
                 Điểm tích lũy
               </label>
               <span className="inline-block rounded-full bg-yellow-100 text-yellow-700 text-sm font-semibold px-3 py-1">
-                🎯 {(user.points ?? 0).toLocaleString()} điểm
+                🎯 {formatNumber(Number(user.points ?? 0))} điểm
               </span>
             </div>
           </div>

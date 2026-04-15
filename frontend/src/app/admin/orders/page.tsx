@@ -11,6 +11,7 @@ import { getAllOrders } from '@/lib/api/apiOrders';
 import { OrderItem, OrderProps, PaginationProps } from '@/lib/types';
 
 import { getPaginationRange } from '@/utils/format/pagination';
+import { formatNumber } from '@/utils/format/format';
 import {
   PAY_METHOD_LABEL,
   PAY_METHOD_STYLE,
@@ -77,7 +78,8 @@ export default async function MyOrdersPage({
                 <Info label="Số sản phẩm" value={order.items.length} />
                 <Info
                   label="Tổng điểm thưởng"
-                  value={`${order.items.reduce((sum, i) => sum + (i.points ?? 0) * i.quantity, 0)}`}
+                  value={`🎯 ${formatNumber(order.items.reduce((sum, i) => sum + (i.points ?? 0) * i.quantity, 0))} điểm`}
+                  valueClass="text-yellow-600"
                 />
               </div>
 
@@ -144,7 +146,8 @@ export default async function MyOrdersPage({
                       Số lượng: {item.quantity}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Điểm thưởng: {(item.points ?? 0) * item.quantity}
+                      Điểm thưởng:{' '}
+                      {formatNumber((item.points ?? 0) * item.quantity)}
                     </p>
                   </div>
 
