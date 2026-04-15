@@ -11,13 +11,17 @@ export async function GET(
     const url = `${API_URL}/api/${pathStr}${queryString}`;
 
     try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+
         const res = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 cookie: req.headers.get('cookie') || '',
             },
-        });
+            signal: controller.signal,
+        }).finally(() => clearTimeout(timeout));
 
         const data = await res.json().catch(() => ({}));
         const next = NextResponse.json(data, { status: res.status });
@@ -28,7 +32,10 @@ export async function GET(
         }
 
         return next;
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.name === 'AbortError') {
+            return NextResponse.json({ message: 'Backend không phản hồi (timeout)' }, { status: 504 });
+        }
         return NextResponse.json({ message: 'Lỗi kết nối server' }, { status: 500 });
     }
 }
