@@ -83,13 +83,6 @@ export default async function MyOrdersPage({
                 />
               </div>
 
-              <div
-                className={`px-3 py-1 text-xs font-semibold rounded-full text-center ${
-                  ORDER_STATUS_STYLE[order.status]
-                }`}
-              >
-                {ORDER_STATUS_LABEL[order.status]}
-              </div>
               <OrderStatusSelect
                 orderId={order._id}
                 currentStatus={order.status}
