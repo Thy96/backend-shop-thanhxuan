@@ -341,42 +341,45 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
      * 7️⃣ CẬP NHẬT TRẠNG THÁI ORDER
      * -------------------------------------------------- */
 
+    // Lưu thông tin cần dùng sau transaction trước khi save
+    const isCompleting = nextStatus === OrderStatus.COMPLETED;
+    const orderUserId = order.user;
+    const orderItems = order.items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      storedPoints: typeof item.points === 'number' ? item.points : 0,
+      productPoints: (item.product as any)?.points ?? 0,
+    }));
+
     order.status = nextStatus;
     await order.save({ session });
 
     /* --------------------------------------------------
-     * 8️⃣ TÍCH ĐIỂM KHI HOÀN THÀNH
-     * -------------------------------------------------- */
-
-    if (nextStatus === OrderStatus.COMPLETED && order.user) {
-      let totalPoints = 0;
-      for (const item of order.items) {
-        // Ưu tiên điểm lưu trong đơn; nếu = 0 fallback sang điểm hiện tại của sản phẩm
-        const populatedProduct = item.product as any;
-        const storedPoints = typeof item.points === 'number' ? item.points : 0;
-        const pointsPerUnit = storedPoints > 0 ? storedPoints : (populatedProduct?.points ?? 0);
-        totalPoints += pointsPerUnit * item.quantity;
-        console.log(`[POINTS] item="${item.name}" stored=${storedPoints} productPoints=${populatedProduct?.points ?? 0} qty=${item.quantity} → +${pointsPerUnit * item.quantity}`);
-      }
-      console.log(`[POINTS] totalPoints=${totalPoints} userId=${order.user}`);
-      if (totalPoints > 0) {
-        await UserModel.findByIdAndUpdate(
-          order.user,
-          { $inc: { points: totalPoints } },
-          { session }
-        );
-        console.log(`[POINTS] ✅ Cộng ${totalPoints} điểm cho user ${order.user}`);
-      } else {
-        console.log(`[POINTS] ⚠️ totalPoints=0 → không cộng điểm`);
-      }
-    }
-
-    /* --------------------------------------------------
-     * 9️⃣ COMMIT TRANSACTION
+     * 8️⃣ COMMIT TRANSACTION (điểm cộng sau để tránh session conflict)
      * -------------------------------------------------- */
 
     await session.commitTransaction();
     session.endSession();
+
+    /* --------------------------------------------------
+     * 9️⃣ TÍCH ĐIỂM KHI HOÀN THÀNH (ngoài transaction)
+     * -------------------------------------------------- */
+
+    if (isCompleting && orderUserId) {
+      let totalPoints = 0;
+      for (const item of orderItems) {
+        const pointsPerUnit = item.storedPoints > 0 ? item.storedPoints : item.productPoints;
+        totalPoints += pointsPerUnit * item.quantity;
+        console.log(`[POINTS] "${item.name}" stored=${item.storedPoints} product=${item.productPoints} qty=${item.quantity} → +${pointsPerUnit * item.quantity}`);
+      }
+      console.log(`[POINTS] total=${totalPoints} userId=${orderUserId}`);
+      if (totalPoints > 0) {
+        await UserModel.findByIdAndUpdate(orderUserId, { $inc: { points: totalPoints } });
+        console.log(`[POINTS] ✅ Cộng ${totalPoints} điểm`);
+      } else {
+        console.log(`[POINTS] ⚠️ Sản phẩm trong đơn không có điểm (points=0)`);
+      }
+    }
 
     return res.json({
       success: true,
@@ -384,7 +387,9 @@ export const updateOrder = async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error) {
-    await session.abortTransaction();
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     session.endSession();
 
     if (error instanceof Error) {
