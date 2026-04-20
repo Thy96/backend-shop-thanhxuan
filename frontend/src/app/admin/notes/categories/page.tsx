@@ -4,7 +4,12 @@ import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
 import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
 import { serverDeleteNoteCategory } from '@/app/actions/noteCategoryActions';
-import { CategoryOption } from '@/utils/format/category';
+import {
+  CategoryOption,
+  buildCategoryTree,
+  flattenCategoryTree,
+  CategoryWithChildren,
+} from '@/utils/format/category';
 
 import PageHeader from '@/components/layout/Category/PageHeader';
 import Card from '@/components/layout/Category/Card';
@@ -12,6 +17,7 @@ import Tablelayout from '@/components/layout/Category/Tablelayout';
 
 export default async function CategoriesPage() {
   const categories = await getNoteCategories();
+
   async function deleteCategoryAction(formData: FormData) {
     'use server';
 
@@ -21,6 +27,9 @@ export default async function CategoriesPage() {
     await serverDeleteNoteCategory(id);
     revalidatePath('/admin/notes/categories');
   }
+
+  const tree = buildCategoryTree(categories as CategoryOption[]);
+  const flatDisplay = flattenCategoryTree(tree);
 
   return (
     <>
@@ -47,44 +56,55 @@ export default async function CategoriesPage() {
               <th className="px-6 py-4 text-right w-[100]"></th>
             </tr>
           }
-          tbody={categories.map((cat: CategoryOption, index: number) => (
-            <tr
-              key={cat._id}
-              className={`transition-colors ${
-                index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-              } hover:bg-gray-100`}
-            >
-              <td className="px-1 py-4 font-medium text-gray-800 text-center">
-                {index}
-              </td>
-              <td className="px-6 py-4 font-medium text-gray-800">
-                {cat.name}
-              </td>
-
-              <td className="px-6 py-4 text-xs text-gray-400">{cat.slug}</td>
-
-              <td className="px-6 py-4">
-                <div className="flex items-center justify-end gap-2">
-                  <Link
-                    href={`/admin/notes/categories/edit/${cat._id}`}
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded shadow-sm transition block text-center"
-                  >
-                    Sửa
-                  </Link>
-
-                  <form action={deleteCategoryAction}>
-                    <input type="hidden" name="id" value={cat._id} />
-                    <button
-                      type="submit"
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow-sm transition w-full cursor-pointer"
+          tbody={flatDisplay.map(
+            (
+              { cat, depth }: { cat: CategoryWithChildren; depth: number },
+              index: number,
+            ) => (
+              <tr
+                key={cat._id}
+                className={`transition-colors ${
+                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                } hover:bg-gray-100`}
+              >
+                <td className="px-1 py-4 font-medium text-gray-800 text-center">
+                  {index + 1}
+                </td>
+                <td className="px-6 py-4 font-medium text-gray-800">
+                  {depth > 0 && (
+                    <span
+                      style={{ paddingLeft: `${depth * 16}px` }}
+                      className="inline-block text-gray-400 mr-1"
                     >
-                      Xóa
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          ))}
+                      └
+                    </span>
+                  )}
+                  {cat.name}
+                </td>
+                <td className="px-6 py-4 text-xs text-gray-400">{cat.slug}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <Link
+                      href={`/admin/notes/categories/edit/${cat._id}`}
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded shadow-sm transition block text-center"
+                    >
+                      Sửa
+                    </Link>
+
+                    <form action={deleteCategoryAction}>
+                      <input type="hidden" name="id" value={cat._id} />
+                      <button
+                        type="submit"
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow-sm transition w-full cursor-pointer"
+                      >
+                        Xóa
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            ),
+          )}
         />
       </Card>
     </>

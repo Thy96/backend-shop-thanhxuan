@@ -14,6 +14,11 @@ const productCategorySchema = new Schema<ICategory>({
     unique: true,
     trim: true,
   },
+  parentId: {
+    type: Schema.Types.ObjectId,
+    ref: 'ProductCategory',
+    default: null,
+  },
 }, {
   timestamps: true,
 });

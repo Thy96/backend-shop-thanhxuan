@@ -94,7 +94,7 @@ export default function ProfilePage() {
                 Điểm tích lũy
               </label>
               <span className="inline-block rounded-full bg-yellow-100 text-yellow-700 text-sm font-semibold px-3 py-1">
-                🎯 {formatNumber(Number(user.points ?? 0))} điểm
+                {formatNumber(Number(user.points ?? 0))} điểm
               </span>
             </div>
           </div>

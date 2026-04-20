@@ -10,10 +10,11 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 // Server Actions for note categories
-export async function serverCreateNoteCategory(categories: { name: string }) {
+export async function serverCreateNoteCategory(categories: { name: string; parentId?: string }) {
     try {
         const formData = new FormData();
         formData.append('name', categories.name);
+        if (categories.parentId) formData.append('parentId', categories.parentId);
 
         const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
@@ -44,10 +45,11 @@ export async function serverCreateNoteCategory(categories: { name: string }) {
     }
 }
 
-export async function serverUpdateNoteCategory(id: string, categories: { name: string }) {
+export async function serverUpdateNoteCategory(id: string, categories: { name: string; parentId?: string }) {
     try {
         const formData = new FormData();
         formData.append('name', categories.name);
+        formData.append('parentId', categories.parentId || '');
 
         const token = await getAuthToken();
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';

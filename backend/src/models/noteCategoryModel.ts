@@ -14,6 +14,11 @@ const noteCategorySchema = new Schema<ICategory>({
     unique: true,
     trim: true,
   },
+  parentId: {
+    type: Schema.Types.ObjectId,
+    ref: 'NoteCategory',
+    default: null,
+  },
 }, {
   timestamps: true,
 });

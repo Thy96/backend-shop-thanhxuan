@@ -1,8 +1,9 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface ICategory extends Document {
   name: string;
   slug: string;
+  parentId?: Types.ObjectId | null;
 }
 
 export interface IUser extends Document {
