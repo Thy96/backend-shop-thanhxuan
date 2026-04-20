@@ -17,7 +17,7 @@ import AdminCard from '@/components/layout/Admin/AdminCard';
 import AdminTable from '@/components/layout/Admin/AdminTable';
 import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
-import DeleteButton from '@/components/ui/actions/DeleteButton';
+import RemoveButton from '@/components/ui/actions/RemoveButton';
 import StatusFilter from '@/components/ui/filters/StatusFilter';
 
 export default async function ProductsPage({
@@ -146,7 +146,7 @@ export default async function ProductsPage({
                 <AdminRowActions
                   editHref={`/admin/products/edit/${product._id}`}
                   onDelete={
-                    <DeleteButton
+                    <RemoveButton
                       id={product._id}
                       serverAction={serverMoveProductToTrash}
                       confirmText="Bạn có chắc chắn muốn xóa sản phẩm này?"

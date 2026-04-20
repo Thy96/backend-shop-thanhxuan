@@ -18,7 +18,7 @@ import AdminCard from '@/components/layout/Admin/AdminCard';
 import AdminTable from '@/components/layout/Admin/AdminTable';
 import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
-import DeleteButton from '@/components/ui/actions/DeleteButton';
+import RemoveButton from '@/components/ui/actions/RemoveButton';
 
 export default async function NotesPage({
   searchParams,
@@ -116,7 +116,7 @@ export default async function NotesPage({
                 <AdminRowActions
                   editHref={`/admin/notes/edit/${note._id}`}
                   onDelete={
-                    <DeleteButton
+                    <RemoveButton
                       id={note._id}
                       serverAction={serverMoveNoteToTrash}
                       confirmText="Bạn có chắc chắn muốn xóa bài viết này?"

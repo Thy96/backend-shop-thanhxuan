@@ -14,16 +14,13 @@ import {
 import PageHeader from '@/components/layout/Category/PageHeader';
 import Card from '@/components/layout/Category/Card';
 import Tablelayout from '@/components/layout/Category/Tablelayout';
+import DeleteCategoryButton from '@/components/layout/Category/DeleteCategoryButton';
 
 export default async function CategoriesPage() {
   const categories = await getProductCategories();
 
-  async function deleteCategoryAction(formData: FormData) {
+  async function deleteCategoryAction(id: string) {
     'use server';
-
-    const id = formData.get('id')?.toString();
-    if (!id) return;
-
     await serverDeleteProductCategory(id);
     revalidatePath('/admin/products/categories');
   }
@@ -93,15 +90,10 @@ export default async function CategoriesPage() {
                       Sửa
                     </Link>
 
-                    <form action={deleteCategoryAction}>
-                      <input type="hidden" name="id" value={cat._id} />
-                      <button
-                        type="submit"
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow-sm transition w-full cursor-pointer"
-                      >
-                        Xóa
-                      </button>
-                    </form>
+                    <DeleteCategoryButton
+                      id={cat._id}
+                      onDelete={deleteCategoryAction}
+                    />
                   </div>
                 </td>
               </tr>

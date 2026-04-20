@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import { DeleteButton } from '../forms/Button';
 
 interface ForceDeleteButtonProps {
   id: string;
@@ -56,13 +57,13 @@ export default function ForceDeleteButton({
 
   return (
     <>
-      <button
+      <DeleteButton
+        type="button"
         onClick={handleForceDelete}
         disabled={isPending}
-        className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer"
       >
         {buttonText}
-      </button>
+      </DeleteButton>
       {isPending && <LoadingClient text={loadingText} />}
     </>
   );

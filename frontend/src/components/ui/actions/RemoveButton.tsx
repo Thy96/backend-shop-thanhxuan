@@ -3,26 +3,27 @@
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import { DeleteButton } from '@/components/ui/forms/Button';
 
-interface DeleteButtonProps {
+interface RemoveButtonProps {
   id: string;
-  serverAction: (id: string) => Promise<any>;
+  serverAction: (id: string) => Promise<void>;
   confirmText?: string;
   loadingText?: string;
   errorText?: string;
   buttonText?: string;
-  onName?: string; // For logging: 'DeleteNote', 'DeleteCategory', etc
+  onName?: string;
 }
 
-export default function DeleteButton({
+export default function RemoveButton({
   id,
   serverAction,
   confirmText = 'Bạn có chắc chắn muốn xóa?',
   loadingText = 'Đang xóa...',
   errorText = 'Lỗi khi xóa. Vui lòng thử lại.',
   buttonText = 'Xóa',
-  onName = 'DeleteButton',
-}: DeleteButtonProps) {
+  onName = 'RemoveButton',
+}: RemoveButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -45,14 +46,10 @@ export default function DeleteButton({
 
   return (
     <>
-      <button
-        onClick={handleDelete}
-        disabled={isPending}
-        className="bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-3 py-1 rounded transition text-sm w-full cursor-pointer"
-      >
+      {isPending && <LoadingClient text={loadingText} />}
+      <DeleteButton type="button" onClick={handleDelete} disabled={isPending}>
         {buttonText}
-      </button>
-      {isPending && <LoadingClient text={`${loadingText}`} />}
+      </DeleteButton>
     </>
   );
 }

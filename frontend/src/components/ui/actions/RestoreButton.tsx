@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import { EditButton } from '../forms/Button';
 
 interface RestoreButtonProps {
   id: string;
@@ -53,13 +54,9 @@ export default function RestoreButton({
 
   return (
     <>
-      <button
-        onClick={handleRestore}
-        disabled={isPending}
-        className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-3 py-1 rounded transition text-center text-sm cursor-pointer w-full"
-      >
+      <EditButton type="button" onClick={handleRestore} disabled={isPending}>
         {buttonText}
-      </button>
+      </EditButton>
       {isPending && <LoadingClient text={`${loadingText}`} />}
     </>
   );
