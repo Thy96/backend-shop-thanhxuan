@@ -1,6 +1,6 @@
 'use client';
 
-import Button, { DeleteButton } from '@/components/ui/forms/Button';
+import { DeleteButton } from '@/components/ui/forms/Button';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
 import { useTransition } from 'react';
 

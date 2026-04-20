@@ -15,6 +15,7 @@ import PageHeader from '@/components/layout/Category/PageHeader';
 import Card from '@/components/layout/Category/Card';
 import Tablelayout from '@/components/layout/Category/Tablelayout';
 import DeleteCategoryButton from '@/components/layout/Category/DeleteCategoryButton';
+import EditCategoryButton from '@/components/layout/Category/EditCategoryButton';
 
 export default async function CategoriesPage() {
   const categories = await getNoteCategories();
@@ -81,12 +82,9 @@ export default async function CategoriesPage() {
                 <td className="px-6 py-4 text-xs text-gray-400">{cat.slug}</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
-                    <Link
+                    <EditCategoryButton
                       href={`/admin/notes/categories/edit/${cat._id}`}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded shadow-sm transition block text-center"
-                    >
-                      Sửa
-                    </Link>
+                    />
 
                     <DeleteCategoryButton
                       id={cat._id}

@@ -31,7 +31,7 @@ export function EditButton({
     <button
       type={type}
       className={clsx(
-        'bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded shadow-sm transition block text-center cursor-pointer text-sm w-full',
+        'bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition text-center text-sm block cursor-pointer w-full',
         className,
       )}
       {...props}
