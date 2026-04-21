@@ -169,143 +169,144 @@ export default function CreateProductPage() {
         <ChevronLeft width={23} height={23} /> Quay Lại
       </Button>
       <form onSubmit={handleSubmit} className="space-y-2 mt-4">
-        {/* Images */}
-        <div>
-          <Input
-            label="📁 Chọn hình ảnh (tối đa 3)"
-            id="images"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImagesChange}
-            classNames={{
-              wrapper: '!mb-1',
-              input: 'hidden',
-              label:
-                'cursor-pointer inline-block bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 transition',
-            }}
-          />
-          <div className="grid grid-cols-3 gap-2">
-            {images.map((img, index) => (
-              <div key={index} className="relative group">
-                <Image
-                  src={img.preview}
-                  alt={`Preview ${index}`}
-                  className="w-full h-32 object-cover rounded-lg border"
-                  width={100}
-                  height={100}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-red-500 mt-1 mb-4">
-            * Tối đa 3 hình ảnh, giới hạn 5MB mỗi file
-          </p>
-        </div>
-
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <MultiCategorySelect
-              categories={loadingCate ? [] : categories}
-              selectedIds={formData.categoryIds}
-              onChange={(ids) =>
-                setFormData((prev) => ({ ...prev, categoryIds: ids }))
-              }
-              label={loadingCate ? 'Đang tải danh mục...' : 'Danh mục'}
+        <div className="flex justify-between">
+          {/* Images */}
+          <div>
+            <Input
+              label="📁 Chọn hình ảnh (tối đa 3)"
+              id="images"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImagesChange}
+              classNames={{
+                wrapper: '!mb-1',
+                input: 'hidden',
+                label:
+                  'cursor-pointer inline-block bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 transition',
+              }}
             />
-          </div>
+            <div className="grid grid-cols-3 gap-2">
+              {images.map((img, index) => (
+                <div key={index} className="relative group">
+                  <Image
+                    src={img.preview}
+                    alt={`Preview ${index}`}
+                    className="w-full h-32 object-cover rounded-lg border"
+                    width={100}
+                    height={100}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-red-500 mt-1 mb-4">
+              * Tối đa 3 hình ảnh, giới hạn 5MB mỗi file
+            </p>
 
-          <div className="w-56">
-            <Select
-              name="status"
-              label="Trạng thái"
-              value={formData.status}
+            <Input
+              id="title"
+              label="Tiêu đề"
+              placeholder="Nhập tiêu đề sản phẩm..."
+              name="title"
               onChange={handleChange}
-              options={[
-                { value: 'draft', label: 'Bản nháp' },
-                { value: 'available', label: 'Xuất bản' },
-              ]}
+              value={formData.title}
               required
             />
+
+            <Editor
+              onReady={(editor) => {
+                editorRef.current = editor;
+              }}
+            />
+
+            <div className="grid grid-cols-4 gap-2">
+              <Input
+                id="price"
+                label="Giá tiền"
+                placeholder="Nhập giá..."
+                name="price"
+                type="number"
+                value={formData.price}
+                onChange={handleChange}
+                onFocus={(e) => e.target.select()}
+                note={
+                  <p className="text-xs text-red-500 mt-2">
+                    Giá sau giảm {formData.sale}%:{' '}
+                    {finalPrice(String(formData.price), String(formData.sale))}đ
+                  </p>
+                }
+                required
+              />
+              <Input
+                id="sale"
+                label="Giảm giá %"
+                placeholder="0-100"
+                name="sale"
+                type="number"
+                min={0}
+                max={100}
+                value={formData.sale}
+                onChange={handleChange}
+                onFocus={(e) => e.target.select()}
+                required
+              />
+              <Input
+                id="stock"
+                label="Hàng tồn kho"
+                placeholder="Nhập số lượng..."
+                name="stock"
+                type="number"
+                min={0}
+                value={formData.stock}
+                onChange={handleChange}
+                onFocus={(e) => e.target.select()}
+              />
+              <Input
+                id="points"
+                label="Điểm thưởng"
+                placeholder="Điểm khi mua..."
+                name="points"
+                type="number"
+                min={0}
+                value={formData.points}
+                onChange={handleChange}
+                onFocus={(e) => e.target.select()}
+              />
+            </div>
           </div>
-        </div>
 
-        <Input
-          id="title"
-          label="Tiêu đề"
-          placeholder="Nhập tiêu đề sản phẩm..."
-          name="title"
-          onChange={handleChange}
-          value={formData.title}
-          required
-        />
-
-        <Editor
-          onReady={(editor) => {
-            editorRef.current = editor;
-          }}
-        />
-
-        <div className="grid grid-cols-4 gap-2">
-          <Input
-            id="price"
-            label="Giá tiền"
-            placeholder="Nhập giá..."
-            name="price"
-            type="number"
-            value={formData.price}
-            onChange={handleChange}
-            onFocus={(e) => e.target.select()}
-            note={
-              <p className="text-xs text-red-500 mt-2">
-                Giá sau giảm {formData.sale}%:{' '}
-                {finalPrice(String(formData.price), String(formData.sale))}đ
-              </p>
-            }
-            required
-          />
-          <Input
-            id="sale"
-            label="Giảm giá %"
-            placeholder="0-100"
-            name="sale"
-            type="number"
-            min={0}
-            max={100}
-            value={formData.sale}
-            onChange={handleChange}
-            onFocus={(e) => e.target.select()}
-            required
-          />
-          <Input
-            id="stock"
-            label="Hàng tồn kho"
-            placeholder="Nhập số lượng..."
-            name="stock"
-            type="number"
-            min={0}
-            value={formData.stock}
-            onChange={handleChange}
-            onFocus={(e) => e.target.select()}
-          />
-          <Input
-            id="points"
-            label="Điểm thưởng"
-            placeholder="Điểm khi mua..."
-            name="points"
-            type="number"
-            min={0}
-            value={formData.points}
-            onChange={handleChange}
-            onFocus={(e) => e.target.select()}
-          />
+          <div className="flex gap-4 items-end">
+            <div className="w-56">
+              <Select
+                name="status"
+                label="Trạng thái"
+                value={formData.status}
+                onChange={handleChange}
+                options={[
+                  { value: 'draft', label: 'Bản nháp' },
+                  { value: 'available', label: 'Xuất bản' },
+                ]}
+                required
+              />
+            </div>
+            <div className="flex-1">
+              <MultiCategorySelect
+                categories={loadingCate ? [] : categories}
+                selectedIds={formData.categoryIds}
+                onChange={(ids) =>
+                  setFormData((prev) => ({ ...prev, categoryIds: ids }))
+                }
+                label={loadingCate ? 'Đang tải danh mục...' : 'Danh mục'}
+              />
+            </div>
+          </div>
         </div>
 
         <Button type="submit">Thêm sản phẩm</Button>

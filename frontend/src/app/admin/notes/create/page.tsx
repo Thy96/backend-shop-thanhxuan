@@ -129,93 +129,94 @@ export default function CreateNotePage() {
         <ChevronLeft width={23} height={23} /> Quay Lại
       </Button>
       <form onSubmit={handleSubmit} className="space-y-2 mt-4">
-        <div>
-          <Input
-            label="📁 Chọn hình ảnh"
-            id="thumbnail"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            classNames={{
-              wrapper: '!mb-1',
-              input: 'hidden',
-              label:
-                'cursor-pointer inline-block bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 transition',
-            }}
-          />
-
-          {preview && (
-            <div
-              className="relative group"
-              style={{
-                width: '128px',
-                height: '128px',
+        <div className="flex justify-between">
+          <div>
+            <Input
+              label="📁 Chọn hình ảnh"
+              id="thumbnail"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              classNames={{
+                wrapper: '!mb-1',
+                input: 'hidden',
+                label:
+                  'cursor-pointer inline-block bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 transition',
               }}
-            >
-              <Image
-                src={preview}
-                alt={fileName ? fileName : 'example'}
-                className="w-32 h-32 object-cover rounded-lg border"
-                width={350}
-                height={350}
-              />
-              <button
-                type="button"
-                onClick={removeImage}
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-          <p className="text-xs text-red-500 mt-1 mb-4">
-            * Hình ảnh giới hạn 5MB
-          </p>
-        </div>
-
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <MultiCategorySelect
-              categories={categories}
-              selectedIds={formData.categoryIds}
-              onChange={(ids) =>
-                setFormData((prev) => ({ ...prev, categoryIds: ids }))
-              }
-              label="Thể Loại"
             />
-          </div>
 
-          <div className="w-56">
-            <Select
-              name="status"
-              label="Trạng thái"
-              value={formData.status}
+            {preview && (
+              <div
+                className="relative group"
+                style={{
+                  width: '128px',
+                  height: '128px',
+                }}
+              >
+                <Image
+                  src={preview}
+                  alt={fileName ? fileName : 'example'}
+                  className="w-32 h-32 object-cover rounded-lg border"
+                  width={350}
+                  height={350}
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0 text-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <p className="text-xs text-red-500 mt-1 mb-4">
+              * Hình ảnh giới hạn 5MB
+            </p>
+
+            {/* Tiêu đề */}
+            <Input
+              id="title"
+              label="Tiêu Đề"
+              placeholder="Nhập tiêu đề..."
+              name="title"
               onChange={handleChange}
-              options={[
-                { value: 'draft', label: 'Bản nháp' },
-                { value: 'published', label: 'Xuất bản' },
-              ]}
               required
             />
+
+            {/* Nội dung */}
+            <Editor
+              onReady={(editor) => {
+                editorRef.current = editor;
+              }}
+            />
+          </div>
+
+          <div className="flex gap-4 items-end">
+            <div className="w-56">
+              <Select
+                name="status"
+                label="Trạng thái"
+                value={formData.status}
+                onChange={handleChange}
+                options={[
+                  { value: 'draft', label: 'Bản nháp' },
+                  { value: 'published', label: 'Xuất bản' },
+                ]}
+                required
+              />
+            </div>
+            <div className="flex-1">
+              <MultiCategorySelect
+                categories={categories}
+                selectedIds={formData.categoryIds}
+                onChange={(ids) =>
+                  setFormData((prev) => ({ ...prev, categoryIds: ids }))
+                }
+                label="Thể Loại"
+              />
+            </div>
           </div>
         </div>
-
-        {/* Tiêu đề */}
-        <Input
-          id="title"
-          label="Tiêu Đề"
-          placeholder="Nhập tiêu đề..."
-          name="title"
-          onChange={handleChange}
-          required
-        />
-
-        {/* Nội dung */}
-        <Editor
-          onReady={(editor) => {
-            editorRef.current = editor;
-          }}
-        />
 
         <Button type="submit">Thêm Tin Tức</Button>
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
