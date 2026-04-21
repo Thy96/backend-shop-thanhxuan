@@ -17,7 +17,7 @@ import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
-import MultiCategorySelect from '@/components/ui/forms/MultiCategorySelect';
+import MultiSelect from '@/components/ui/forms/MultiSelect';
 
 export default function CreateProductPage() {
   const router = useRouter();
@@ -169,7 +169,7 @@ export default function CreateProductPage() {
         <ChevronLeft width={23} height={23} /> Quay Lại
       </Button>
       <form onSubmit={handleSubmit} className="space-y-2 mt-4">
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-4">
           {/* Images */}
           <div>
             <Input
@@ -282,7 +282,7 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          <div className="flex gap-4 items-end">
+          <div className="block gap-6">
             <div className="w-56">
               <Select
                 name="status"
@@ -297,7 +297,7 @@ export default function CreateProductPage() {
               />
             </div>
             <div className="flex-1">
-              <MultiCategorySelect
+              <MultiSelect
                 categories={loadingCate ? [] : categories}
                 selectedIds={formData.categoryIds}
                 onChange={(ids) =>

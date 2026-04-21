@@ -16,7 +16,7 @@ import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
-import MultiCategorySelect from '@/components/ui/forms/MultiCategorySelect';
+import MultiSelect from '@/components/ui/forms/MultiSelect';
 
 interface NoteDetail {
   _id: string;
@@ -202,7 +202,7 @@ export default function EditNotePage() {
           </p>
         </div>
 
-        <MultiCategorySelect
+        <MultiSelect
           categories={categories}
           selectedIds={formData.categoryIds}
           onChange={(ids) =>

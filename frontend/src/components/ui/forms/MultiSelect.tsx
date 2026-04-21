@@ -6,19 +6,19 @@ import {
   flattenCategoryTree,
 } from '@/utils/format/category';
 
-interface MultiCategorySelectProps {
+interface MultiSelectProps {
   categories: CategoryOption[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
   label?: string;
 }
 
-export default function MultiCategorySelect({
+export default function MultiSelect({
   categories,
   selectedIds,
   onChange,
   label = 'Danh mục',
-}: MultiCategorySelectProps) {
+}: MultiSelectProps) {
   const tree = buildCategoryTree(categories);
   const flat = flattenCategoryTree(tree);
 
@@ -33,7 +33,7 @@ export default function MultiCategorySelect({
   return (
     <div className="mb-2">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block mb-1 text-lg font-medium text-gray-700">
           {label}
         </label>
       )}

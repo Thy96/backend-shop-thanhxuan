@@ -17,7 +17,7 @@ import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
-import MultiCategorySelect from '@/components/ui/forms/MultiCategorySelect';
+import MultiSelect from '@/components/ui/forms/MultiSelect';
 
 interface ProductDetail {
   _id: string;
@@ -275,7 +275,7 @@ export default function EditProductPage() {
 
         <div className="flex gap-4 items-end">
           <div className="flex-1">
-            <MultiCategorySelect
+            <MultiSelect
               categories={loadingCate ? [] : categories}
               selectedIds={formData.categoryIds}
               onChange={(ids) =>
