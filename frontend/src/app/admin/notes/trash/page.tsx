@@ -8,10 +8,7 @@ import {
   serverForceDeleteNote,
 } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
-import { getNoteCategories } from '@/lib/api/noteCategoryQueries';
-
 import { getPaginationRange } from '@/utils/format/pagination';
-import { getCategoryLabel } from '@/utils/format/category';
 import { formatDeletedDate } from '@/utils/format/format';
 
 import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
@@ -39,8 +36,6 @@ export default async function TrashNotesPage({
   } = await getTrashNotes(page, limit);
 
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
-
-  const categories = await getNoteCategories();
 
   return (
     <>
@@ -96,7 +91,9 @@ export default async function TrashNotesPage({
                 )}
               </td>
               <td className="px-1 py-4">
-                {getCategoryLabel(note.categoryId, categories)}
+                {(note.categories || [])
+                  .map((c) => (typeof c === 'string' ? c : c.name))
+                  .join(', ') || '—'}
               </td>
               <td className="px-1 py-4">{formatDeletedDate(note.deletedAt)}</td>
 

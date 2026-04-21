@@ -3,7 +3,6 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 
 import { getTrashProducts } from '@/lib/api/productQueries';
-import { getProductCategories } from '@/lib/api/productCategoryQueries';
 import {
   serverRestoreProduct,
   serverForceDeleteProduct,
@@ -11,7 +10,6 @@ import {
 import { PaginationProps, ProductProps } from '@/lib/types';
 
 import { getPaginationRange } from '@/utils/format/pagination';
-import { getCategoryLabel } from '@/utils/format/category';
 import { finalPrice, formatDate, formatNumber } from '@/utils/format/format';
 
 import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
@@ -39,8 +37,6 @@ export default async function TrashProductsPage({
   } = await getTrashProducts(page, limit);
 
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
-
-  const categories = await getProductCategories();
 
   return (
     <>
@@ -107,7 +103,9 @@ export default async function TrashProductsPage({
                 ₫
               </td>
               <td className="px-1 py-4">
-                {getCategoryLabel(product.categoryId, categories)}
+                {(product.categories || [])
+                  .map((c) => (typeof c === 'string' ? c : c.name))
+                  .join(', ') || '—'}
               </td>
               <td className="px-1 py-4">
                 {formatDate(product.createdAt, product.updatedAt)}
