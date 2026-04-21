@@ -170,7 +170,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
       });
     }
 
-    const noteCount = await NoteModel.countDocuments({ categoryId });
+    const noteCount = await NoteModel.countDocuments({ categoryIds: categoryId });
     if (noteCount > 0) {
       return res.status(400).json({
         message: "Không thể xoá vì vẫn còn note đang sử dụng category này",

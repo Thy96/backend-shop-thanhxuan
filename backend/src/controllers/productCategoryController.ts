@@ -167,7 +167,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
       });
     }
 
-    const productCount = await ProductModel.countDocuments({ categoryId });
+    const productCount = await ProductModel.countDocuments({ categoryIds: categoryId });
     if (productCount > 0) {
       return res.status(400).json({
         message: "Không thể xoá vì vẫn còn product đang sử dụng category này",

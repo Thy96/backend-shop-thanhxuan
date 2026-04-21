@@ -16,11 +16,12 @@ import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import MultiCategorySelect from '@/components/ui/forms/MultiCategorySelect';
 
 interface NoteDetail {
   _id: string;
   title: string;
-  categoryId: string | CategoryOption;
+  categoryIds: (string | CategoryOption)[];
   content: OutputData;
   thumbnail: string;
   status: string;
@@ -45,7 +46,7 @@ export default function EditNotePage() {
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    categoryId: '',
+    categoryIds: [] as string[],
     status: 'draft',
   });
 
@@ -68,10 +69,9 @@ export default function EditNotePage() {
         setCategories(cates);
         setFormData({
           title: note.title,
-          categoryId:
-            typeof note.categoryId === 'string'
-              ? note.categoryId
-              : note.categoryId._id,
+          categoryIds: (note.categoryIds || []).map((c) =>
+            typeof c === 'string' ? c : (c as CategoryOption)._id,
+          ),
           status: note.status || 'draft',
         });
         if (note.thumbnail) setPreview(note.thumbnail);
@@ -128,7 +128,7 @@ export default function EditNotePage() {
         thumbnail: newImage,
         title: formData.title,
         content,
-        categoryId: formData.categoryId,
+        categoryIds: formData.categoryIds,
         imageDeleted,
         status: formData.status,
       };
@@ -202,17 +202,13 @@ export default function EditNotePage() {
           </p>
         </div>
 
-        <Select
-          options={categories.map((cat) => ({
-            value: cat._id,
-            label: cat.name,
-          }))}
-          name="categoryId"
-          value={formData.categoryId}
-          onChange={handleChange}
+        <MultiCategorySelect
+          categories={categories}
+          selectedIds={formData.categoryIds}
+          onChange={(ids) =>
+            setFormData((prev) => ({ ...prev, categoryIds: ids }))
+          }
           label="Thể Loại"
-          required
-          disabled={loadingCate}
         />
 
         <Select

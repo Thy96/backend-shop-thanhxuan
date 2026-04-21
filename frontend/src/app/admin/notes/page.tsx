@@ -9,7 +9,7 @@ import { serverMoveNoteToTrash } from '@/app/actions/noteActions';
 import { NoteProps, PaginationProps } from '@/lib/types';
 import StatusFilter from '@/components/ui/filters/StatusFilter';
 
-import { getCategoryLabel } from '@/utils/format/category';
+import { CategoryOption, getCategoryLabel } from '@/utils/format/category';
 import { formatDate } from '@/utils/format/format';
 import { getPaginationRange } from '@/utils/format/pagination';
 
@@ -106,7 +106,9 @@ export default async function NotesPage({
                 )}
               </td>
               <td className="px-1 py-4">
-                {getCategoryLabel(note.categoryId, categories)}
+                {(note.categories || [])
+                  .map((c: CategoryOption) => c.name)
+                  .join(', ') || '—'}
               </td>
               <td className="px-1 py-4">
                 {formatDate(note.createdAt, note.updatedAt, note.status)}

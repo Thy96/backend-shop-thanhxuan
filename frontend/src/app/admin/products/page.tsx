@@ -4,12 +4,11 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 
 import { getProducts } from '@/lib/api/productQueries';
-import { getProductCategories } from '@/lib/api/productCategoryQueries';
 import { serverMoveProductToTrash } from '@/app/actions/productActions';
 import { PaginationProps, ProductProps } from '@/lib/types';
 
 import { getPaginationRange } from '@/utils/format/pagination';
-import { getCategoryLabel } from '@/utils/format/category';
+import { CategoryOption } from '@/utils/format/category';
 import { finalPrice, formatDate, formatNumber } from '@/utils/format/format';
 
 import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
@@ -39,8 +38,6 @@ export default async function ProductsPage({
   } = await getProducts(page, limit, status);
 
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
-
-  const categories = await getProductCategories();
 
   return (
     <>
@@ -131,7 +128,9 @@ export default async function ProductsPage({
                 ₫
               </td>
               <td className="px-1 py-4">
-                {getCategoryLabel(product.categoryId, categories)}
+                {(product.categories || [])
+                  .map((c: CategoryOption) => c.name)
+                  .join(', ') || '—'}
               </td>
               <td className="px-1 py-4">
                 {formatDate(product.createdAt, product.updatedAt)}

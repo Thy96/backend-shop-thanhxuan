@@ -20,7 +20,8 @@ export interface ProductProps {
   sale: number;
   stock: number;
   points: number;
-  categoryId: string | CategoryOption;
+  categoryIds: (string | CategoryOption)[];
+  categories: CategoryOption[];
   author: UserOption;
   updatedBy: UserOption;
   createdAt: string;
@@ -58,7 +59,8 @@ export interface NoteProps {
   title: string;
   slug: string;
   status: string;
-  categoryId: string | CategoryOption;
+  categoryIds: (string | CategoryOption)[];
+  categories: CategoryOption[];
   author: UserOption;
   updatedBy: UserOption;
   isDeleted: boolean;

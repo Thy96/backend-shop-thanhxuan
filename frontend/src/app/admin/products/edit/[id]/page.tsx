@@ -17,6 +17,7 @@ import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import MultiCategorySelect from '@/components/ui/forms/MultiCategorySelect';
 
 interface ProductDetail {
   _id: string;
@@ -26,7 +27,7 @@ interface ProductDetail {
   stock: number;
   points: number;
   status: string;
-  categoryId: string | CategoryOption;
+  categoryIds: (string | CategoryOption)[];
   content: OutputData;
   images: string[];
 }
@@ -54,7 +55,7 @@ export default function EditProductPage() {
     sale: 0,
     stock: 0,
     points: 0,
-    categoryId: '',
+    categoryIds: [] as string[],
     status: 'draft',
   });
 
@@ -83,10 +84,9 @@ export default function EditProductPage() {
           sale: product.sale,
           stock: product.stock,
           points: product.points ?? 0,
-          categoryId:
-            typeof product.categoryId === 'string'
-              ? product.categoryId
-              : product.categoryId._id,
+          categoryIds: (product.categoryIds || []).map((c) =>
+            typeof c === 'string' ? c : (c as CategoryOption)._id,
+          ),
           status: product.status || 'draft',
         });
         if (product.images?.length) setExistingImages(product.images);
@@ -181,7 +181,7 @@ export default function EditProductPage() {
         sale: formData.sale,
         stock: formData.stock,
         points: formData.points,
-        categoryId: formData.categoryId,
+        categoryIds: formData.categoryIds,
         status: formData.status,
         images: newImages.length > 0 ? newImages.map((img) => img.file) : null,
       };
@@ -275,17 +275,13 @@ export default function EditProductPage() {
 
         <div className="flex gap-4 items-end">
           <div className="flex-1">
-            <Select
-              options={categories.map((cat) => ({
-                value: cat._id,
-                label: cat.name,
-              }))}
-              name="categoryId"
-              value={formData.categoryId}
-              onChange={handleChange}
-              label="Danh mục"
-              required
-              disabled={loadingCate}
+            <MultiCategorySelect
+              categories={loadingCate ? [] : categories}
+              selectedIds={formData.categoryIds}
+              onChange={(ids) =>
+                setFormData((prev) => ({ ...prev, categoryIds: ids }))
+              }
+              label={loadingCate ? 'Đang tải danh mục...' : 'Danh mục'}
             />
           </div>
 

@@ -10,7 +10,7 @@ export interface IProduct extends Document {
   sale: number;
   stock: number;
   points: number;
-  categoryId: Types.ObjectId | ICategory;
+  categoryIds: (Types.ObjectId | ICategory)[];
   status: string;
   author: Types.ObjectId | IUser;
   updatedBy: Types.ObjectId | IUser | null | string;
@@ -49,11 +49,10 @@ const productSchema = new Schema({
     type: Number,
     default: 0
   },
-  categoryId: {
+  categoryIds: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProductCategory",
-    required: true
-  },
+  }],
   status: {
     type: String,
     enum: ["draft", "available"],

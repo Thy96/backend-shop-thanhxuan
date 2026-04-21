@@ -19,7 +19,7 @@ export async function serverCreateProduct(product: {
     stock?: number;
     points?: number;
     images?: File[] | null;
-    categoryId: string;
+    categoryIds: string[];
     status?: string;
 }) {
     try {
@@ -27,7 +27,7 @@ export async function serverCreateProduct(product: {
         formData.append('title', product.title);
         formData.append('content', JSON.stringify(product.content));
         formData.append('price', String(product.price));
-        formData.append('categoryId', product.categoryId);
+        product.categoryIds.forEach(id => formData.append('categoryIds', id));
 
         if (product.images) {
             product.images.forEach(file => formData.append('images', file));
@@ -87,7 +87,7 @@ export async function serverUpdateProduct(
         sale: number;
         stock: number;
         points: number;
-        categoryId: string;
+        categoryIds: string[];
         status: string;
         images?: File[] | null;
     }
@@ -97,7 +97,7 @@ export async function serverUpdateProduct(
         formData.append('title', product.title);
         formData.append('content', JSON.stringify(product.content));
         formData.append('price', String(product.price));
-        formData.append('categoryId', product.categoryId);
+        product.categoryIds.forEach(id => formData.append('categoryIds', id));
 
         if (product.images) {
             product.images.forEach(file => formData.append('images', file));

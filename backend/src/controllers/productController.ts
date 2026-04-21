@@ -23,7 +23,7 @@ export const getAll = async (req: Request, res: Response) => {
     }
 
     if (req.query.categoryId && mongoose.Types.ObjectId.isValid(String(req.query.categoryId))) {
-      matchStage.categoryId = new mongoose.Types.ObjectId(String(req.query.categoryId));
+      matchStage.categoryIds = { $in: [new mongoose.Types.ObjectId(String(req.query.categoryId))] };
     }
 
     if (req.query.keyword) {
@@ -54,15 +54,9 @@ export const getAll = async (req: Request, res: Response) => {
       {
         $lookup: {
           from: "productcategories",
-          localField: 'categoryId',
+          localField: 'categoryIds',
           foreignField: '_id',
-          as: 'category'
-        }
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true
+          as: 'categories'
         }
       },
       {
@@ -113,11 +107,13 @@ export const getAll = async (req: Request, res: Response) => {
             email: "$updatedBy.email"
           },
           isInStock: 1,
-          categoryId: 1,
-          category: {
-            _id: "$category._id",
-            name: "$category.name",
-            slug: "$category.slug"
+          categoryIds: 1,
+          categories: {
+            $map: {
+              input: "$categories",
+              as: "c",
+              in: { _id: "$$c._id", name: "$$c.name", slug: "$$c.slug" }
+            }
           },
           deletedAt: 1,
           createdAt: 1,
@@ -158,9 +154,11 @@ export const getPublishProducts = async (req: Request, res: Response) => {
       req.query.categoryId &&
       mongoose.Types.ObjectId.isValid(String(req.query.categoryId))
     ) {
-      matchStage.categoryId = new mongoose.Types.ObjectId(
-        String(req.query.categoryId)
-      );
+      matchStage.categoryIds = {
+        $in: [new mongoose.Types.ObjectId(
+          String(req.query.categoryId)
+        )]
+      };
     }
 
     // search keyword
@@ -200,15 +198,9 @@ export const getPublishProducts = async (req: Request, res: Response) => {
       {
         $lookup: {
           from: "productcategories",
-          localField: "categoryId",
+          localField: "categoryIds",
           foreignField: "_id",
-          as: "category"
-        }
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true
+          as: "categories"
         }
       },
 
@@ -222,10 +214,12 @@ export const getPublishProducts = async (req: Request, res: Response) => {
           stock: 1,
           thumbnail: 1,
           isInStock: 1,
-          category: {
-            _id: "$category._id",
-            name: "$category.name",
-            slug: "$category.slug"
+          categories: {
+            $map: {
+              input: "$categories",
+              as: "c",
+              in: { _id: "$$c._id", name: "$$c.name", slug: "$$c.slug" }
+            }
           },
           createdAt: 1
         }
@@ -283,15 +277,9 @@ export const getTrashProducts = async (req: Request, res: Response) => {
       {
         $lookup: {
           from: "productcategories",
-          localField: 'categoryId',
+          localField: 'categoryIds',
           foreignField: '_id',
-          as: 'category'
-        }
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true
+          as: 'categories'
         }
       },
       {
@@ -339,11 +327,13 @@ export const getTrashProducts = async (req: Request, res: Response) => {
             email: "$updatedBy.email"
           },
           isInStock: 1,
-          categoryId: 1,
-          category: {
-            _id: "$category._id",
-            name: "$category.name",
-            slug: "$category.slug"
+          categoryIds: 1,
+          categories: {
+            $map: {
+              input: "$categories",
+              as: "c",
+              in: { _id: "$$c._id", name: "$$c.name", slug: "$$c.slug" }
+            }
           },
           deletedAt: 1,
           createdAt: 1,
@@ -385,7 +375,7 @@ export const getProductById = async (req: Request, res: Response) => {
 export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   console.log('📦 req.body:', req.body); // Debug
   const {
-    title, content, price, sale, stock, points, categoryId, status } = req.body;
+    title, content, price, sale, stock, points, categoryIds, status } = req.body;
   const userId = req.user?.uid;
 
   if (!userId) {
@@ -418,12 +408,15 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ message: "Vui lòng nhập nội dung" });
   }
 
-  if (!categoryId) {
+  if (!categoryIds) {
     return res.status(400).json({ message: "Vui lòng chọn category" });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-    return res.status(400).json({ message: "categoryId không hợp lệ (không phải ObjectId)" });
+  const rawIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+  const parsedCategoryIds = rawIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
+
+  if (parsedCategoryIds.length === 0) {
+    return res.status(400).json({ message: "categoryIds không hợp lệ" });
   }
 
   // ✅ Convert number
@@ -442,7 +435,7 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
       stock: stockNumber,
       points: pointsNumber,
       status: status ?? 'draft',
-      categoryId,
+      categoryIds: parsedCategoryIds,
       author: userId,
     });
 
@@ -464,7 +457,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
     return res.status(400).json({ message: 'ID không hợp lệ' });
   }
   const {
-    title, content, price, sale, stock, points, categoryId, status } = req.body;
+    title, content, price, sale, stock, points, categoryIds, status } = req.body;
   const userId = req.user?.uid;
 
   let images: string[] = [];
@@ -492,7 +485,9 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   }
 
   try {
-    const updateData: any = { title, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryId, status, updatedBy: userId };
+    const rawUpdateIds = Array.isArray(categoryIds) ? categoryIds : (categoryIds ? [categoryIds] : []);
+    const parsedUpdateIds = rawUpdateIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
+    const updateData: any = { title, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryIds: parsedUpdateIds, status, updatedBy: userId };
     if (images.length > 0) {
       updateData.images = images;
     }

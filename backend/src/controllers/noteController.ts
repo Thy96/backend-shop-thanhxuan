@@ -16,7 +16,7 @@ export const getAll = async (req: Request, res: Response) => {
     };
 
     if (req.query.categoryId && mongoose.Types.ObjectId.isValid(String(req.query.categoryId))) {
-      matchStage.categoryId = new mongoose.Types.ObjectId(String(req.query.categoryId));
+      matchStage.categoryIds = { $in: [new mongoose.Types.ObjectId(String(req.query.categoryId))] };
     }
 
     if (req.query.keyword) {
@@ -55,14 +55,6 @@ export const getAll = async (req: Request, res: Response) => {
               onError: null,
               onNull: null
             }
-          },
-          categoryId: {
-            $convert: {
-              input: "$categoryId",
-              to: "objectId",
-              onError: null,
-              onNull: null
-            }
           }
         }
       },
@@ -72,15 +64,9 @@ export const getAll = async (req: Request, res: Response) => {
       {
         $lookup: {
           from: "notecategories",
-          localField: "categoryId",
+          localField: "categoryIds",
           foreignField: "_id",
-          as: "category"
-        }
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true
+          as: "categories"
         }
       },
       {
@@ -129,11 +115,13 @@ export const getAll = async (req: Request, res: Response) => {
             email: "$updatedBy.email"
           },
           status: 1,
-          categoryId: 1,
-          category: {
-            _id: "$category._id",
-            name: "$category.name",
-            slug: "$category.slug"
+          categoryIds: 1,
+          categories: {
+            $map: {
+              input: "$categories",
+              as: "c",
+              in: { _id: "$$c._id", name: "$$c.name", slug: "$$c.slug" }
+            }
           },
           deletedAt: 1,
           createdAt: 1,
@@ -169,7 +157,7 @@ export const getTrashNotes = async (req: Request, res: Response) => {
     };
 
     if (req.query.categoryId && mongoose.Types.ObjectId.isValid(String(req.query.categoryId))) {
-      matchStage.categoryId = new mongoose.Types.ObjectId(String(req.query.categoryId));
+      matchStage.categoryIds = { $in: [new mongoose.Types.ObjectId(String(req.query.categoryId))] };
     }
 
     if (req.query.keyword) {
@@ -204,14 +192,6 @@ export const getTrashNotes = async (req: Request, res: Response) => {
               onError: null,
               onNull: null
             }
-          },
-          categoryId: {
-            $convert: {
-              input: "$categoryId",
-              to: "objectId",
-              onError: null,
-              onNull: null
-            }
           }
         }
       },
@@ -221,15 +201,9 @@ export const getTrashNotes = async (req: Request, res: Response) => {
       {
         $lookup: {
           from: "notecategories",
-          localField: "categoryId",
+          localField: "categoryIds",
           foreignField: "_id",
-          as: "category"
-        }
-      },
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true
+          as: "categories"
         }
       },
       {
@@ -274,11 +248,13 @@ export const getTrashNotes = async (req: Request, res: Response) => {
             fullName: "$updatedBy.fullName",
             email: "$updatedBy.email"
           },
-          categoryId: 1,
-          category: {
-            _id: "$category._id",
-            name: "$category.name",
-            slug: "$category.slug"
+          categoryIds: 1,
+          categories: {
+            $map: {
+              input: "$categories",
+              as: "c",
+              in: { _id: "$$c._id", name: "$$c.name", slug: "$$c.slug" }
+            }
           },
           deletedAt: 1,
           createdAt: 1,
@@ -331,7 +307,7 @@ export const getNoteBySlug = async (req: Request, res: Response) => {
       slug: slug.toLowerCase(),
       isDeleted: false,
     })
-      .populate("categoryId", "name slug")
+      .populate("categoryIds", "name slug")
       .populate("author", "fullName email")
       .populate("updatedBy", "fullName email");
 
@@ -355,7 +331,7 @@ export const getNoteBySlug = async (req: Request, res: Response) => {
 // Tạo bài viết mới
 export const postNote = async (req: AuthenticatedRequest, res: Response) => {
   console.log('📦 req.body:', req.body); // Debug
-  const { title, content, categoryId, status } = req.body;
+  const { title, content, categoryIds, status } = req.body;
   const userId = req.user?.uid;
 
   if (!userId) {
@@ -394,18 +370,21 @@ export const postNote = async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ message: "Vui lòng nhập nội dung" });
   }
 
-  if (!categoryId) {
+  if (!categoryIds) {
     return res.status(400).json({ message: "Vui lòng chọn category" });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-    return res.status(400).json({ message: "categoryId không hợp lệ (không phải ObjectId)" });
+  const rawIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+  const parsedCategoryIds = rawIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
+
+  if (parsedCategoryIds.length === 0) {
+    return res.status(400).json({ message: "categoryIds không hợp lệ" });
   }
 
   const thumbnail = req.file ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` : undefined;
   const noteStatus = status && ['draft', 'published'].includes(status) ? status : 'draft';
   try {
-    const newNote = new NoteModel({ thumbnail, title: title.trim(), slug, content: parsedContent, categoryId, status: noteStatus, author: userId, });
+    const newNote = new NoteModel({ thumbnail, title: title.trim(), slug, content: parsedContent, categoryIds: parsedCategoryIds, status: noteStatus, author: userId, });
 
     const savedNote = await newNote.save();
 
@@ -422,7 +401,7 @@ export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ message: "ID không hợp lệ" });
   }
-  const { title, content, categoryId, imageDeleted, status } = req.body;
+  const { title, content, categoryIds, imageDeleted, status } = req.body;
   const userId = req.user?.uid;
 
   if (!title || !title.trim()) {
@@ -454,8 +433,8 @@ export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ message: "Vui lòng nhập nội dung" });
   }
 
-  if (!categoryId || !mongoose.Types.ObjectId.isValid(categoryId)) {
-    return res.status(400).json({ message: "categoryId không hợp lệ" });
+  if (!categoryIds || !categoryIds) {
+    return res.status(400).json({ message: "categoryIds không hợp lệ" });
   }
   try {
     const existingNote = await NoteModel.findById(req.params.id);
@@ -472,8 +451,10 @@ export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
       thumbnail = null;
     }
 
+    const rawIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+    const parsedCategoryIds = rawIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
     const noteStatus = status && ['draft', 'published'].includes(status) ? status : existingNote.status;
-    const updateData: any = { thumbnail, title, slug, content: parsedContent, categoryId, status: noteStatus, updatedBy: userId };
+    const updateData: any = { thumbnail, title, slug, content: parsedContent, categoryIds: parsedCategoryIds, status: noteStatus, updatedBy: userId };
     const updatedNote = await NoteModel.findByIdAndUpdate(
       req.params.id,
       updateData,

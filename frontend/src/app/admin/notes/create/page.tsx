@@ -16,6 +16,7 @@ import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import MultiCategorySelect from '@/components/ui/forms/MultiCategorySelect';
 
 export default function CreateNotePage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function CreateNotePage() {
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    categoryId: '',
+    categoryIds: [] as string[],
     status: 'draft',
   });
 
@@ -98,7 +99,7 @@ export default function CreateNotePage() {
         thumbnail: image,
         title: formData.title,
         content,
-        categoryId: formData.categoryId,
+        categoryIds: formData.categoryIds,
         status: formData.status,
       };
 
@@ -174,16 +175,13 @@ export default function CreateNotePage() {
 
         <div className="flex gap-4 items-end">
           <div className="flex-1">
-            <Select
-              options={categories.map((cat) => ({
-                value: cat._id,
-                label: cat.name,
-              }))}
-              name="categoryId"
-              onChange={handleChange}
+            <MultiCategorySelect
+              categories={categories}
+              selectedIds={formData.categoryIds}
+              onChange={(ids) =>
+                setFormData((prev) => ({ ...prev, categoryIds: ids }))
+              }
               label="Thể Loại"
-              required
-              disabled={loadingCate}
             />
           </div>
 

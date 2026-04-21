@@ -7,7 +7,7 @@ export interface INote extends Document {
   slug: string;
   content: Object;
   status: string;
-  categoryId: Types.ObjectId | ICategory;
+  categoryIds: (Types.ObjectId | ICategory)[];
   author: Types.ObjectId | IUser;
   updatedBy: Types.ObjectId | IUser;
   isDeleted: boolean;
@@ -39,11 +39,10 @@ const noteSchema = new Schema<INote>({
     enum: ["draft", "published"],
     default: "draft"
   },
-  categoryId: {
+  categoryIds: [{
     type: Schema.Types.ObjectId,
     ref: "NoteCategory",
-    required: true
-  },
+  }],
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

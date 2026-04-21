@@ -17,6 +17,7 @@ import Select from '@/components/ui/forms/Select';
 import Button from '@/components/ui/forms/Button';
 import Editor from '@/components/ui/forms/Editor';
 import LoadingClient from '@/components/ui/Loading/LoadingClient';
+import MultiCategorySelect from '@/components/ui/forms/MultiCategorySelect';
 
 export default function CreateProductPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function CreateProductPage() {
     sale: 0,
     stock: 0,
     points: 0,
-    categoryId: '',
+    categoryIds: [] as string[],
     status: 'draft',
   });
 
@@ -138,7 +139,7 @@ export default function CreateProductPage() {
         sale: formData.sale,
         stock: formData.stock,
         points: formData.points,
-        categoryId: formData.categoryId,
+        categoryIds: formData.categoryIds,
         status: formData.status,
       };
 
@@ -211,16 +212,13 @@ export default function CreateProductPage() {
 
         <div className="flex gap-4 items-end">
           <div className="flex-1">
-            <Select
-              options={categories.map((cat) => ({
-                value: cat._id,
-                label: cat.name,
-              }))}
-              name="categoryId"
-              onChange={handleChange}
-              label="Danh mục"
-              required
-              disabled={loadingCate}
+            <MultiCategorySelect
+              categories={loadingCate ? [] : categories}
+              selectedIds={formData.categoryIds}
+              onChange={(ids) =>
+                setFormData((prev) => ({ ...prev, categoryIds: ids }))
+              }
+              label={loadingCate ? 'Đang tải danh mục...' : 'Danh mục'}
             />
           </div>
 
