@@ -241,7 +241,7 @@ export default function DashboardPage() {
         {/* Top users by points */}
         <div className="bg-white rounded-xl shadow overflow-hidden">
           <div className="px-5 py-4 border-b">
-            <h3 className="font-semibold">User tích điểm nhiều nhất</h3>
+            <h3 className="font-semibold">Bảng xếp hạng</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <span className="inline-block bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full text-xs">
-                          {formatNumber(u.points ?? 0)} điểm
+                          {formatNumber(u.points)} điểm
                         </span>
                       </td>
                     </tr>

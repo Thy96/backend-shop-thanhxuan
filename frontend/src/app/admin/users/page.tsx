@@ -94,8 +94,8 @@ export default async function UsersPage({
           thead={
             <tr className="text-gray-500 border-b-1 border-b-blue-100 text-left">
               <th className="px-1 py-4 text-center w-[50]">STT</th>
-              <th className="px-4 py-4">Họ và tên</th>
-              <th className="px-1 py-4 text-center w-[130]">Điểm thưởng</th>
+              <th className="px-4 py-4 text-center w-[200]">Họ và tên</th>
+              <th className="px-1 py-4 text-center w-[70]">Điểm</th>
               <th className="px-1 py-4 text-center w-[200]">Tài khoản</th>
               <th className="px-1 py-4 text-center w-[130]">SDT</th>
               <th className="px-1 py-4 w-[100]">Chức vụ</th>
