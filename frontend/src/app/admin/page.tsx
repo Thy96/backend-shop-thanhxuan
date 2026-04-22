@@ -123,7 +123,7 @@ export default function DashboardPage() {
         <StatCard title="Đơn hàng" value={stats.totalOrders} />
         <StatCard
           title="Doanh thu tháng này"
-          value={stats.monthlyRevenue.toLocaleString('vi-VN') + 'đ'}
+          value={formatNumber(stats.monthlyRevenue) + 'đ'}
         />
       </div>
 
@@ -133,7 +133,7 @@ export default function DashboardPage() {
           Doanh thu năm {new Date().getFullYear()}
         </span>
         <span className="text-2xl font-bold">
-          {stats.yearlyRevenue.toLocaleString('vi-VN')}đ
+          {formatNumber(stats.yearlyRevenue) + 'đ'}
         </span>
       </div>
 
@@ -237,10 +237,10 @@ export default function DashboardPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-blue-600">
-                        {p.totalSold.toLocaleString('vi-VN')}
+                        {formatNumber(p.totalSold)}
                       </td>
                       <td className="px-4 py-3 text-right text-gray-700">
-                        {p.totalRevenue.toLocaleString('vi-VN')}đ
+                        {formatNumber(p.totalRevenue)}đ
                       </td>
                     </tr>
                   ))

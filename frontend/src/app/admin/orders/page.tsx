@@ -68,7 +68,7 @@ export default async function MyOrdersPage({
                 <Info label="Mã đơn" value={order._id} />
                 <Info
                   label="Tổng tiền"
-                  value={`${order.totalPrice.toLocaleString()} đ`}
+                  value={`${formatNumber(order.totalPrice)} đ`}
                   valueClass="text-green-600"
                 />
                 <Info
@@ -133,7 +133,7 @@ export default async function MyOrdersPage({
                   <div className="flex-1">
                     <p className="font-semibold text-gray-800">{item.name}</p>
                     <p className="text-sm text-gray-500">
-                      Đơn giá: {item.price.toLocaleString()} đ
+                      Đơn giá: {formatNumber(item.price)} đ
                     </p>
                     <p className="text-sm text-gray-500">
                       Số lượng: {item.quantity}
@@ -146,7 +146,7 @@ export default async function MyOrdersPage({
 
                   {/* Sub total */}
                   <div className="font-semibold text-gray-800">
-                    {(item.price * item.quantity).toLocaleString()} đ
+                    {formatNumber(item.price * item.quantity)} đ
                   </div>
                 </div>
               ))}
