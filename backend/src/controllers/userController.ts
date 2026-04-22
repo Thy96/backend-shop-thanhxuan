@@ -51,6 +51,7 @@ export async function getUsers(req: AuthenticatedRequest, res: Response) {
           email: 1,
           phone: 1,
           role: 1,
+          points: 1,
           createdAt: 1,
           updatedAt: 1,
           isActive: 1,
