@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import {
   BarChart,
@@ -123,7 +122,7 @@ export default function DashboardPage() {
         <StatCard title="Đơn hàng" value={stats.totalOrders} />
         <StatCard
           title="Doanh thu tháng này"
-          value={formatNumber(stats.monthlyRevenue) + 'đ'}
+          value={formatNumber(stats.monthlyRevenue ?? 0) + 'đ'}
         />
       </div>
 
@@ -133,7 +132,7 @@ export default function DashboardPage() {
           Doanh thu năm {new Date().getFullYear()}
         </span>
         <span className="text-2xl font-bold">
-          {formatNumber(stats.yearlyRevenue) + 'đ'}
+          {formatNumber(stats.yearlyRevenue ?? 0) + 'đ'}
         </span>
       </div>
 
@@ -220,27 +219,16 @@ export default function DashboardPage() {
                       <td className="px-4 py-3 text-gray-500">{i + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          {p.image ? (
-                            <Image
-                              src={p.image}
-                              alt={p.name}
-                              width={36}
-                              height={36}
-                              className="w-9 h-9 rounded object-cover flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-9 h-9 rounded bg-gray-200 flex-shrink-0" />
-                          )}
                           <span className="font-medium line-clamp-1">
                             {p.name}
                           </span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-blue-600">
-                        {formatNumber(p.totalSold)}
+                        {formatNumber(p.totalSold ?? 0)}
                       </td>
                       <td className="px-4 py-3 text-right text-gray-700">
-                        {formatNumber(p.totalRevenue)}đ
+                        {formatNumber(p.totalRevenue ?? 0)}đ
                       </td>
                     </tr>
                   ))
@@ -305,7 +293,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <span className="inline-block bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full text-xs">
-                          {formatNumber(u.points)} điểm
+                          {formatNumber(u.points ?? 0)} điểm
                         </span>
                       </td>
                     </tr>
