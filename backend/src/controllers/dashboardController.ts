@@ -111,6 +111,40 @@ export const getTopUsers = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+export const getRevenueByYear = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 4; // 5 năm gần nhất
+
+    const revenue = await Order.aggregate([
+      {
+        $match: {
+          status: 'completed',
+          createdAt: { $gte: new Date(`${startYear}-01-01`) },
+        },
+      },
+      {
+        $group: {
+          _id: { $year: '$createdAt' },
+          value: { $sum: '$totalPrice' },
+        },
+      },
+      { $sort: { '_id': 1 } },
+    ]);
+
+    // Điền 0 cho các năm không có doanh thu
+    const result = Array.from({ length: 5 }, (_, i) => {
+      const year = startYear + i;
+      const found = revenue.find((r) => r._id === year);
+      return { name: String(year), value: found?.value || 0 };
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi thống kê doanh thu hàng năm' });
+  }
+};
+
 export const getVisitsByMonth = async (req: AuthenticatedRequest, res: Response) => {
   const year = new Date().getFullYear();
 

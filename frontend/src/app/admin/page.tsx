@@ -16,6 +16,7 @@ import {
 import {
   getDashboard,
   getRevenueByMonth,
+  getRevenueByYear,
   getVisitsByMonth,
   getTopProducts,
   getTopUsers,
@@ -59,6 +60,9 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loadingPage, setLoadingPage] = useState(false);
   const [revenueData, setRevenueData] = useState<ChartDataPoint[]>([]);
+  const [yearlyRevenueData, setYearlyRevenueData] = useState<ChartDataPoint[]>(
+    [],
+  );
   const [visitData, setVisitData] = useState<ChartDataPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
@@ -108,6 +112,7 @@ export default function DashboardPage() {
   useEffect(() => {
     getTopProducts(10).then(setTopProducts).catch(console.error);
     getTopUsers(10).then(setTopUsers).catch(console.error);
+    getRevenueByYear().then(setYearlyRevenueData).catch(console.error);
   }, []);
 
   if (loadingPage) return <LoadingClient />;
@@ -181,6 +186,25 @@ export default function DashboardPage() {
             </BarChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Yearly revenue chart */}
+      <div className="bg-white p-5 rounded-xl shadow">
+        <h3 className="font-semibold mb-4">
+          Doanh thu theo năm (5 năm gần nhất)
+        </h3>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart
+            data={yearlyRevenueData}
+            margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis tickFormatter={formatMillions} />
+            <Tooltip formatter={(value) => formatMillions(value as number)} />
+            <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Top products & Top users */}
