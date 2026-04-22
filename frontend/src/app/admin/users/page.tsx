@@ -9,7 +9,7 @@ import { getMe } from '@/lib/api/apiAuth';
 import { PaginationProps, User } from '@/lib/types';
 import { ROLE_OPTIONS } from '@/utils/constants/roleOptions';
 import { getPaginationRange } from '@/utils/format/pagination';
-import { formatDate } from '@/utils/format/format';
+import { formatDate, formatNumber } from '@/utils/format/format';
 
 import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
@@ -95,9 +95,10 @@ export default async function UsersPage({
             <tr className="text-gray-500 border-b-1 border-b-blue-100 text-left">
               <th className="px-1 py-4 text-center w-[50]">STT</th>
               <th className="px-4 py-4">Họ và tên</th>
+              <th className="px-1 py-4 text-center w-[130]">Điểm thưởng</th>
               <th className="px-1 py-4 text-center w-[200]">Tài khoản</th>
               <th className="px-1 py-4 text-center w-[130]">SDT</th>
-              <th className="px-1 py-4 w-[70]">Role</th>
+              <th className="px-1 py-4 w-[100]">Chức vụ</th>
               <th className="px-1 py-4 w-[160]">Ngày tạo</th>
               <th className="px-1 py-4 w-[100] text-center">Xác thực</th>
               <th className="px-1 py-4 w-[100] text-center">Trạng thái</th>
@@ -117,6 +118,11 @@ export default async function UsersPage({
                   {(pagination.page - 1) * limit + index + 1}
                 </td>
                 <td className="px-4 py-4">{user.fullName}</td>
+                <td className="px-1 py-4 text-center">
+                  <span className="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                    {formatNumber(user.points ?? 0)}
+                  </span>
+                </td>
                 <td className="px-1 py-4">{user.email}</td>
                 <td className="px-1 py-4 text-center">{user.phone}</td>
                 <td className="px-1 py-4">

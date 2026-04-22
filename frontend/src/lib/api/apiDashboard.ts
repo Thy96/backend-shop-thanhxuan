@@ -106,3 +106,37 @@ export async function getVisitsByMonth() {
     throw error;
   }
 }
+
+export async function getTopProducts(limit = 10) {
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+    .join('; ');
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const res = await fetch(`${apiUrl}/api/admin/dashboard/stats/top-products?limit=${limit}`, {
+    cache: 'no-store',
+    headers: { cookie: cookieHeader },
+  });
+
+  if (!res.ok) throw new Error('Không thể lấy dữ liệu sản phẩm bán chạy');
+  return res.json();
+}
+
+export async function getTopUsers(limit = 10) {
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+    .join('; ');
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const res = await fetch(`${apiUrl}/api/admin/dashboard/stats/top-users?limit=${limit}`, {
+    cache: 'no-store',
+    headers: { cookie: cookieHeader },
+  });
+
+  if (!res.ok) throw new Error('Không thể lấy dữ liệu user tích điểm');
+  return res.json();
+}
