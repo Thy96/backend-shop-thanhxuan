@@ -130,7 +130,7 @@ export default function CreateNotePage() {
       </Button>
       <form onSubmit={handleSubmit} className="space-y-2 mt-4">
         <div className="flex justify-between gap-6">
-          <div>
+          <div className="w-full">
             <Input
               label="📁 Chọn hình ảnh"
               id="thumbnail"

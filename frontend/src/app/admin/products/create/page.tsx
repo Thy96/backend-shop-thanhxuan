@@ -171,7 +171,7 @@ export default function CreateProductPage() {
       <form onSubmit={handleSubmit} className="space-y-2 mt-4">
         <div className="flex justify-between gap-4">
           {/* Images */}
-          <div>
+          <div className="w-full">
             <Input
               label="📁 Chọn hình ảnh (tối đa 3)"
               id="images"
@@ -282,7 +282,7 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          <div className="block gap-6">
+          <div className="block">
             <div className="w-56">
               <Select
                 name="status"

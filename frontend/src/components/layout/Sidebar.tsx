@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   House,
   LayoutDashboard,
   LogOut,
@@ -88,6 +90,7 @@ const Sidebar = () => {
   const pathName = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [trashCounts, setTrashCounts] = useState<Record<string, number>>({});
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const activeSlugs = ['edit', 'create'];
 
   useEffect(() => {
@@ -116,20 +119,35 @@ const Sidebar = () => {
   }, [pathName]);
 
   return (
-    <aside className={` bg-gray-800 text-white flex flex-col relative w-max`}>
+    <aside
+      className={`bg-gray-800 text-white flex flex-col relative transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-16' : 'w-56'
+      }`}
+    >
       <div
-        className={`p-4 text-lg font-bold border-b border-gray-700 flex items-center gap-1`}
+        className={`p-4 text-lg font-bold border-b border-gray-700 flex items-center ${
+          isCollapsed ? 'justify-center' : 'gap-1'
+        }`}
       >
-        <span className="shrink-0 ">
+        <span className="shrink-0">
           <House />
         </span>
-        <span
-          className={`
-            whitespace-nowrap overflow-hidden`}
-        >
-          Thanh Xuân
-        </span>
+        {!isCollapsed && (
+          <span className="whitespace-nowrap overflow-hidden">Thanh Xuân</span>
+        )}
       </div>
+      {/* Nút toggle thu/mở */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="flex items-center justify-center py-2 hover:bg-gray-700 border-b border-gray-700 cursor-pointer"
+        title={isCollapsed ? 'Mở rộng' : 'Thu gọn'}
+      >
+        {isCollapsed ? (
+          <ChevronRight className="w-4 h-4" />
+        ) : (
+          <ChevronLeft className="w-4 h-4" />
+        )}
+      </button>
       <nav className="flex-1 mt-3">
         {optionSidebar.map((sidebar, i) => {
           const hasSubMenu = !!sidebar.subMenu?.length;
@@ -155,40 +173,40 @@ const Sidebar = () => {
           return (
             <div key={i}>
               {/* ROW CHA */}
-              <div className={`flex items-center gap-2`}>
+              <div className={`flex items-center`}>
                 <Link
                   href={sidebar.url}
-                  className={`flex-1 flex items-center gap-2 px-4 py-3 hover:bg-gray-700
-                    ${
-                      pathName === sidebar.url ||
-                      isActive ||
-                      (isActive && pathName.endsWith(`${params.id}`))
-                        ? 'bg-gray-700'
-                        : ''
-                    }`}
+                  title={isCollapsed ? sidebar.label : undefined}
+                  className={`flex-1 flex items-center gap-2 px-4 py-3 hover:bg-gray-700 ${
+                    isCollapsed ? 'justify-center' : ''
+                  } ${
+                    pathName === sidebar.url ||
+                    isActive ||
+                    (isActive && pathName.endsWith(`${params.id}`))
+                      ? 'bg-gray-700'
+                      : ''
+                  }`}
                 >
                   <span className="shrink-0">{sidebar.icon}</span>
-                  <span
-                    className={`
-                      whitespace-nowrap overflow-hidden
-                      transition-all duration-1000 ease-in-out`}
-                  >
-                    {sidebar.label}
-                  </span>
-
-                  {/* Nút toggle dropdown (chỉ hiện nếu có submenu & đang mở sidebar) */}
-                  {hasSubMenu && (
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform ${
-                        isSubOpen ? 'rotate-180' : ''
-                      }`}
-                    />
+                  {!isCollapsed && (
+                    <>
+                      <span className="whitespace-nowrap overflow-hidden flex-1">
+                        {sidebar.label}
+                      </span>
+                      {hasSubMenu && (
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform ${
+                            isSubOpen ? 'rotate-180' : ''
+                          }`}
+                        />
+                      )}
+                    </>
                   )}
                 </Link>
               </div>
 
               {/* SUBMENU */}
-              {hasSubMenu && isSubOpen && (
+              {hasSubMenu && isSubOpen && !isCollapsed && (
                 <div>
                   {sidebar.subMenu!.map((sub, idx) => {
                     const isSubActive =
@@ -226,19 +244,15 @@ const Sidebar = () => {
       <form action="/auth/logout" method="post">
         <button
           type="submit"
-          className={`w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 flex items-center justify-center text-lg cursor-pointer`}
+          title={isCollapsed ? 'Thoát' : undefined}
+          className={`w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 flex items-center justify-center gap-2 text-lg cursor-pointer`}
         >
           <span className="shrink-0">
             <LogOut />
           </span>
-          <span
-            className={`
-              whitespace-nowrap overflow-hidden
-              transition-all duration-500 ease-in-out
-            `}
-          >
-            Thoát
-          </span>
+          {!isCollapsed && (
+            <span className="whitespace-nowrap overflow-hidden">Thoát</span>
+          )}
         </button>
       </form>
     </aside>
