@@ -19,7 +19,7 @@ export default function AdminTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
+      <table className="w-max min-w-full text-sm">
         <thead>{thead}</thead>
         <tbody>{tbody}</tbody>
       </table>
