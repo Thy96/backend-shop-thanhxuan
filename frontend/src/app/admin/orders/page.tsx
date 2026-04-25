@@ -49,7 +49,7 @@ export default async function MyOrdersPage({
         <p className="text-gray-500 italic">Không có đơn hàng</p>
       )}
 
-      <div className="space-y-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
         {orders.map((order: OrderProps, index: number) => (
           <div
             key={order._id}
@@ -131,7 +131,12 @@ export default async function MyOrdersPage({
 
                   {/* Product info */}
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-800">{item.name}</p>
+                    <p
+                      className="font-semibold text-gray-800 truncate max-w-[260px]"
+                      title={item.name}
+                    >
+                      {item.name}
+                    </p>
                     <p className="text-sm text-gray-500">
                       Đơn giá: {formatNumber(item.price)} đ
                     </p>

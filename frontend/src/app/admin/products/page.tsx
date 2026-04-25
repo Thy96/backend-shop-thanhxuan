@@ -72,11 +72,15 @@ export default async function ProductsPage({
             <tr className="text-gray-500 border-b-1 border-b-blue-100 text-left">
               <th className="px-1 py-4 text-center w-[50]">STT</th>
               <th className="px-4 py-4 text-center">Tiêu đề</th>
-              <th className="px-1 py-4 w-[130]">Tác giả</th>
+              <th className="hidden lg:table-cell px-1 py-4 w-[130]">
+                Tác giả
+              </th>
               <th className="px-1 py-4 w-[130]">Giá</th>
               <th className="px-1 py-4 w-[130]">Chuyên mục</th>
-              <th className="px-1 py-4 w-[130]">Ngày tạo</th>
-              <th className="px-1 py-4 w-[80]">Tồn kho</th>
+              <th className="hidden lg:table-cell px-1 py-4 w-[130]">
+                Ngày tạo
+              </th>
+              <th className="hidden lg:table-cell px-1 py-4 w-[80]">Tồn kho</th>
               <th className="px-1 py-4 w-[80]">Điểm</th>
               <th className="px-4 py-4 text-right w-[150]"></th>
             </tr>
@@ -91,8 +95,12 @@ export default async function ProductsPage({
               <td className="px-1 py-4 text-center">
                 {(pagination.page - 1) * limit + index + 1}
               </td>
-              <td className="px-4 py-4">{product.title}</td>
-              <td className="px-1 py-4">
+              <td className="px-4 py-4 max-w-[220px]">
+                <p className="truncate" title={product.title}>
+                  {product.title}
+                </p>
+              </td>
+              <td className="hidden lg:table-cell px-1 py-4">
                 <p>{product.author?.fullName}</p>
                 {product.updatedBy?.fullName ? (
                   <>
@@ -132,10 +140,12 @@ export default async function ProductsPage({
                   .map((c: CategoryOption) => c.name)
                   .join(', ') || '—'}
               </td>
-              <td className="px-1 py-4">
+              <td className="hidden lg:table-cell px-1 py-4">
                 {formatDate(product.createdAt, product.updatedAt)}
               </td>
-              <td className="px-1 py-4 text-center">{product.stock}</td>
+              <td className="hidden lg:table-cell px-1 py-4 text-center">
+                {product.stock}
+              </td>
               <td className="px-1 py-4 text-center">
                 <span className="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                   {formatNumber(product.points ?? 0)}

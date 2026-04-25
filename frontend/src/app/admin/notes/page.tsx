@@ -91,7 +91,11 @@ export default async function NotesPage({
               <td className="px-1 py-4 text-center">
                 {(pagination.page - 1) * limit + index + 1}
               </td>
-              <td className="px-4 py-4">{note.title}</td>
+              <td className="px-4 py-4 max-w-[220px]">
+                <p className="truncate" title={note.title}>
+                  {note.title}
+                </p>
+              </td>
               <td className="px-1 py-4">
                 <p>{note.author.fullName}</p>
                 {note.updatedBy?.fullName ? (

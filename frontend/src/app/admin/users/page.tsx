@@ -96,10 +96,14 @@ export default async function UsersPage({
               <th className="px-1 py-4 text-center w-[50]">STT</th>
               <th className="px-4 py-4 text-center w-[200]">Họ và tên</th>
               <th className="px-1 py-4 text-center w-[70]">Điểm</th>
-              <th className="px-1 py-4 text-center w-[200]">Tài khoản</th>
+              <th className="px-1 py-4 hidden lg:table-cell text-center w-[200]">
+                Tài khoản
+              </th>
               <th className="px-1 py-4 text-center w-[130]">SDT</th>
               <th className="px-1 py-4 w-[100]">Chức vụ</th>
-              <th className="px-1 py-4 w-[160]">Ngày tạo</th>
+              <th className="px-1 py-4 hidden lg:table-cell w-[160]">
+                Ngày tạo
+              </th>
               <th className="px-1 py-4 w-[100] text-center">Xác thực</th>
               <th className="px-1 py-4 w-[100] text-center">Trạng thái</th>
               {isAdmin && <th className="px-4 py-4 text-right w-[150]"></th>}
@@ -123,13 +127,13 @@ export default async function UsersPage({
                     {formatNumber(user.points ?? 0)}
                   </span>
                 </td>
-                <td className="px-1 py-4">{user.email}</td>
+                <td className="px-1 py-4 hidden lg:table-cell">{user.email}</td>
                 <td className="px-1 py-4 text-center">{user.phone}</td>
                 <td className="px-1 py-4">
                   {ROLE_OPTIONS.find((r) => r.value === user.role)?.label ??
                     user.role}
                 </td>
-                <td className="px-1 py-4">
+                <td className="px-1 py-4 hidden lg:table-cell">
                   {formatDate(user.createdAt, user.updatedAt)}
                 </td>
                 <td className="px-1 py-4">
