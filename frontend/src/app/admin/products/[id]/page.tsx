@@ -78,7 +78,7 @@ export default async function ProductDetailPage({
             </Link>
             <Link
               href="/admin/products"
-              className="rounded-md bg-gray-500 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-600 transition inline-block"
+              className="rounded-md bg-gray-500 px-4 py-2 text-sm font-medium text-white hover:bg-gray-600 transition inline-block"
             >
               Quay lại
             </Link>

@@ -106,7 +106,7 @@ export default async function ProductsPage({
                     </span>
                   </>
                 ) : (
-                  '—'
+                  ''
                 )}
               </td>
               <td className="px-1 py-4">

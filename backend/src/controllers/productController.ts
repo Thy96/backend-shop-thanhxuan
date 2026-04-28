@@ -363,9 +363,16 @@ export const getProductById = async (req: Request, res: Response) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: 'ID không hợp lệ' });
     }
-    const product = await ProductModel.findById(req.params.id);
+    const product = await ProductModel.findById(req.params.id)
+      .populate('categoryIds', '_id name slug')
+      .populate('author', '_id fullName email')
+      .populate('updatedBy', '_id fullName email')
+      .lean();
     if (!product) return res.status(404).json({ message: 'Không tìm thấy product' });
-    res.json(product);
+
+    // Đổi tên categoryIds → categories để frontend dùng nhất quán
+    const { categoryIds, ...rest } = product as any;
+    res.json({ ...rest, categories: categoryIds ?? [] });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server khi lấy product' });
   }
