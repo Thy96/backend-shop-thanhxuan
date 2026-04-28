@@ -1,5 +1,6 @@
 import express from "express";
 import { getAll, postProduct, getProductById, updateProduct, getTrashProducts, forceDeleteProduct, moveProductToTrash, restoreProduct, getPublishProducts, getTrashProductCount } from "../controllers/productController";
+import { getCommentsByProduct, deleteComment, createComment } from "../controllers/productCommentController";
 import { upload } from "../lib/config/upload";
 import { authenticate, authorize } from '../middlewares/auth';
 
@@ -34,5 +35,10 @@ router.patch('/:id/restore', authenticate, authorize('admin', 'editor'), restore
 router.delete('/:id/force', authenticate, authorize('admin', 'editor'), forceDeleteProduct);
 
 router.get('/:id', getProductById);
+
+/* ====== COMMENTS ====== */
+router.get('/:productId/comments', authenticate, authorize('admin', 'editor'), getCommentsByProduct);
+router.post('/:productId/comments', authenticate, createComment);
+router.delete('/:productId/comments/:commentId', authenticate, authorize('admin', 'editor'), deleteComment);
 
 export default router;

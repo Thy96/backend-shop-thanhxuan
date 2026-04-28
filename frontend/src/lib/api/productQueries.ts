@@ -110,3 +110,34 @@ export async function getProductById(id: string) {
         throw error;
     }
 }
+
+export async function getProductComments(productId: string, page = 1, limit = 10) {
+    try {
+        const cookieStore = await cookies();
+        const cookieHeader = cookieStore
+            .getAll()
+            .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+            .join('; ');
+
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const res = await fetch(
+            `${apiUrl}/api/admin/products/${productId}/comments?page=${page}&limit=${limit}`,
+            {
+                cache: 'no-store',
+                credentials: 'include',
+                headers: { cookie: cookieHeader },
+            }
+        );
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('[getProductComments] API Error:', res.status, errorText);
+            throw new Error(`API Error ${res.status}: Không thể lấy bình luận`);
+        }
+
+        return await res.json();
+    } catch (error) {
+        console.error('[getProductComments] Exception:', error);
+        throw error;
+    }
+}

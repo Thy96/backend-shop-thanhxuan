@@ -147,6 +147,7 @@ export default async function ProductsPage({
               </td>
               <td className="px-4 py-4 text-right">
                 <AdminRowActions
+                  detailHref={`/admin/products/${product._id}`}
                   editHref={`/admin/products/edit/${product._id}`}
                   onDelete={
                     <RemoveButton

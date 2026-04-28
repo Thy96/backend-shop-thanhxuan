@@ -20,10 +20,25 @@ export interface ProductProps {
   sale: number;
   stock: number;
   points: number;
+  status: string;
   categoryIds: (string | CategoryOption)[];
   categories: CategoryOption[];
   author: UserOption;
   updatedBy: UserOption;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductComment {
+  _id: string;
+  productId: string;
+  userId: {
+    _id: string;
+    fullName?: string;
+    email: string;
+  };
+  content: string;
+  rating: number;
   createdAt: string;
   updatedAt: string;
 }
