@@ -8,6 +8,7 @@ import { getProductById, getProductComments } from '@/lib/api/productQueries';
 import { ProductProps, ProductComment, PaginationProps } from '@/lib/types';
 import { getPaginationRange } from '@/utils/format/pagination';
 import { finalPrice, formatDate, formatNumber } from '@/utils/format/format';
+import { API_URL } from '@/utils/helps';
 
 import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
 import AdminCard from '@/components/layout/Admin/AdminCard';
@@ -62,7 +63,6 @@ export default async function ProductDetailPage({
   }
 
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
-  const thumbnail = product!.images?.[0];
 
   return (
     <>
@@ -95,11 +95,11 @@ export default async function ProductDetailPage({
               {product!.images.map((img, idx) => (
                 <Image
                   key={idx}
-                  src={img}
-                  width={100}
-                  height={100}
+                  src={img.startsWith('http') ? img : `${API_URL}${img}`}
+                  width={128}
+                  height={128}
                   alt={`${product!.title} - ảnh ${idx + 1}`}
-                  className="w-full h-32 object-cover rounded-lg border"
+                  className="w-32 h-32 object-cover rounded-lg border border-gray-200"
                 />
               ))}
             </div>
