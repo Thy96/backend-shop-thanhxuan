@@ -27,6 +27,7 @@ interface ProductDetail {
   stock: number;
   points: number;
   status: string;
+  categories: CategoryOption[];
   categoryIds: (string | CategoryOption)[];
   content: OutputData;
   images: string[];
@@ -84,9 +85,10 @@ export default function EditProductPage() {
           sale: product.sale,
           stock: product.stock,
           points: product.points ?? 0,
-          categoryIds: (product.categoryIds || []).map((c) =>
-            typeof c === 'string' ? c : (c as CategoryOption)._id,
-          ),
+          categoryIds: (product.categories?.length
+            ? product.categories
+            : product.categoryIds || []
+          ).map((c) => (typeof c === 'string' ? c : (c as CategoryOption)._id)),
           status: product.status || 'draft',
         });
         if (product.images?.length) setExistingImages(product.images);
