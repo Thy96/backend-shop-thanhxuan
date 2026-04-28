@@ -12,6 +12,7 @@ import { finalPrice, formatDate, formatNumber } from '@/utils/format/format';
 import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
 import AdminCard from '@/components/layout/Admin/AdminCard';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import { CategoryOption } from '@/utils/format/category';
 
 const STAR_FILLED = '★';
 const STAR_EMPTY = '☆';
@@ -77,9 +78,9 @@ export default async function ProductDetailPage({
             </Link>
             <Link
               href="/admin/products"
-              className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition inline-block"
+              className="rounded-md bg-gray-500 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-600 transition inline-block"
             >
-              ← Quay lại
+              Quay lại
             </Link>
           </div>
         }
@@ -157,13 +158,24 @@ export default async function ProductDetailPage({
             <div>
               <span className="text-gray-500">Danh mục:</span>
               <p className="mt-0.5">
-                {(product!.categories || []).map((c) => c.name).join(', ') ||
-                  '—'}
+                {(product.categories || [])
+                  .map((c: CategoryOption) => c.name)
+                  .join(', ') || '—'}
               </p>
             </div>
             <div>
               <span className="text-gray-500">Tác giả:</span>
-              <p className="mt-0.5">{product!.author?.fullName || '—'}</p>
+              <p className="mt-0.5">{product.author?.fullName}</p>
+              {product.updatedBy?.fullName ? (
+                <>
+                  Người sửa:{' '}
+                  <span className="font-bold">
+                    {product.updatedBy?.fullName}
+                  </span>
+                </>
+              ) : (
+                '—'
+              )}
             </div>
           </div>
         </div>

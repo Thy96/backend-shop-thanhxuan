@@ -10,7 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:admin": "ts-node scripts/seedAdmin.ts",
     "reset:pass": "ts-node scripts/resetPassword.ts",
-    "seed:orders-user": "ts-node scripts/seedOrdersForUser.ts"
+    "seed:orders-user": "ts-node scripts/seedOrdersForUser.ts",
+    "seed:comments-user": "ts-node scripts/seedCommentsForUser.ts"
   },
   "keywords": [],
   "author": "",
