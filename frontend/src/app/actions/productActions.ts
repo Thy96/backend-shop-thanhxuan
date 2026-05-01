@@ -1,6 +1,5 @@
 'use server';
 
-import type { OutputData } from '@editorjs/editorjs';
 import { cookies } from 'next/headers';
 
 // Helper function to get auth token
@@ -8,57 +7,6 @@ async function getAuthToken(): Promise<string | null> {
     const cookieStore = await cookies();
     const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'access_token';
     return cookieStore.get(cookieName)?.value || null;
-}
-
-// Server Actions (mutations - dùng được từ client components)
-export async function serverCreateProduct(formData: FormData) {
-    try {
-        const token = await getAuthToken();
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
-        const res = await fetch(`${apiUrl}/api/admin/products`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                ...(token && { 'Authorization': `Bearer ${token}` }),
-            },
-        });
-
-        if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(`API Error ${res.status}: ${errorText}`);
-        }
-
-        return await res.json();
-    } catch (error) {
-        console.error('[serverCreateProduct] Exception:', error);
-        throw error;
-    }
-}
-
-export async function serverUpdateProduct(id: string, formData: FormData) {
-    try {
-        const token = await getAuthToken();
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
-        const res = await fetch(`${apiUrl}/api/admin/products/${id}`, {
-            method: 'PUT',
-            body: formData,
-            headers: {
-                ...(token && { 'Authorization': `Bearer ${token}` }),
-            },
-        });
-
-        if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(`API Error ${res.status}: ${errorText}`);
-        }
-
-        return await res.json();
-    } catch (error) {
-        console.error('[serverUpdateProduct] Exception:', error);
-        throw error;
-    }
 }
 
 export async function serverMoveProductToTrash(id: string) {

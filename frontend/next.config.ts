@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         hostname: "backend-shop-thanhxuan.onrender.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
     ],
   },
 

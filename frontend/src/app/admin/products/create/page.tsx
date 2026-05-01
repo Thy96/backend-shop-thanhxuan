@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import type { OutputData } from '@editorjs/editorjs';
-import { serverCreateProduct } from '@/app/actions/productActions';
 
 import { ChevronLeft } from 'lucide-react';
 import { CategoryOption } from '@/utils/format/category';
@@ -144,7 +143,17 @@ export default function CreateProductPage() {
       );
       images.forEach((img) => fd.append('images', img.file));
 
-      await serverCreateProduct(fd);
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        body: fd,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Lỗi ${res.status}`);
+      }
+
       startTransition(() => {
         router.push('/admin/products');
       });
