@@ -10,6 +10,7 @@ cloudinary.config({
 
 // Upload buffer lên Cloudinary, trả về secure_url
 export async function uploadToCloudinary(buffer: Buffer): Promise<string> {
+  console.log('[uploadToCloudinary] buffer size:', buffer?.length ?? 'undefined');
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -17,8 +18,13 @@ export async function uploadToCloudinary(buffer: Buffer): Promise<string> {
         transformation: [{ quality: "auto", fetch_format: "auto" }],
       },
       (error, result) => {
-        if (error || !result) reject(error ?? new Error("Cloudinary upload failed"));
-        else resolve(result.secure_url);
+        if (error || !result) {
+          console.error('[uploadToCloudinary] error:', error);
+          reject(error ?? new Error("Cloudinary upload failed"));
+        } else {
+          console.log('[uploadToCloudinary] success url:', result.secure_url);
+          resolve(result.secure_url);
+        }
       }
     );
     stream.end(buffer);

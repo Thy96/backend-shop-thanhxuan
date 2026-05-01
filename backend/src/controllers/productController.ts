@@ -428,9 +428,12 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   try {
     // Upload ảnh lên Cloudinary
     let images: string[] = [];
+    console.log('[postProduct] req.files keys:', req.files ? Object.keys(req.files) : 'undefined');
     if (req.files && 'images' in req.files) {
       const imagesArray = req.files['images'] as Express.Multer.File[];
+      console.log('[postProduct] images count:', imagesArray.length, '| buffers:', imagesArray.map(f => f.buffer?.length ?? 'no buffer'));
       images = await Promise.all(imagesArray.map(file => uploadToCloudinary(file.buffer)));
+      console.log('[postProduct] cloudinary urls:', images);
     }
 
     const newProduct = new ProductModel({
