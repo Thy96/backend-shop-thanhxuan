@@ -381,18 +381,12 @@ export const getProductById = async (req: Request, res: Response) => {
 
 // tạo sản phẩm mới
 export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
-  console.log('📦 req.body:', req.body); // Debug
   const {
     title, content, price, sale, stock, points, categoryIds, status } = req.body;
   const userId = req.user?.uid;
 
   if (!userId) {
     return res.status(401).json({ message: 'Unauthorized' });
-  }
-  let images: string[] = [];
-  if (req.files && 'images' in req.files) {
-    const imagesArray = req.files['images'] as Express.Multer.File[];
-    images = await Promise.all(imagesArray.map(file => uploadToCloudinary(file.buffer)));
   }
 
   if (!title || !title.trim()) {
@@ -407,7 +401,6 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ message: "Nội dung không hợp lệ (JSON)" });
   }
 
-  // 3️⃣ Validate EditorJS blocks
   if (
     !parsedContent ||
     !Array.isArray(parsedContent.blocks) ||
@@ -427,13 +420,19 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ message: "categoryIds không hợp lệ" });
   }
 
-  // ✅ Convert number
   const stockNumber = Number(stock) || 0;
   const priceNumber = Number(price) || 0;
   const saleNumber = Number(sale) || 0;
   const pointsNumber = Number(points) || 0;
 
   try {
+    // Upload ảnh lên Cloudinary
+    let images: string[] = [];
+    if (req.files && 'images' in req.files) {
+      const imagesArray = req.files['images'] as Express.Multer.File[];
+      images = await Promise.all(imagesArray.map(file => uploadToCloudinary(file.buffer)));
+    }
+
     const newProduct = new ProductModel({
       images,
       title: title.trim(),
@@ -451,16 +450,16 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
 
     return res.status(201).json(savedProduct);
 
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[postProduct] error:', error);
     return res.status(500).json({
-      message: 'Không thể tạo product (lỗi server)',
+      message: error?.message || 'Không thể tạo product (lỗi server)',
     });
   }
 }
 
 // Cập nhật sản phẩm
 export const updateProduct = async (req: AuthenticatedRequest, res: Response) => {
-  // console.log('📦 req.body:', req.body);
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ message: 'ID không hợp lệ' });
   }
@@ -468,31 +467,16 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
     title, content, price, sale, stock, points, categoryIds, status, existingImages } = req.body;
   const userId = req.user?.uid;
 
-  // Ảnh cũ giữ lại
-  const keptImages: string[] = existingImages
-    ? Array.isArray(existingImages) ? existingImages : [existingImages]
-    : [];
-
-  // Ảnh mới upload lên Cloudinary
-  let newImages: string[] = [];
-  if (req.files && 'images' in req.files) {
-    const imagesArray = req.files['images'] as Express.Multer.File[];
-    newImages = await Promise.all(imagesArray.map(file => uploadToCloudinary(file.buffer)));
-  }
-
-  const images = [...keptImages, ...newImages];
-
   if (!title || !title.trim()) {
     return res.status(400).json({ message: "Vui lòng nhập tiêu đề" });
   }
 
-  // ✅ Convert number
   const stockNumber = Number(stock) || 0;
   const priceNumber = Number(price) || 0;
   const saleNumber = Number(sale) || 0;
   const pointsNumber = Number(points) || 0;
 
-  let parsedContent
+  let parsedContent;
   try {
     parsedContent =
       typeof content === "string" ? JSON.parse(content) : content;
@@ -501,6 +485,20 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   }
 
   try {
+    // Ảnh cũ giữ lại
+    const keptImages: string[] = existingImages
+      ? Array.isArray(existingImages) ? existingImages : [existingImages]
+      : [];
+
+    // Ảnh mới upload lên Cloudinary
+    let newImages: string[] = [];
+    if (req.files && 'images' in req.files) {
+      const imagesArray = req.files['images'] as Express.Multer.File[];
+      newImages = await Promise.all(imagesArray.map(file => uploadToCloudinary(file.buffer)));
+    }
+
+    const images = [...keptImages, ...newImages];
+
     const rawUpdateIds = Array.isArray(categoryIds) ? categoryIds : (categoryIds ? [categoryIds] : []);
     const parsedUpdateIds = rawUpdateIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
     const updateData: any = { title, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryIds: parsedUpdateIds, status, updatedBy: userId, images };
@@ -511,9 +509,10 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
     );
     if (!updatedProduct) return res.status(404).json({ message: 'Không tìm thấy product để cập nhật' });
     res.json(updatedProduct);
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[updateProduct] error:', error);
     return res.status(500).json({
-      message: 'Lỗi server khi cập nhật'
+      message: error?.message || 'Lỗi server khi cập nhật'
     });
   }
 }

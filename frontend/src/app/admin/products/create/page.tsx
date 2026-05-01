@@ -220,12 +220,6 @@ export default function CreateProductPage() {
               required
             />
 
-            <Editor
-              onReady={(editor) => {
-                editorRef.current = editor;
-              }}
-            />
-
             <div className="grid grid-cols-4 gap-2">
               <Input
                 id="price"
@@ -280,6 +274,12 @@ export default function CreateProductPage() {
                 onFocus={(e) => e.target.select()}
               />
             </div>
+
+            <Editor
+              onReady={(editor) => {
+                editorRef.current = editor;
+              }}
+            />
           </div>
 
           <div className="block">
