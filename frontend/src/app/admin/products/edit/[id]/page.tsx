@@ -176,20 +176,21 @@ export default function EditProductPage() {
         throw new Error('Vui lòng nhập nội dung');
       }
 
-      const data = {
-        title: formData.title,
-        content,
-        price: formData.price,
-        sale: formData.sale,
-        stock: formData.stock,
-        points: formData.points,
-        categoryIds: formData.categoryIds,
-        status: formData.status,
-        existingImages,
-        images: newImages.length > 0 ? newImages.map((img) => img.file) : null,
-      };
+      const fd = new FormData();
+      fd.append('title', formData.title);
+      fd.append('content', JSON.stringify(content));
+      fd.append('price', String(formData.price));
+      fd.append('sale', String(formData.sale));
+      fd.append('stock', String(formData.stock));
+      fd.append('points', String(formData.points));
+      fd.append('status', formData.status);
+      formData.categoryIds.forEach((cid: string) =>
+        fd.append('categoryIds', cid),
+      );
+      existingImages.forEach((url) => fd.append('existingImages', url));
+      newImages.forEach((img) => fd.append('images', img.file));
 
-      await serverUpdateProduct(id, data);
+      await serverUpdateProduct(id, fd);
       startTransition(() => {
         router.push('/admin/products');
       });

@@ -131,19 +131,20 @@ export default function CreateProductPage() {
         throw new Error('Vui lòng nhập nội dung');
       }
 
-      const data = {
-        images: images.map((img) => img.file),
-        title: formData.title,
-        content,
-        price: formData.price,
-        sale: formData.sale,
-        stock: formData.stock,
-        points: formData.points,
-        categoryIds: formData.categoryIds,
-        status: formData.status,
-      };
+      const fd = new FormData();
+      fd.append('title', formData.title);
+      fd.append('content', JSON.stringify(content));
+      fd.append('price', String(formData.price));
+      fd.append('sale', String(formData.sale));
+      fd.append('stock', String(formData.stock));
+      fd.append('points', String(formData.points));
+      fd.append('status', formData.status);
+      formData.categoryIds.forEach((id: string) =>
+        fd.append('categoryIds', id),
+      );
+      images.forEach((img) => fd.append('images', img.file));
 
-      await serverCreateProduct(data);
+      await serverCreateProduct(fd);
       startTransition(() => {
         router.push('/admin/products');
       });
