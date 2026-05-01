@@ -10,7 +10,18 @@ cloudinary.config({
 
 // Upload buffer lên Cloudinary, trả về secure_url
 export async function uploadToCloudinary(buffer: Buffer): Promise<string> {
+  // Validate credentials before attempting upload
+  const cfg = cloudinary.config();
+  if (!cfg.cloud_name || !cfg.api_key || !cfg.api_secret) {
+    throw new Error("Cloudinary credentials chưa được cấu hình (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)");
+  }
+
   console.log('[uploadToCloudinary] buffer size:', buffer?.length ?? 'undefined');
+
+  if (!buffer || buffer.length === 0) {
+    throw new Error("File buffer rỗng, không thể upload");
+  }
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -19,8 +30,13 @@ export async function uploadToCloudinary(buffer: Buffer): Promise<string> {
       },
       (error, result) => {
         if (error || !result) {
-          console.error('[uploadToCloudinary] error:', error);
-          reject(error ?? new Error("Cloudinary upload failed"));
+          console.error('[uploadToCloudinary] error:', JSON.stringify(error));
+          // Cloudinary v1 error có thể là plain object, extract message
+          const msg = (error as any)?.message
+            || (error as any)?.error?.message
+            || JSON.stringify(error)
+            || "Cloudinary upload thất bại";
+          reject(new Error(msg));
         } else {
           console.log('[uploadToCloudinary] success url:', result.secure_url);
           resolve(result.secure_url);
