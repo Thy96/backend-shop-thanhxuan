@@ -1,20 +1,23 @@
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 
-// Config Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 // Upload buffer lên Cloudinary, trả về secure_url
 export async function uploadToCloudinary(buffer: Buffer): Promise<string> {
-  // Validate credentials before attempting upload
-  const cfg = cloudinary.config();
-  if (!cfg.cloud_name || !cfg.api_key || !cfg.api_secret) {
-    throw new Error("Cloudinary credentials chưa được cấu hình (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)");
+  // Đọc env vars tại thời điểm gọi hàm (không phải module load time)
+  const cloud_name = process.env.CLOUDINARY_CLOUD_NAME;
+  const api_key = process.env.CLOUDINARY_API_KEY;
+  const api_secret = process.env.CLOUDINARY_API_SECRET;
+
+  console.log('[uploadToCloudinary] cloud_name:', cloud_name ? 'set' : 'MISSING', '| api_key:', api_key ? 'set' : 'MISSING', '| api_secret:', api_secret ? 'set' : 'MISSING');
+
+  if (!cloud_name || !api_key || !api_secret) {
+    throw new Error(
+      `Cloudinary credentials chưa được cấu hình: cloud_name=${cloud_name ?? 'missing'}, api_key=${api_key ? 'set' : 'missing'}, api_secret=${api_secret ? 'set' : 'missing'}`
+    );
   }
+
+  // Cấu hình lại mỗi lần để đảm bảo dùng giá trị mới nhất
+  cloudinary.config({ cloud_name, api_key, api_secret });
 
   console.log('[uploadToCloudinary] buffer size:', buffer?.length ?? 'undefined');
 
