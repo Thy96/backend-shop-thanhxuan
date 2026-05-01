@@ -1,6 +1,5 @@
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 // Config Cloudinary
 cloudinary.config({
@@ -9,15 +8,22 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Cloudinary storage
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "shop-thanhxuan",
-    allowed_formats: ["jpeg", "jpg", "png", "gif", "webp"],
-    transformation: [{ quality: "auto", fetch_format: "auto" }],
-  } as any,
-});
+// Upload buffer lên Cloudinary, trả về secure_url
+export async function uploadToCloudinary(buffer: Buffer): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "shop-thanhxuan",
+        transformation: [{ quality: "auto", fetch_format: "auto" }],
+      },
+      (error, result) => {
+        if (error || !result) reject(error ?? new Error("Cloudinary upload failed"));
+        else resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
+  });
+}
 
 const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedTypes = /jpeg|jpg|png|gif|webp/;
@@ -31,7 +37,7 @@ const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.
 };
 
 export const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn 5MB
 });

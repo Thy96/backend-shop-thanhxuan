@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import ProductModel from '../models/productModel';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../types/auth';
+import { uploadToCloudinary } from '../lib/config/upload';
 
 // Lấy tất cả sản phẩm
 export const getAll = async (req: Request, res: Response) => {
@@ -391,7 +392,7 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   let images: string[] = [];
   if (req.files && 'images' in req.files) {
     const imagesArray = req.files['images'] as Express.Multer.File[];
-    images = imagesArray.map(file => file.path);
+    images = await Promise.all(imagesArray.map(file => uploadToCloudinary(file.buffer)));
   }
 
   if (!title || !title.trim()) {
@@ -476,7 +477,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   let newImages: string[] = [];
   if (req.files && 'images' in req.files) {
     const imagesArray = req.files['images'] as Express.Multer.File[];
-    newImages = imagesArray.map(file => file.path);
+    newImages = await Promise.all(imagesArray.map(file => uploadToCloudinary(file.buffer)));
   }
 
   const images = [...keptImages, ...newImages];
