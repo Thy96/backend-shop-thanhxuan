@@ -13,6 +13,7 @@ import AdminPageHeader from '@/components/layout/Admin/AdminPageHeader';
 import AdminCard from '@/components/layout/Admin/AdminCard';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
 import { CategoryOption } from '@/utils/format/category';
+import { ChevronLeft } from 'lucide-react';
 
 const STAR_FILLED = '★';
 const STAR_EMPTY = '☆';
@@ -79,7 +80,7 @@ export default async function ProductDetailPage({
               href="/admin/products"
               className="rounded-md bg-gray-500 px-4 py-2 text-sm font-medium text-white hover:bg-gray-600 transition inline-block"
             >
-              Quay lại
+              <ChevronLeft width={23} height={23} /> Quay Lại
             </Link>
           </div>
         }
@@ -106,10 +107,10 @@ export default async function ProductDetailPage({
           )}
 
           {/* Details */}
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm break-words">
             <div>
               <span className="text-gray-500">Tiêu đề:</span>
-              <p className="font-semibold mt-0.5">{product!.title}</p>
+              <p className="font-semibold mt-0.5 truncate">{product!.title}</p>
             </div>
             <div>
               <span className="text-gray-500">Trạng thái:</span>

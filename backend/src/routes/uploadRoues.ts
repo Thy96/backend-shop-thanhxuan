@@ -9,8 +9,8 @@ router.post("/", upload.single("thumbnail"), (req: Request, res: Response) => {
     return res.status(400).json({ success: 0, message: "No file uploaded" });
   }
 
-  // Lưu ý: cần thêm "/" giữa host và path
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  // Cloudinary trả về URL trực tiếp qua req.file.path
+  const imageUrl = (req.file as any).path;
 
   return res.json({
     success: 1,

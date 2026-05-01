@@ -3,7 +3,6 @@ dotenv.config({ path: '.env.local' })
 
 import express from "express";
 import cors from "cors";
-import path from "path";
 import cookieParser from 'cookie-parser';
 
 import noteCategoryRoutes from "./routes/noteCategoryRoutes";
@@ -83,9 +82,6 @@ adminRouter.use('/dashboard', dashboardRoutes);
 adminRouter.use('/uploads', uploadRoutes);
 
 app.use('/api/admin', adminRouter);
-
-// Static
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use((req, res) => res.status(404).json({ message: 'Server đang được phát triển' }));
 // error handler

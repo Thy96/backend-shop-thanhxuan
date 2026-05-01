@@ -18,7 +18,7 @@ export default function AdminPageHeader({
     >
       <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
       <div className="text-right">{action}</div>
-      <div>Tổng số lượng: {count}</div>
+      {count ?? <div>Tổng số lượng: {count}</div>}
       <div>{children}</div>
     </div>
   );

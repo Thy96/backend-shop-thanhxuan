@@ -1,29 +1,27 @@
 import multer from "multer";
-import fs from "fs";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-// tạo đường dẫn uploads
-const uploadDir = path.join(__dirname, "../../../uploads");
+// Config Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// config multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9) + ext;
-    cb(null, uniqueName);
-  }
+// Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "shop-thanhxuan",
+    allowed_formats: ["jpeg", "jpg", "png", "gif", "webp"],
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
+  } as any,
 });
 
 const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const ext = path.extname(file.originalname).toLowerCase();
+  const ext = file.originalname.split(".").pop()?.toLowerCase() ?? "";
   const mime = file.mimetype.toLowerCase();
   if (allowedTypes.test(ext) && allowedTypes.test(mime)) {
     cb(null, true);
@@ -35,5 +33,5 @@ const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.
 export const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // Giới hạn 5MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn 5MB
 });
