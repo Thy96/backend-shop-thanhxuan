@@ -72,13 +72,13 @@ export default async function ProductDetailPage({
           <div className="flex gap-2 justify-end">
             <Link
               href={`/admin/products/edit/${id}`}
-              className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition inline-block"
+              className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 transition inline-block"
             >
               Chỉnh sửa
             </Link>
             <Link
               href="/admin/products"
-              className="rounded-md bg-gray-500 px-4 py-2 text-sm font-medium text-white hover:bg-gray-600 transition inline-block"
+              className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600 transition flex justify-center items-center"
             >
               <ChevronLeft width={23} height={23} /> Quay Lại
             </Link>

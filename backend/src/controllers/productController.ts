@@ -391,7 +391,7 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   let images: string[] = [];
   if (req.files && 'images' in req.files) {
     const imagesArray = req.files['images'] as Express.Multer.File[];
-    images = imagesArray.map(file => `/uploads/${file.filename}`);
+    images = imagesArray.map(file => file.path);
   }
 
   if (!title || !title.trim()) {
@@ -470,7 +470,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   let images: string[] = [];
   if (req.files && 'images' in req.files) {
     const imagesArray = req.files['images'] as Express.Multer.File[];
-    images = imagesArray.map(file => `/uploads/${file.filename}`);
+    images = imagesArray.map(file => file.path);
   }
 
   if (!title || !title.trim()) {
