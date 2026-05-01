@@ -89,6 +89,7 @@ export async function serverUpdateProduct(
         points: number;
         categoryIds: string[];
         status: string;
+        existingImages?: string[];
         images?: File[] | null;
     }
 ) {
@@ -98,6 +99,11 @@ export async function serverUpdateProduct(
         formData.append('content', JSON.stringify(product.content));
         formData.append('price', String(product.price));
         product.categoryIds.forEach(id => formData.append('categoryIds', id));
+
+        // Gửi danh sách ảnh cũ còn giữ lại
+        if (product.existingImages) {
+            product.existingImages.forEach(url => formData.append('existingImages', url));
+        }
 
         if (product.images) {
             product.images.forEach(file => formData.append('images', file));

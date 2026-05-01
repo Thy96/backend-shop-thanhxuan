@@ -185,6 +185,7 @@ export default function EditProductPage() {
         points: formData.points,
         categoryIds: formData.categoryIds,
         status: formData.status,
+        existingImages,
         images: newImages.length > 0 ? newImages.map((img) => img.file) : null,
       };
 
