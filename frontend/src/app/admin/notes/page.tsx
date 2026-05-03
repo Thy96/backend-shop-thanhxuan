@@ -18,16 +18,18 @@ import AdminCard from '@/components/layout/Admin/AdminCard';
 import AdminTable from '@/components/layout/Admin/AdminTable';
 import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import SortableHeader from '@/components/layout/Admin/SortableHeader';
 import RemoveButton from '@/components/ui/actions/RemoveButton';
 
 export default async function NotesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; status?: string }>;
+  searchParams: Promise<{ page?: string; status?: string; sortOrder?: string }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const status = params.status || '';
+  const sortOrder = params.sortOrder || 'desc';
   const limit = 10;
 
   const {
@@ -36,7 +38,7 @@ export default async function NotesPage({
   }: {
     data: NoteProps[];
     pagination: PaginationProps;
-  } = await getNotes(page, limit, status);
+  } = await getNotes(page, limit, status, sortOrder);
 
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
 
@@ -77,7 +79,16 @@ export default async function NotesPage({
               <th className="px-4 py-4 text-center">Tiêu đề</th>
               <th className="px-1 py-4 w-[130]">Tác giả</th>
               <th className="px-1 py-4 w-[130]">Chuyên mục</th>
-              <th className="px-1 py-4 text-center w-[130]">Ngày tạo</th>
+              <th className="px-1 py-4 w-[130]">
+                <SortableHeader
+                  label="Ngày tạo"
+                  field="createdAt"
+                  currentSortBy="createdAt"
+                  currentSortOrder={sortOrder}
+                  basePath="/admin/notes"
+                  extraParams={{ ...(status && { status }) }}
+                />
+              </th>
               <th className="px-4 py-4 text-right w-[150]"></th>
             </tr>
           }
@@ -140,7 +151,15 @@ export default async function NotesPage({
       </AdminCard>
 
       {/* Pagination */}
-      <AdminPagination pagination={pagination} pages={pages} page="notes" />
+      <AdminPagination
+        pagination={pagination}
+        pages={pages}
+        page="notes"
+        searchParams={{
+          ...(status && { status }),
+          sortOrder,
+        }}
+      />
     </>
   );
 }

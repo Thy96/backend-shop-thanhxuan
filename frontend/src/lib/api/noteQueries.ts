@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 
 // Server-side queries (dùng cookies)
-export async function getNotes(page = 1, limit = 10, status = '') {
+export async function getNotes(page = 1, limit = 10, status = '', sortOrder = 'desc') {
     try {
         const cookieStore = await cookies();
         const cookieHeader = cookieStore
@@ -12,6 +12,7 @@ export async function getNotes(page = 1, limit = 10, status = '') {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
         const query = new URLSearchParams({ page: String(page), limit: String(limit) });
         if (status) query.set('status', status);
+        query.set('sortOrder', sortOrder);
         console.log('[getNotes] Fetching from:', `${apiUrl}/api/admin/notes?${query.toString()}`);
 
         const res = await fetch(`${apiUrl}/api/admin/notes?${query.toString()}`, {

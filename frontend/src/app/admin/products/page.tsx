@@ -16,17 +16,25 @@ import AdminCard from '@/components/layout/Admin/AdminCard';
 import AdminTable from '@/components/layout/Admin/AdminTable';
 import AdminRowActions from '@/components/layout/Admin/AdminRowActions';
 import AdminPagination from '@/components/layout/Admin/AdminPagination';
+import SortableHeader from '@/components/layout/Admin/SortableHeader';
 import RemoveButton from '@/components/ui/actions/RemoveButton';
 import StatusFilter from '@/components/ui/filters/StatusFilter';
 
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; status?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const status = params.status || '';
+  const sortBy = params.sortBy || '';
+  const sortOrder = params.sortOrder || 'desc';
   const limit = 10;
 
   const {
@@ -35,7 +43,7 @@ export default async function ProductsPage({
   }: {
     data: ProductProps[];
     pagination: PaginationProps;
-  } = await getProducts(page, limit, status);
+  } = await getProducts(page, limit, status, sortBy, sortOrder);
 
   const pages = getPaginationRange(pagination.page, pagination.totalPages);
 
@@ -73,9 +81,27 @@ export default async function ProductsPage({
               <th className="px-1 py-4 text-center w-[50]">STT</th>
               <th className="px-4 py-4 text-center">Tiêu đề</th>
               <th className="px-1 py-4 w-[130]">Tác giả</th>
-              <th className="px-1 py-4 w-[130]">Giá</th>
+              <th className="px-1 py-4 w-[130]">
+                <SortableHeader
+                  label="Giá"
+                  field="price"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  basePath="/admin/products"
+                  extraParams={{ ...(status && { status }) }}
+                />
+              </th>
               <th className="px-1 py-4 w-[130]">Chuyên mục</th>
-              <th className="px-1 py-4 w-[130]">Ngày tạo</th>
+              <th className="px-1 py-4 w-[130]">
+                <SortableHeader
+                  label="Ngày tạo"
+                  field="createdAt"
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  basePath="/admin/products"
+                  extraParams={{ ...(status && { status }) }}
+                />
+              </th>
               <th className="px-1 py-4 w-[80]">Tồn kho</th>
               <th className="px-1 py-4 w-[80]">Điểm</th>
               <th className="px-4 py-4 text-right w-[150]"></th>
@@ -168,7 +194,15 @@ export default async function ProductsPage({
       </AdminCard>
 
       {/* Pagination */}
-      <AdminPagination pagination={pagination} pages={pages} page="products" />
+      <AdminPagination
+        pagination={pagination}
+        pages={pages}
+        page="products"
+        searchParams={{
+          ...(status && { status }),
+          ...(sortBy && { sortBy, sortOrder }),
+        }}
+      />
     </>
   );
 }

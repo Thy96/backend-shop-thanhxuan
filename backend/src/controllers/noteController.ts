@@ -27,6 +27,8 @@ export const getAll = async (req: Request, res: Response) => {
       matchStage.status = String(req.query.status);
     }
 
+    const sortOrder: 1 | -1 = req.query.sortOrder === 'asc' ? 1 : -1;
+
     const totalResult = await NoteModel.aggregate([
       { $match: matchStage },
       { $count: "total" }
@@ -58,7 +60,7 @@ export const getAll = async (req: Request, res: Response) => {
           }
         }
       },
-      { $sort: { createdAt: -1 } },
+      { $sort: { createdAt: sortOrder } },
       { $skip: skip },
       { $limit: limit },
       {

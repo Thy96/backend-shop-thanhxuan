@@ -31,10 +31,18 @@ export const getAll = async (req: Request, res: Response) => {
       matchStage.title = { $regex: String(req.query.keyword), $options: 'i' };
     }
 
+    const allowedSortFields = ['price', 'createdAt'];
+    const sortBy = allowedSortFields.includes(String(req.query.sortBy)) ? String(req.query.sortBy) : '';
+    const sortOrder: 1 | -1 = req.query.sortOrder === 'asc' ? 1 : -1;
+
     const total = await ProductModel.countDocuments(matchStage);
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const safePage = Math.min(page, totalPages);
     const skip = (safePage - 1) * limit;
+
+    const sortStage: Record<string, 1 | -1> = sortBy
+      ? { [sortBy]: sortOrder }
+      : { isInStock: -1, createdAt: -1 };
 
     const products = await ProductModel.aggregate([
       { $match: matchStage },
@@ -44,12 +52,7 @@ export const getAll = async (req: Request, res: Response) => {
           thumbnail: { $arrayElemAt: ["$images", 0] }
         }
       },
-      {
-        $sort: {
-          isInStock: -1,
-          createdAt: -1
-        }
-      },
+      { $sort: sortStage },
       { $skip: skip },
       { $limit: limit },
       {

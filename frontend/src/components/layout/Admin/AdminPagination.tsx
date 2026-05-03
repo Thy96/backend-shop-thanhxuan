@@ -6,13 +6,21 @@ interface AdminPaginationProps {
   pagination: PaginationProps;
   pages: (number | string)[];
   page: string;
+  searchParams?: Record<string, string>;
 }
 
 export default function AdminPagination({
   pagination,
   pages,
   page,
+  searchParams,
 }: AdminPaginationProps) {
+  const buildHref = (p: number | string) => {
+    const params = new URLSearchParams(searchParams || {});
+    params.set('page', String(p));
+    return `/admin/${page}?${params.toString()}`;
+  };
+
   return (
     <>
       {pagination.totalPages > 1 && (
@@ -28,7 +36,7 @@ export default function AdminPagination({
             ) : (
               <Link
                 key={p}
-                href={`/admin/${page}?page=${p}`}
+                href={buildHref(p)}
                 className={`px-3 py-1 rounded transition ${
                   pagination.page === p
                     ? 'border border-blue-600 bg-blue-600 text-white'
