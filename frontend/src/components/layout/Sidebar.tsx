@@ -90,7 +90,12 @@ const Sidebar = () => {
   const pathName = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [trashCounts, setTrashCounts] = useState<Record<string, number>>({});
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sidebar-collapsed') === 'true';
+    }
+    return false;
+  });
   const activeSlugs = ['edit', 'create'];
 
   useEffect(() => {
@@ -138,7 +143,11 @@ const Sidebar = () => {
       </div>
       {/* Nút toggle thu/mở */}
       <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={() => {
+          const next = !isCollapsed;
+          setIsCollapsed(next);
+          localStorage.setItem('sidebar-collapsed', String(next));
+        }}
         className="flex items-center justify-center py-2 hover:bg-gray-700 border-b border-gray-700 cursor-pointer"
         title={isCollapsed ? 'Mở rộng' : 'Thu gọn'}
       >
