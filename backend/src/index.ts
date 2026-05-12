@@ -53,7 +53,6 @@ const corsOptions: cors.CorsOptions = {
 };
 
 // Xử lý preflight OPTIONS trước tất cả route (quan trọng trên Vercel serverless)
-app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
 // Middleware để xử lý JSON
