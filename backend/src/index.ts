@@ -35,7 +35,7 @@ const allowedOrigins = [
   'https://shop-thanhxuan-deploy.vercel.app', // Customer website frontend
 ];
 
-app.use(cors({
+const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     // Cho phép requests không có origin (like mobile apps, curl, postman)
     if (!origin) return callback(null, true);
@@ -50,7 +50,11 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   credentials: true,
-}));
+};
+
+// Xử lý preflight OPTIONS trước tất cả route (quan trọng trên Vercel serverless)
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 // Middleware để xử lý JSON
 app.use(express.json());
