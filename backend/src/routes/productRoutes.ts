@@ -1,5 +1,5 @@
 import express from "express";
-import { getAll, postProduct, getProductById, updateProduct, getTrashProducts, forceDeleteProduct, moveProductToTrash, restoreProduct, getPublishProducts, getTrashProductCount } from "../controllers/productController";
+import { getAll, postProduct, getProductById, updateProduct, getTrashProducts, forceDeleteProduct, moveProductToTrash, restoreProduct, getPublishProducts, getTrashProductCount, getBestsellers } from "../controllers/productController";
 import { getCommentsByProduct, deleteComment, createComment } from "../controllers/productCommentController";
 import { upload } from "../lib/config/upload";
 import { authenticate, authorize } from '../middlewares/auth';
@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get('/', getAll);
 router.get('/publish', getPublishProducts);
+router.get('/bestsellers', getBestsellers);
 /* ====== TRASH ====== */
 router.get('/trash/count', getTrashProductCount);
 router.get('/trash', getTrashProducts);

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import ProductModel from '../models/productModel';
+import Order from '../models/orderProductModel';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../types/auth';
 import { uploadToCloudinary } from '../lib/config/upload';
@@ -242,6 +243,87 @@ export const getPublishProducts = async (req: Request, res: Response) => {
 
   } catch (error) {
     res.status(500).json({ message: "Lỗi server khi lấy product publish" });
+  }
+};
+
+export const getBestsellers = async (req: Request, res: Response) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
+
+    // Aggregate completed orders to find top product IDs by quantity sold
+    const topSold = await Order.aggregate([
+      { $match: { status: "completed" } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.product",
+          totalSold: { $sum: "$items.quantity" },
+        },
+      },
+      { $sort: { totalSold: -1 } },
+      { $limit: limit },
+    ]);
+
+    const productIds = topSold
+      .map((item) => item._id)
+      .filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+    // Lookup full product details and preserve bestseller order
+    const products = await ProductModel.aggregate([
+      {
+        $match: {
+          _id: { $in: productIds },
+          isDeleted: false,
+          status: "available",
+        },
+      },
+      {
+        $lookup: {
+          from: "productcategories",
+          localField: "categoryIds",
+          foreignField: "_id",
+          as: "categories",
+        },
+      },
+      {
+        $addFields: {
+          // Preserve the bestseller ranking order
+          __sortIndex: {
+            $indexOfArray: [productIds, "$_id"],
+          },
+          // First image string as thumbnail
+          thumbnail: { $arrayElemAt: ["$images", 0] },
+        },
+      },
+      { $sort: { __sortIndex: 1 } },
+      {
+        $project: {
+          _id: 0,
+          id: { $toString: "$_id" },
+          slug: 1,
+          images: 1,
+          title: 1,
+          category: {
+            $let: {
+              vars: { first: { $arrayElemAt: ["$categories", 0] } },
+              in: {
+                cate_id: { $toString: "$$first._id" },
+                cate_name: "$$first.name",
+                cate_slug: "$$first.slug",
+              },
+            },
+          },
+          price: 1,
+          sale: 1,
+          stock: 1,
+          thumbnail: 1,
+        },
+      },
+    ]);
+
+    res.json({ products });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server khi lấy bestsellers" });
   }
 };
 

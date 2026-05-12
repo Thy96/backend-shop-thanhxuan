@@ -3,6 +3,7 @@ import { ICategory, IUser } from "../types";
 
 export interface IProduct extends Document {
   _id: Types.ObjectId;
+  slug: string;
   images: string[];
   title: string;
   content: Object;
@@ -21,6 +22,11 @@ export interface IProduct extends Document {
 }
 
 const productSchema = new Schema({
+  slug: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
   images: {
     type: [String],
     default: []
