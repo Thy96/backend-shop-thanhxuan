@@ -3,6 +3,7 @@ import NoteModel from "../models/noteModel";
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from "../types/auth";
 import slugify from "slugify";
+import { uploadToCloudinary } from "../lib/config/upload";
 
 // Lấy tất cả bài viết
 export const getAll = async (req: Request, res: Response) => {
@@ -383,9 +384,12 @@ export const postNote = async (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ message: "categoryIds không hợp lệ" });
   }
 
-  const thumbnail = req.file ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` : undefined;
   const noteStatus = status && ['draft', 'published'].includes(status) ? status : 'draft';
   try {
+    let thumbnail: string | undefined;
+    if (req.file) {
+      thumbnail = await uploadToCloudinary(req.file.buffer);
+    }
     const newNote = new NoteModel({ thumbnail, title: title.trim(), slug, content: parsedContent, categoryIds: parsedCategoryIds, status: noteStatus, author: userId, });
 
     const savedNote = await newNote.save();
@@ -446,8 +450,8 @@ export const updateNote = async (req: AuthenticatedRequest, res: Response) => {
     let thumbnail = existingNote.thumbnail;
 
     if (req.file) {
-      // 🖼 Có upload ảnh mới
-      thumbnail = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+      // 🖼 Upload ảnh mới lên Cloudinary
+      thumbnail = await uploadToCloudinary(req.file.buffer);
     } else if (imageDeleted === 'true') {
       // ❌ Nếu frontend báo đã xóa ảnh
       thumbnail = null;
