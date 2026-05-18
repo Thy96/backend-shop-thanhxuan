@@ -1,5 +1,5 @@
 import express from "express";
-import { getAll, postProduct, getProductById, updateProduct, getTrashProducts, forceDeleteProduct, moveProductToTrash, restoreProduct, getPublishProducts, getTrashProductCount, getBestsellers } from "../controllers/productController";
+import { getAll, postProduct, getProductById, getProductBySlug, updateProduct, getTrashProducts, forceDeleteProduct, moveProductToTrash, restoreProduct, getPublishProducts, getTrashProductCount, getBestsellers } from "../controllers/productController";
 import { getCommentsByProduct, deleteComment, createComment } from "../controllers/productCommentController";
 import { upload } from "../lib/config/upload";
 import { authenticate, authorize } from '../middlewares/auth';
@@ -35,6 +35,7 @@ router.patch('/:id/restore', authenticate, authorize('admin', 'editor'), restore
 /* ====== FORCE DELETE ====== */
 router.delete('/:id/force', authenticate, authorize('admin', 'editor'), forceDeleteProduct);
 
+router.get('/slug/:slug', getProductBySlug);
 router.get('/:id', getProductById);
 
 /* ====== COMMENTS ====== */

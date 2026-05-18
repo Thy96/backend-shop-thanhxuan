@@ -185,7 +185,8 @@ export const getPublishProducts = async (req: Request, res: Response) => {
       {
         $addFields: {
           isInStock: { $gt: ["$stock", 0] },
-          thumbnail: { $arrayElemAt: ["$images", 0] }
+          thumbnail: { $arrayElemAt: ["$images", 0] },
+          thumbnail2: { $arrayElemAt: ["$images", 1] }
         }
       },
 
@@ -214,10 +215,12 @@ export const getPublishProducts = async (req: Request, res: Response) => {
         $project: {
           _id: 1,
           title: 1,
+          slug: 1,
           price: 1,
           sale: 1,
           stock: 1,
           thumbnail: 1,
+          thumbnail2: 1,
           isInStock: 1,
           categories: {
             $map: {
@@ -461,6 +464,22 @@ export const getProductById = async (req: Request, res: Response) => {
     res.json({ ...rest, categories: categoryIds ?? [] });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server khi lấy product' });
+  }
+}
+
+export const getProductBySlug = async (req: Request, res: Response) => {
+  try {
+    const product = await ProductModel.findOne({ slug: req.params.slug })
+      .populate('categoryIds', '_id name slug')
+      .populate('author', '_id fullName email')
+      .populate('updatedBy', '_id fullName email')
+      .lean();
+    if (!product) return res.status(404).json({ message: 'Không tìm thấy product' });
+
+    const { categoryIds, ...rest } = product as any;
+    res.json({ data: { ...rest, categories: categoryIds ?? [] } });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server khi lấy product theo slug' });
   }
 }
 
