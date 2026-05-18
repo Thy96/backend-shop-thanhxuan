@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import slugify from 'slugify';
 import ProductModel from '../models/productModel';
 import Order from '../models/orderProductModel';
 import { Request, Response } from 'express';
@@ -96,6 +97,7 @@ export const getAll = async (req: Request, res: Response) => {
         $project: { // không lấy tất cả, chỉ lấy những field cần lấy
           _id: 1,
           title: 1,
+          slug: 1,
           price: 1,
           stock: 1,
           sale: 1,
@@ -530,6 +532,14 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
   const pointsNumber = Number(points) || 0;
 
   try {
+    // Sinh slug từ title
+    const baseSlug = slugify(title.trim(), { lower: true, locale: "vi" });
+    let slug = baseSlug;
+    let count = 1;
+    while (await ProductModel.findOne({ slug })) {
+      slug = `${baseSlug}-${count++}`;
+    }
+
     // Upload ảnh lên Cloudinary
     let images: string[] = [];
     console.log('[postProduct] req.files keys:', req.files ? Object.keys(req.files) : 'undefined');
@@ -541,6 +551,7 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const newProduct = new ProductModel({
+      slug,
       images,
       title: title.trim(),
       content: parsedContent,
@@ -583,6 +594,18 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
   const saleNumber = Number(sale) || 0;
   const pointsNumber = Number(points) || 0;
 
+  // Sinh slug mới nếu title thay đổi
+  const existing = await ProductModel.findById(req.params.id).lean();
+  let newSlug = existing?.slug;
+  if (!newSlug || existing?.title !== title.trim()) {
+    const baseSlug = slugify(title.trim(), { lower: true, locale: "vi" });
+    newSlug = baseSlug;
+    let count = 1;
+    while (await ProductModel.findOne({ slug: newSlug, _id: { $ne: req.params.id } })) {
+      newSlug = `${baseSlug}-${count++}`;
+    }
+  }
+
   let parsedContent;
   try {
     parsedContent =
@@ -608,7 +631,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
 
     const rawUpdateIds = Array.isArray(categoryIds) ? categoryIds : (categoryIds ? [categoryIds] : []);
     const parsedUpdateIds = rawUpdateIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
-    const updateData: any = { title, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryIds: parsedUpdateIds, status, updatedBy: userId, images };
+    const updateData: any = { title, slug: newSlug, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryIds: parsedUpdateIds, status, updatedBy: userId, images };
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       req.params.id,
       updateData,
