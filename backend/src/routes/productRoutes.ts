@@ -39,7 +39,7 @@ router.get('/slug/:slug', getProductBySlug);
 router.get('/:id', getProductById);
 
 /* ====== COMMENTS ====== */
-router.get('/:productId/comments', authenticate, authorize('admin', 'editor'), getCommentsByProduct);
+router.get('/:productId/comments', authenticate, getCommentsByProduct);
 router.post('/:productId/comments', authenticate, createComment);
 router.delete('/:productId/comments/:commentId', authenticate, authorize('admin', 'editor'), deleteComment);
 
