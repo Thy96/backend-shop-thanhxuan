@@ -79,14 +79,28 @@ export const getTopProducts = async (req: AuthenticatedRequest, res: Response) =
       {
         $group: {
           _id: '$items.product',
-          name: { $first: '$items.name' },
-          image: { $first: '$items.image' },
           totalSold: { $sum: '$items.quantity' },
           totalRevenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
         },
       },
       { $sort: { totalSold: -1 } },
       { $limit: limit },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productInfo',
+        },
+      },
+      {
+        $addFields: {
+          name: { $ifNull: [{ $arrayElemAt: ['$productInfo.title', 0] }, 'Sản phẩm không tồn tại'] },
+          image: { $arrayElemAt: [{ $arrayElemAt: ['$productInfo.images', 0] }, 0] },
+          slug: { $arrayElemAt: ['$productInfo.slug', 0] },
+        },
+      },
+      { $project: { productInfo: 0 } },
     ]);
 
     res.json(topProducts);
