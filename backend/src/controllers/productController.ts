@@ -143,6 +143,34 @@ export const getAll = async (req: Request, res: Response) => {
   }
 }
 
+/**
+ * Biến keyword Latin thành regex khớp cả tiếng Việt có dấu.
+ * Ví dụ: "dep" → "[dđ][eèéêëếềểễệ][pP]" → khớp "đẹp", "dẹp", "dep"...
+ */
+function buildVietnameseRegex(keyword: string): string {
+  const normalized = keyword
+    .toString()
+    .toLowerCase()
+    .replace(/đ/g, 'd')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const map: Record<string, string> = {
+    a: '[aàáâãăắặằẳẵấầẩẫậ]',
+    d: '[dđ]',
+    e: '[eèéêëếềểễệ]',
+    i: '[iìíîïỉĩị]',
+    o: '[oòóôõơớờởỡợốồổỗộ]',
+    u: '[uùúûüưứừửữự]',
+    y: '[yỳýỷỹỵ]',
+  };
+
+  return normalized
+    .split('')
+    .map((c) => map[c] ?? c.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'))
+    .join('');
+}
+
 export const getPublishProducts = async (req: Request, res: Response) => {
   try {
     const rawLimit = Number(req.query.limit) || 10;
@@ -169,10 +197,10 @@ export const getPublishProducts = async (req: Request, res: Response) => {
       };
     }
 
-    // search keyword
+    // search keyword (accent-insensitive: "dep" khớp "đẹp", "dẹp", ...)
     if (req.query.keyword) {
       matchStage.title = {
-        $regex: String(req.query.keyword),
+        $regex: buildVietnameseRegex(String(req.query.keyword)),
         $options: "i"
       };
     }
