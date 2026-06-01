@@ -144,31 +144,17 @@ export const getAll = async (req: Request, res: Response) => {
 }
 
 /**
- * Biến keyword Latin thành regex khớp cả tiếng Việt có dấu.
- * Ví dụ: "dep" → "[dđ][eèéêëếềểễệ][pP]" → khớp "đẹp", "dẹp", "dep"...
+ * Chuẩn hoá chuỗi: bỏ dấu tiếng Việt, lowercase.
+ * "Thuốc Trị Đẹp" → "thuoc tri dep"
  */
-function buildVietnameseRegex(keyword: string): string {
-  const normalized = keyword
+function normalizeText(str: string): string {
+  return str
     .toString()
     .toLowerCase()
     .replace(/đ/g, 'd')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
-  const map: Record<string, string> = {
-    a: '[aàáâãăắặằẳẵấầẩẫậ]',
-    d: '[dđ]',
-    e: '[eèéêëếềểễệ]',
-    i: '[iìíîïỉĩị]',
-    o: '[oòóôõơớờởỡợốồổỗộ]',
-    u: '[uùúûüưứừửữự]',
-    y: '[yỳýỷỹỵ]',
-  };
-
-  return normalized
-    .split('')
-    .map((c) => map[c] ?? c.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'))
-    .join('');
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
 }
 
 export const getPublishProducts = async (req: Request, res: Response) => {
@@ -197,12 +183,15 @@ export const getPublishProducts = async (req: Request, res: Response) => {
       };
     }
 
-    // search keyword (accent-insensitive: "dep" khớp "đẹp", "dẹp", ...)
+    // search keyword: hỗ trợ cả có dấu và không dấu
+    // VD: "dep" khớp "đẹp" qua titleNormalized; "đẹp" khớp qua title
     if (req.query.keyword) {
-      matchStage.title = {
-        $regex: buildVietnameseRegex(String(req.query.keyword)),
-        $options: "i"
-      };
+      const raw = String(req.query.keyword);
+      const norm = normalizeText(raw);
+      matchStage.$or = [
+        { title: { $regex: raw, $options: 'i' } },
+        { titleNormalized: { $regex: norm, $options: 'i' } },
+      ];
     }
 
     const total = await ProductModel.countDocuments(matchStage);
@@ -583,6 +572,7 @@ export const postProduct = async (req: AuthenticatedRequest, res: Response) => {
       slug,
       images,
       title: title.trim(),
+      titleNormalized: normalizeText(title),
       content: parsedContent,
       price: priceNumber,
       sale: saleNumber,
@@ -660,7 +650,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response) =>
 
     const rawUpdateIds = Array.isArray(categoryIds) ? categoryIds : (categoryIds ? [categoryIds] : []);
     const parsedUpdateIds = rawUpdateIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
-    const updateData: any = { title, slug: newSlug, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryIds: parsedUpdateIds, status, updatedBy: userId, images };
+    const updateData: any = { title, titleNormalized: normalizeText(title), slug: newSlug, content: parsedContent, price: priceNumber, sale: saleNumber, stock: stockNumber, points: pointsNumber, categoryIds: parsedUpdateIds, status, updatedBy: userId, images };
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       req.params.id,
       updateData,
