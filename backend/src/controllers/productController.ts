@@ -145,7 +145,8 @@ export const getAll = async (req: Request, res: Response) => {
 
 export const getPublishProducts = async (req: Request, res: Response) => {
   try {
-    const limit = 10;
+    const rawLimit = Number(req.query.limit) || 10;
+    const limit = Math.min(Math.max(rawLimit, 1), 10);
 
     const rawPage = Number(req.query.page) || 1;
     const page = Math.max(rawPage, 1);
