@@ -215,6 +215,79 @@ export async function verifyEmail(req: Request, res: Response) {
   }
 }
 
+// ──────────────────────────────────────────────────────────────
+// User-facing login (allows USER role)
+// ──────────────────────────────────────────────────────────────
+export async function userLogin(req: Request, res: Response) {
+  const { email, password } = req.body || {};
+  const errors: Record<string, string> = {};
+  const emailNormalized = String(email || '').trim().toLowerCase();
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  if (!emailRegex.test(emailNormalized)) errors.email = 'Email không hợp lệ';
+  if (!password) errors.password = 'Vui lòng nhập mật khẩu';
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json({ errors });
+  }
+
+  const user = await User.findOne({ email: emailNormalized }).select('+passwordHash');
+
+  if (!user) {
+    return res.status(401).json({ errors: { email: 'Email không tồn tại' } });
+  }
+
+  if (!user.isVerified) {
+    return res.status(403).json({ message: 'Vui lòng xác thực email trước khi đăng nhập' });
+  }
+
+  if (user.isBlocked) {
+    return res.status(403).json({ message: 'Tài khoản của bạn đang bị khóa. Xin vui lòng liên hệ với quản trị viên' });
+  }
+
+  const isValid = await user.verifyPassword(password);
+  if (!isValid) {
+    return res.status(401).json({ errors: { password: 'Mật khẩu không đúng' } });
+  }
+
+  const token = signToken({ uid: user.id, role: user.role, tokenVersion: user.tokenVersion }, TOKEN_TTL);
+
+  res.cookie(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  return res.json({
+    message: 'Đăng nhập thành công',
+    user: {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      phone: user.phone,
+      address: user.address,
+    },
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+// Get current user info (all roles)
+// ──────────────────────────────────────────────────────────────
+export async function userMe(req: AuthenticatedRequest, res: Response) {
+  try {
+    const user = await User.findById(req.user!.uid).select(
+      'email fullName role phone address points createdAt'
+    );
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
+    return res.json({ user });
+  } catch {
+    return res.status(500).json({ message: 'Server error' });
+  }
+}
+
 export async function resendVerify(req: Request, res: Response) {
   const { email } = req.body;
 
