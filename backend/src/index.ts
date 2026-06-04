@@ -10,6 +10,7 @@ import productCategoryRoutes from "./routes/productCategoryRoutes";
 import notesRoutes from "./routes/noteRoutes";
 import productsRoutes from "./routes/productRoutes";
 import orderRoutes from "./routes/orderRoutes"
+import cartRoutes from './routes/cartRoutes'
 import authRoutes from './routes/authRoutes';
 import uploadRoutes from './routes/uploadRoues';
 import userRoutes from './routes/userRoutes'
@@ -79,6 +80,7 @@ adminRouter.use('/products/categories', productCategoryRoutes);
 adminRouter.use('/notes', notesRoutes);
 adminRouter.use('/products', productsRoutes);
 adminRouter.use('/orders', orderRoutes);
+adminRouter.use('/cart', cartRoutes);
 adminRouter.use('/auth', authRoutes);
 adminRouter.use('/users', userRoutes);
 adminRouter.use('/dashboard', dashboardRoutes);
