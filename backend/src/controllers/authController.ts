@@ -296,30 +296,6 @@ export async function userLogin(req: Request, res: Response) {
 // ──────────────────────────────────────────────────────────────
 // Get current user info (all roles)
 // ──────────────────────────────────────────────────────────────
-export async function userMe(req: AuthenticatedRequest, res: Response) {
-  try {
-    const user = await User.findById(req.user!.uid).select(
-      'email fullName role phone address points createdAt isVerified'
-    );
-    if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
-    return res.json({
-      user: {
-        id: user._id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-        phone: user.phone,
-        address: user.address,
-        points: user.points,
-        isVerified: user.isVerified,
-        createdAt: user.createdAt,
-      }
-    });
-  } catch {
-    return res.status(500).json({ message: 'Server error' });
-  }
-}
-
 export async function resendVerify(req: Request, res: Response) {
   const { email } = req.body;
 
@@ -397,61 +373,6 @@ export async function updateMe(req: AuthenticatedRequest, res: Response) {
     }
 
     const u = await User.findByIdAndUpdate(
-      req.user?.uid,
-      {
-        fullName: fullName.trim(),
-        phone: phone,
-        ...(address !== undefined && { address: address.trim() }),
-      },
-      { new: true, runValidators: true }
-    ).select('_id fullName email role phone address')
-
-    if (!u) {
-      return res.status(404).json({ message: 'User không tồn tại' });
-    }
-
-    res.json({
-      message: 'Cập nhật thông tin thành công',
-      user: {
-        id: u?.id,
-        email: u?.email,
-        fullName: u?.fullName,
-        role: u?.role,
-        phone: u?.phone,
-        address: u?.address,
-      }
-    })
-  } catch (error) {
-    console.error('updateMe error', error)
-    res.status(500).json({ message: 'Cập nhật thông tin thất bại' });
-  }
-}
-
-// ──────────────────────────────────────────────────────────────
-// Update user profile (shop user)
-// ──────────────────────────────────────────────────────────────
-export async function updateUserMe(req: AuthenticatedRequest, res: Response) {
-  try {
-    const uid = req.user?.uid;
-    if (!uid) {
-      return res.status(401).json({ message: 'Chưa đăng nhập' });
-    }
-
-    const { fullName, phone, address } = req.body;
-
-    if (!fullName || fullName === '') {
-      return res.status(400).json({ message: 'Yêu cầu nhập Full Name' });
-    }
-
-    if (!phone) {
-      return res.status(400).json({ message: 'Yêu cầu nhập SDT' });
-    }
-
-    if (!/^0\d{9}$/.test(phone)) {
-      return res.status(400).json({ message: 'SDT không hợp lệ (10 số, bắt đầu bằng 0)' });
-    }
-
-    const u = await User.findByIdAndUpdate(
       uid,
       {
         fullName: fullName.trim(),
@@ -480,7 +401,7 @@ export async function updateUserMe(req: AuthenticatedRequest, res: Response) {
       }
     })
   } catch (error) {
-    console.error('updateUserMe error', error)
+    console.error('updateMe error', error)
     res.status(500).json({ message: 'Cập nhật thông tin thất bại' });
   }
 }
