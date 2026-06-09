@@ -70,7 +70,21 @@ export async function login(req: Request, res: Response) {
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
-  res.json({ message: 'Đăng nhập thành công', role: user.role, });
+
+  res.json({
+    message: 'Đăng nhập thành công',
+    user: {
+      id: user._id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      phone: user.phone,
+      address: user.address,
+      points: user.points,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
+    }
+  });
 }
 
 export async function logout(req: Request, res: Response) {
@@ -177,6 +191,9 @@ export async function register(req: Request, res: Response) {
         role: user.role,
         phone: user.phone,
         address: user.address,
+        points: user.points,
+        isVerified: user.isVerified,
+        createdAt: user.createdAt,
       },
     });
   } catch (err) {
@@ -329,13 +346,18 @@ export async function me(req: AuthenticatedRequest, res: Response) {
   const uid = req.user?.uid;
   if (!uid) return res.status(401).json({ message: 'Chưa đăng nhập' });
 
-  const USER_PUBLIC_FIELDS = '_id fullName email role createdAt phone address points';
+  const USER_PUBLIC_FIELDS = '_id fullName email role createdAt phone address points isVerified';
   const u = await User.findById(uid)
     .select(USER_PUBLIC_FIELDS)
     .lean();
   if (!u) return res.status(404).json({ message: 'User không tồn tại' });
 
-  res.json({ user: u });
+  res.json({
+    user: {
+      ...u,
+      id: u._id,
+    }
+  });
 }
 
 export async function updateMe(req: AuthenticatedRequest, res: Response) {
