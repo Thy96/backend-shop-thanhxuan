@@ -286,6 +286,9 @@ export async function userLogin(req: Request, res: Response) {
       role: user.role,
       phone: user.phone,
       address: user.address,
+      points: user.points,
+      isVerified: user.isVerified,
+      createdAt: user.createdAt,
     },
   });
 }
@@ -296,10 +299,22 @@ export async function userLogin(req: Request, res: Response) {
 export async function userMe(req: AuthenticatedRequest, res: Response) {
   try {
     const user = await User.findById(req.user!.uid).select(
-      'email fullName role phone address points createdAt'
+      'email fullName role phone address points createdAt isVerified'
     );
     if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
-    return res.json({ user });
+    return res.json({
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+        points: user.points,
+        isVerified: user.isVerified,
+        createdAt: user.createdAt,
+      }
+    });
   } catch {
     return res.status(500).json({ message: 'Server error' });
   }
