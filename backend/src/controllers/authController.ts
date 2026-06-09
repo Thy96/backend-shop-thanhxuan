@@ -426,3 +426,61 @@ export async function updateMe(req: AuthenticatedRequest, res: Response) {
     res.status(500).json({ message: 'Cập nhật thông tin thất bại' });
   }
 }
+
+// ──────────────────────────────────────────────────────────────
+// Update user profile (shop user)
+// ──────────────────────────────────────────────────────────────
+export async function updateUserMe(req: AuthenticatedRequest, res: Response) {
+  try {
+    const uid = req.user?.uid;
+    if (!uid) {
+      return res.status(401).json({ message: 'Chưa đăng nhập' });
+    }
+
+    const { fullName, phone, address } = req.body;
+
+    if (!fullName || fullName === '') {
+      return res.status(400).json({ message: 'Yêu cầu nhập Full Name' });
+    }
+
+    if (!phone) {
+      return res.status(400).json({ message: 'Yêu cầu nhập SDT' });
+    }
+
+    if (!/^0\d{9}$/.test(phone)) {
+      return res.status(400).json({ message: 'SDT không hợp lệ (10 số, bắt đầu bằng 0)' });
+    }
+
+    const u = await User.findByIdAndUpdate(
+      uid,
+      {
+        fullName: fullName.trim(),
+        phone: phone,
+        ...(address !== undefined && { address: address.trim() }),
+      },
+      { new: true, runValidators: true }
+    ).select('_id fullName email role phone address points isVerified createdAt')
+
+    if (!u) {
+      return res.status(404).json({ message: 'User không tồn tại' });
+    }
+
+    res.json({
+      message: 'Cập nhật thông tin thành công',
+      user: {
+        id: u?._id,
+        email: u?.email,
+        fullName: u?.fullName,
+        role: u?.role,
+        phone: u?.phone,
+        address: u?.address,
+        points: u?.points,
+        isVerified: u?.isVerified,
+        createdAt: u?.createdAt,
+      }
+    })
+  } catch (error) {
+    console.error('updateUserMe error', error)
+    res.status(500).json({ message: 'Cập nhật thông tin thất bại' });
+  }
+}

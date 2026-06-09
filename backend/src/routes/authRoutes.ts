@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate, authorize } from '../middlewares/auth';
 import { resetPasswordLimiter } from '../middlewares/resetPasswordLimiter';
 
-import { login, logout, me, register, resendVerify, updateMe, verifyEmail, userLogin, userMe } from '../controllers/authController';
+import { login, logout, me, register, resendVerify, updateMe, verifyEmail, userLogin, userMe, updateUserMe } from '../controllers/authController';
 import { changePassword } from '../controllers/changePasswordController';
 import { forgotPassword } from '../controllers/forgotPasswordController';
 import { resetPassword } from '../controllers/resetPasswordController';
@@ -16,6 +16,7 @@ router.get('/verify-email', verifyEmail);
 // 🛒 User-facing (shop)
 router.post('/user-login', userLogin);
 router.get('/user-me', authenticate, userMe);
+router.put('/user-me', authenticate, updateUserMe);
 
 // 🔐 change password
 router.post('/change-password', authenticate, authorize('admin', 'editor'), changePassword);
